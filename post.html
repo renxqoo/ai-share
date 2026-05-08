@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>构建一致的 Design System — Redback Blog</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        'rb-orange': '#FF5B01',
+        'rb-hover': '#FF6C1B',
+        'rb-text': '#201D1B',
+        'rb-secondary': '#A4A9B3',
+        'rb-tertiary': '#99A5B6',
+        'rb-border': '#E5E6EB',
+        'rb-light': '#F9F9F9',
+        'rb-dark': '#000000',
+        'rb-footer-border': '#313131',
+      },
+      fontFamily: {
+        sans: ['Roboto', '-apple-system', 'BlinkMacSystemFont', 'Helvetica Neue', 'Arial', 'sans-serif'],
+      },
+      screens: {
+        'desktop': '1024px',
+        'laptop': '1200px',
+        'normal': '1440px',
+      },
+    }
+  }
+}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  .fade-up { opacity: 0; transform: translateY(50px); transition: all 0.6s ease-in-out; }
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+  #menu-overlay { transform: translateX(100%); transition: transform 0.3s ease-in-out; }
+  #menu-overlay.open { transform: translateX(0); }
+  .fluid-display { font-size: clamp(1.75rem, 3.33vw, 2.75rem); line-height: 1.2; }
+  .fluid-body { font-size: clamp(0.875rem, 1.11vw, 1rem); line-height: 1.5; }
+
+  /* Article typography */
+  .article-content h2 { font-size: 1.5rem; font-weight: 700; margin: 2rem 0 1rem; color: #201D1B; }
+  .article-content h3 { font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: #201D1B; }
+  .article-content p { margin-bottom: 1.25rem; color: #3A3A3A; line-height: 1.75; }
+  .article-content ul { padding-left: 1.5rem; margin-bottom: 1.25rem; }
+  .article-content li { margin-bottom: 0.5rem; color: #3A3A3A; line-height: 1.75; }
+  .article-content li::marker { color: #FF5B01; }
+  .article-content code { background: #F9F9F9; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: #FF5B01; }
+  .article-content pre { background: #1a1a1a; color: #e0e0e0; padding: 1.25rem; border-radius: 6px; overflow-x: auto; margin-bottom: 1.5rem; font-size: 0.875rem; line-height: 1.6; }
+  .article-content pre code { background: none; padding: 0; color: inherit; }
+  .article-content blockquote { border-left: 3px solid #FF5B01; padding-left: 1rem; margin: 1.5rem 0; color: #A4A9B3; font-style: italic; }
+</style>
+</head>
+<body class="bg-white text-rb-text font-sans antialiased">
+
+<!-- ========== DESKTOP NAVIGATION ========== -->
+<header class="hidden desktop:flex items-center h-20 bg-white border-b border-rb-border relative z-10">
+  <div class="w-full max-w-[1440px] mx-auto px-15 normal:px-30 flex items-center">
+    <a href="index.html" class="shrink-0 text-xl font-bold text-rb-orange">REDBACK<span class="text-rb-text ml-1">Blog</span></a>
+    <nav class="flex-1 flex items-center justify-center gap-8">
+      <a href="index.html" data-nav-link class="text-sm font-medium text-rb-text hover:text-rb-orange">Home</a>
+      <a href="blog.html" data-nav-link class="text-sm font-medium text-rb-text hover:text-rb-orange">Blog</a>
+      <a href="about.html" data-nav-link class="text-sm font-medium text-rb-text hover:text-rb-orange">About</a>
+    </nav>
+    <div class="shrink-0">
+      <a href="blog.html" class="inline-flex items-center justify-center py-2 px-6 bg-rb-orange hover:bg-rb-hover text-white text-sm font-medium rounded-md">Start Reading</a>
+    </div>
+  </div>
+</header>
+
+<!-- ========== MOBILE NAVIGATION ========== -->
+<header class="desktop:hidden fixed top-0 left-0 right-0 z-30 bg-rb-orange py-2.5 px-4 flex items-center justify-between">
+  <a href="index.html" class="text-base font-bold text-white">REDBACK Blog</a>
+  <button id="menu-btn" class="text-white text-2xl" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ========== MOBILE MENU OVERLAY ========== -->
+<div id="menu-overlay" class="fixed inset-0 z-40 bg-white desktop:hidden">
+  <div class="flex items-center justify-between p-4 border-b border-rb-border">
+    <span class="text-base font-bold text-rb-orange">REDBACK Blog</span>
+    <button id="menu-close" class="text-rb-text text-2xl" aria-label="Close">&#10005;</button>
+  </div>
+  <nav class="flex flex-col p-6 gap-6">
+    <a href="index.html" class="text-lg font-medium text-rb-text hover:text-rb-orange">Home</a>
+    <a href="blog.html" class="text-lg font-medium text-rb-text hover:text-rb-orange">Blog</a>
+    <a href="about.html" class="text-lg font-medium text-rb-text hover:text-rb-orange">About</a>
+  </nav>
+</div>
+
+<!-- ========== ARTICLE ========== -->
+<main class="pt-24 desktop:pt-12 pb-16 desktop:pb-24 px-4 desktop:px-15 normal:px-30">
+  <div class="max-w-[1440px] mx-auto">
+    <div class="flex flex-col desktop:flex-row gap-12 desktop:gap-16">
+
+      <!-- Article content -->
+      <article class="flex-1 max-w-none desktop:max-w-[800px]">
+        <!-- Breadcrumb -->
+        <nav class="fade-up text-sm text-rb-secondary mb-8">
+          <a href="index.html" class="hover:text-rb-orange">Home</a>
+          <span class="mx-2">/</span>
+          <a href="blog.html" class="hover:text-rb-orange">Blog</a>
+          <span class="mx-2">/</span>
+          <span class="text-rb-text">构建一致的 Design System</span>
+        </nav>
+
+        <!-- Meta -->
+        <div class="fade-up mb-6">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-xs font-medium text-rb-orange bg-rb-orange/5 px-2 py-1 rounded">设计系统</span>
+            <span class="text-xs text-rb-secondary">2026-05-08</span>
+            <span class="text-xs text-rb-secondary">· 8 min read</span>
+          </div>
+          <h1 class="fluid-display font-bold mb-4">构建一致的 Design System：从颜色到组件</h1>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-rb-orange to-rb-hover flex items-center justify-center text-white font-bold text-sm">W</div>
+            <div>
+              <p class="text-sm font-medium text-rb-text">Wang Renren</p>
+              <p class="text-xs text-rb-secondary">Frontend Engineer</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Featured image -->
+        <div class="fade-up aspect-video bg-rb-light rounded-md overflow-hidden mb-10">
+          <svg class="w-full h-full" viewBox="0 0 800 450"><rect fill="#f0f0f0" width="800" height="450"/><text x="400" y="225" text-anchor="middle" fill="#A4A9B3" font-size="18">800 × 450 Featured Image</text></svg>
+        </div>
+
+        <!-- Article body -->
+        <div class="article-content fade-up">
+          <p>在现代 Web 开发中，设计系统已经从"锦上添花"变成了"不可或缺"的基础设施。一个成熟的设计系统不仅能让团队协作更高效，更能确保产品在不同页面和场景中保持一致的视觉语言和用户体验。</p>
+
+          <h2>为什么需要设计系统？</h2>
+          <p>当我们开始构建 Redback Technologies 的门户站点时，面临的最大挑战不是技术选型，而是<strong>如何让 20+ 页面看起来像是同一个产品</strong>。没有设计系统的情况下，每个开发者对"标题应该多大"、"按钮应该是什么颜色"都有自己的理解。</p>
+          <blockquote>好的设计系统不是限制创意，而是让创意在一致的框架内自由发挥。</blockquote>
+
+          <h2>色彩系统：单一强调色策略</h2>
+          <p>我们选择了 <code>#FF5B01</code>（Redback Orange）作为唯一的强调色。这个决定在当时引发了讨论——"为什么不能用蓝色做辅助链接色？"</p>
+          <p>答案是：单一强调色策略让用户的注意力更集中。当页面上只有一个颜色会"跳出来"时，用户的视觉路径是可预测的——从标题到正文到 CTA，形成自然的阅读流。</p>
+
+          <h3>色彩角色定义</h3>
+          <ul>
+            <li><strong>品牌强调</strong>：CTA、激活状态、品牌高亮 — <code>#FF5B01</code></li>
+            <li><strong>主文本</strong>：标题、正文 — <code>#201D1B</code>（暖黑，比纯黑更柔和）</li>
+            <li><strong>辅助文本</strong>：描述、版权 — <code>#A4A9B3</code>（冷灰，不抢注意力）</li>
+            <li><strong>边框分隔</strong>：容器边界 — <code>#E5E6EB</code></li>
+          </ul>
+
+          <h2>流体排版：告别断点覆盖</h2>
+          <p>传统做法是为每个断点定义不同的字号：<code>text-sm md:text-base lg:text-lg</code>。这不仅冗余，而且在断点切换处会有突变。</p>
+          <p>我们使用 <code>clamp()</code> 函数实现流体排版：</p>
+          <pre><code>/* 从 14px 到 16px，按视口宽度线性缩放 */
+.text-base-fluid {
+  font-size: clamp(0.875rem, 1.11vw, 1rem);
+  line-height: 1.5;
+}
+
+/* 从 48px 到 64px 的大标题 */
+.text-5xl-fluid {
+  font-size: clamp(3rem, 4.44vw, 4rem);
+  line-height: 1.1;
+}</code></pre>
+
+          <h2>组件规范：按钮系统</h2>
+          <p>按钮是用户交互的核心。我们定义了三类按钮，每类都有严格的规格：</p>
+          <ul>
+            <li><strong>Primary Action</strong>：日常操作按钮，14px medium 字重，<code>py-2 px-6</code>，圆角 6px</li>
+            <li><strong>Motion CTA</strong>：主转化按钮（"Get A Quote"），18px，hover 时文字左移+箭头滑入</li>
+            <li><strong>Newsletter Submit</strong>：页脚订阅按钮，与输入框紧贴，深色背景上使用</li>
+          </ul>
+
+          <h2>响应式策略：1024px 分界</h2>
+          <p>我们没有选择多断点渐进增强，而是在 1024px 做了一个硬切分——移动端和桌面端是完全不同的体验。</p>
+          <p>移动端头部是全橙色背景（品牌识别优先），桌面端是白色水平导航（内容优先）。这不是偷懒，而是承认移动端和桌面端用户的使用场景本质上不同。</p>
+
+          <h2>总结</h2>
+          <p>一套好的设计系统应该像空气一样——你感觉不到它的存在，但离开它一切都无法运作。从颜色、排版到组件，每一个决策都应该是<strong>有原因的、可解释的、可复用的</strong>。</p>
+        </div>
+
+        <!-- Tags -->
+        <div class="mt-10 pt-8 border-t border-rb-border fade-up">
+          <p class="text-sm text-rb-secondary mb-3">Tags</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="text-xs py-1 px-3 rounded-full border border-rb-border text-rb-text hover:border-rb-orange hover:text-rb-orange cursor-pointer">Design System</span>
+            <span class="text-xs py-1 px-3 rounded-full border border-rb-border text-rb-text hover:border-rb-orange hover:text-rb-orange cursor-pointer">Tailwind CSS</span>
+            <span class="text-xs py-1 px-3 rounded-full border border-rb-border text-rb-text hover:border-rb-orange hover:text-rb-orange cursor-pointer">Typography</span>
+            <span class="text-xs py-1 px-3 rounded-full border border-rb-border text-rb-text hover:border-rb-orange hover:text-rb-orange cursor-pointer">Color Theory</span>
+          </div>
+        </div>
+
+        <!-- Post navigation -->
+        <div class="grid grid-cols-2 gap-4 mt-8 fade-up">
+          <a href="post.html" class="p-4 border border-rb-border rounded-md hover:border-rb-orange group">
+            <p class="text-xs text-rb-secondary mb-1">← 上一篇</p>
+            <p class="text-sm font-medium text-rb-text group-hover:text-rb-orange">TypeScript 高级类型体操</p>
+          </a>
+          <a href="post.html" class="p-4 border border-rb-border rounded-md hover:border-rb-orange text-right group">
+            <p class="text-xs text-rb-secondary mb-1">下一篇 →</p>
+            <p class="text-sm font-medium text-rb-text group-hover:text-rb-orange">Tailwind CSS 流体排版实战</p>
+          </a>
+        </div>
+      </article>
+
+      <!-- Sidebar -->
+      <aside class="desktop:w-[300px] shrink-0">
+        <div class="desktop:sticky desktop:top-24 space-y-8">
+          <!-- Author -->
+          <div class="fade-up p-5 border border-rb-border rounded-md">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-rb-orange to-rb-hover flex items-center justify-center text-white font-bold">W</div>
+              <div>
+                <p class="text-sm font-medium text-rb-text">Wang Renren</p>
+                <p class="text-xs text-rb-secondary">Frontend Engineer</p>
+              </div>
+            </div>
+            <p class="text-xs text-rb-secondary leading-relaxed">热爱前端开发和设计系统。用代码实现优雅的用户体验。</p>
+          </div>
+
+          <!-- Recent Posts -->
+          <div class="fade-up p-5 border border-rb-border rounded-md">
+            <p class="text-sm font-medium text-rb-text mb-4">最近文章</p>
+            <div class="space-y-4">
+              <a href="post.html" class="block group">
+                <p class="text-sm font-medium text-rb-text group-hover:text-rb-orange leading-snug">Tailwind CSS 流体排版实战指南</p>
+                <p class="text-xs text-rb-secondary mt-1">2026-05-01</p>
+              </a>
+              <a href="post.html" class="block group">
+                <p class="text-sm font-medium text-rb-text group-hover:text-rb-orange leading-snug">从 0 到 1 搭建企业级门户站点</p>
+                <p class="text-xs text-rb-secondary mt-1">2026-04-22</p>
+              </a>
+              <a href="post.html" class="block group">
+                <p class="text-sm font-medium text-rb-text group-hover:text-rb-orange leading-snug">TypeScript 高级类型体操</p>
+                <p class="text-xs text-rb-secondary mt-1">2026-04-15</p>
+              </a>
+            </div>
+          </div>
+
+          <!-- Tags Cloud -->
+          <div class="fade-up p-5 border border-rb-border rounded-md">
+            <p class="text-sm font-medium text-rb-text mb-4">标签</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="text-xs py-1 px-2.5 rounded-full border border-rb-border text-rb-secondary hover:border-rb-orange hover:text-rb-orange cursor-pointer">设计系统</span>
+              <span class="text-xs py-1 px-2.5 rounded-full border border-rb-border text-rb-secondary hover:border-rb-orange hover:text-rb-orange cursor-pointer">Tailwind</span>
+              <span class="text-xs py-1 px-2.5 rounded-full border border-rb-border text-rb-secondary hover:border-rb-orange hover:text-rb-orange cursor-pointer">React</span>
+              <span class="text-xs py-1 px-2.5 rounded-full border border-rb-border text-rb-secondary hover:border-rb-orange hover:text-rb-orange cursor-pointer">TypeScript</span>
+              <span class="text-xs py-1 px-2.5 rounded-full border border-rb-border text-rb-secondary hover:border-rb-orange hover:text-rb-orange cursor-pointer">产品</span>
+              <span class="text-xs py-1 px-2.5 rounded-full border border-rb-border text-rb-secondary hover:border-rb-orange hover:text-rb-orange cursor-pointer">CSS</span>
+              <span class="text-xs py-1 px-2.5 rounded-full border border-rb-border text-rb-secondary hover:border-rb-orange hover:text-rb-orange cursor-pointer">响应式</span>
+              <span class="text-xs py-1 px-2.5 rounded-full border border-rb-border text-rb-secondary hover:border-rb-orange hover:text-rb-orange cursor-pointer">动画</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</main>
+
+<!-- ========== FOOTER ========== -->
+<footer class="bg-rb-dark text-white py-15 px-4 desktop:px-15 normal:px-30">
+  <div class="max-w-[1440px] mx-auto">
+    <div class="flex flex-col desktop:flex-row desktop:items-start gap-10">
+      <div class="flex-1">
+        <p class="text-lg font-bold text-white mb-3">REDBACK<span class="text-rb-orange ml-1">Blog</span></p>
+        <p class="text-sm text-rb-secondary leading-relaxed max-w-sm">
+          一个关于前端开发、设计系统和产品思考的个人博客。用代码记录成长，用文字分享洞察。
+        </p>
+      </div>
+      <div class="flex-1">
+        <p class="text-sm font-medium text-white mb-4">快速链接</p>
+        <div class="flex flex-col gap-2">
+          <a href="index.html" class="text-sm text-gray-300 hover:text-white hover:underline">Home</a>
+          <a href="blog.html" class="text-sm text-gray-300 hover:text-white hover:underline">Blog</a>
+          <a href="about.html" class="text-sm text-gray-300 hover:text-white hover:underline">About</a>
+        </div>
+      </div>
+      <div class="flex-1">
+        <p class="text-sm font-medium text-white mb-4">社交媒体</p>
+        <div class="flex gap-[18px]">
+          <a href="#" class="w-6 h-6 bg-neutral-800 hover:bg-rb-orange rounded-[1px] flex items-center justify-center">
+            <svg class="w-[13px] h-[13px]" fill="white" viewBox="0 0 24 24"><path d="M24 4.557a9.83 9.83 0 01-2.828.775 4.932 4.932 0 002.165-2.724 9.864 9.864 0 01-3.127 1.195 4.916 4.916 0 00-3.594-1.555c-3.179 0-5.515 2.966-4.797 6.045A13.978 13.978 0 011.671 3.149a4.93 4.93 0 001.523 6.574 4.903 4.903 0 01-2.229-.616c-.054 2.281 1.581 4.415 3.949 4.89a4.935 4.935 0 01-2.224.084 4.928 4.928 0 004.6 3.419A9.9 9.9 0 010 19.54a13.94 13.94 0 007.548 2.212c9.142 0 14.307-7.721 13.995-14.646A10.025 10.025 0 0024 4.557z"/></svg>
+          </a>
+          <a href="#" class="w-6 h-6 bg-neutral-800 hover:bg-rb-orange rounded-[1px] flex items-center justify-center">
+            <svg class="w-[13px] h-[13px]" fill="white" viewBox="0 0 24 24"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+          </a>
+          <a href="#" class="w-6 h-6 bg-neutral-800 hover:bg-rb-orange rounded-[1px] flex items-center justify-center">
+            <svg class="w-[13px] h-[13px]" fill="white" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-rb-footer-border mt-[60px] mb-8"></div>
+    <p class="text-xs text-rb-secondary text-center">&copy; 2026 REDBACK Blog. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="blog-shared.js"></script>
+</body>
+</html>
