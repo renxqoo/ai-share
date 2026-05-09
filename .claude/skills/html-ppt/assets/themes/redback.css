@@ -1,0 +1,19 @@
+/* theme: redback — Redback Technologies design system */
+/* Single accent (#FF5B01), flat, white-background, corporate energy-tech */
+:root{
+  --bg:#FFFFFF;--bg-soft:#F9F9F9;--surface:#FFFFFF;--surface-2:#F5F5F5;
+  --border:#E5E6EB;--border-strong:rgba(0,0,0,.14);
+  --text-1:#201D1B;--text-2:#5A5552;--text-3:#A4A9B3;
+  --accent:#FF5B01;--accent-2:#FF6C1B;--accent-3:#201D1B;
+  --good:#16A34A;--warn:#F5A524;--bad:#F64438;
+  --grad:linear-gradient(135deg,#FF5B01,#FF6C1B);
+  --grad-soft:linear-gradient(135deg,rgba(255,91,1,.05),rgba(255,91,1,.02));
+  --radius:6px;--radius-sm:4px;--radius-lg:6px;
+  --shadow:0 0 0 0 transparent;--shadow-lg:0 0 0 0 transparent;
+  --font-sans:'Roboto','HarmonyOS Sans SC',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-display:'Roboto','HarmonyOS Sans SC',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --letter-tight:0;--letter-normal:0;
+}
+.card{border:1px solid var(--border)}
+.kicker{color:var(--text-3);font-weight:500}
+h1.title,h2.title,.h1,.h2{font-weight:700;color:var(--text-1)}

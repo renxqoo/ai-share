@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-themes="redback,corporate-clean,minimal-white">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI 在前端开发流程中的应用 · XXX</title>
+<link rel="stylesheet" href="../../assets/fonts.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" id="theme-link" href="../../assets/themes/redback.css">
+<link rel="stylesheet" href="../../assets/animations/animations.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="tpl-presenter-mode-reveal">
+<div class="deck">
+
+<!-- ===== 1. COVER ===== -->
+<section class="slide" data-title="Cover">
+  <div class="deck-header">
+    <span class="eyebrow">Team Sharing · 2026</span>
+    <span class="eyebrow">AI + Frontend</span>
+  </div>
+
+  <p class="kicker">团队内部分享</p>
+  <h1 class="h1 anim-fade-up" data-anim="fade-up">AI 在前端开发<br><span style="color:var(--accent)">流程中的应用</span></h1>
+  <p class="lede mt-m"><strong>人做决策，AI 做执行</strong> — 从工作流到原理，从学习到实践</p>
+
+  <div class="speaker">
+    <div class="av"></div>
+    <div><b>XXX</b><span>分享时长 40–50 分钟 · 全团队（含零基础）</span></div>
+  </div>
+
+  <div class="row wrap mt-l" style="margin-top:24px">
+    <span class="pill pill-accent">#AI</span>
+    <span class="pill">#前端开发</span>
+    <span class="pill">#Agent</span>
+    <span class="pill">#团队实践</span>
+  </div>
+
+  <div class="deck-footer">
+    <span class="mono">#AI #前端开发 #Agent #团队实践</span>
+    <span class="slide-number" data-current="1" data-total="22"></span>
+  </div>
+  <aside class="notes">
+    <p>大家好，欢迎来到今天的分享。我是XXX，今天想跟大家聊聊<strong>AI 在前端开发流程中的应用</strong>。</p>
+    <p>分享会围绕四个部分：第一，我的<strong>AI 辅助开发工作流</strong>，大概 15 分钟；第二，<strong>AI Agent 的运行原理</strong>，也差不多 15 分钟，这部分面向零基础，不用技术背景也能听懂；第三，我的<strong>AI 学习方法</strong>，大概 10 分钟；第四，聊聊<strong>团队可以尝试什么</strong>，大约 5 分钟。</p>
+    <p>中间随时可以打断提问。好，先给大家一张全景图。</p>
+  </aside>
+</section>
+
+<!-- ===== 2. AGENDA ===== -->
+<section class="slide" data-title="Agenda">
+  <p class="kicker">agenda · 金字塔结构</p>
+  <h2 class="h2 tc">核心观点</h2>
+
+  <div class="pyramid mt-l">
+    <div class="pyramid-top" data-anim="fade-up">
+      <h4>AI 能放大你的能力，但不能替代你的判断</h4>
+    </div>
+    <div class="pyramid-connector"></div>
+    <div class="pyramid-base">
+      <div class="pyramid-pillar">
+        <div class="p-num">Part 1 · ~15min</div>
+        <div class="p-title">PEV 工作流</div>
+        <div class="p-time">Plan → Execute → Verify<br>人做决策，AI 做执行</div>
+      </div>
+      <div class="pyramid-pillar">
+        <div class="p-num">Part 2 · ~15min</div>
+        <div class="p-title">Agent 原理</div>
+        <div class="p-time">思考 → 行动 → 观察<br>AI 写代码不是魔法</div>
+      </div>
+      <div class="pyramid-pillar">
+        <div class="p-num">Part 3 · ~10min</div>
+        <div class="p-title">学习方法</div>
+        <div class="p-time">GitHub Trending<br>AI 辅助读源码</div>
+      </div>
+      <div class="pyramid-pillar">
+        <div class="p-num">Part 4 · ~5min</div>
+        <div class="p-title">团队实践</div>
+        <div class="p-time">CLI + Agent<br>操作业务系统</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="text-faint tc mt-l" style="margin-top:20px">有问题随时打断 &nbsp;|&nbsp; 分享后有 Q&A</p>
+  <aside class="notes">
+    <p>先看今天的整体结构。我用的是<strong>金字塔原理</strong>来组织内容——先给顶层结论，再展开四个支撑点。</p>
+    <p>顶层结论就是：<strong>AI 能放大你的能力，但不能替代你的判断</strong>。今天我们聊的所有内容，不管是工作流还是原理，都围绕这个核心。</p>
+    <p>四个部分：第一部分讲我的<strong>PEV 工作流</strong>——怎么把 AI 嵌入日常开发；第二部分讲<strong>Agent 原理</strong>——AI 写代码背后到底发生了什么；第三部分聊<strong>学习方法</strong>——怎么跟上这个快速变化的领域；第四部分提一个<strong>团队实践</strong>的思路。</p>
+    <p>好，进入第一部分——我的 AI 辅助开发工作流。</p>
+  </aside>
+</section>
+
+<!-- ===== 3. SECTION: PART 1 ===== -->
+<section class="slide" data-title="Part 1">
+  <div class="section-div">
+    <div class="divider-accent" style="margin:0 auto 20px"></div>
+    <div class="s-num">Part 1 · ~15 min</div>
+    <h2 class="s-title">我的 AI 辅助<br>开发工作流</h2>
+    <p class="s-sub">PEV 框架：Plan → Execute → Verify<br>核心原则 — 人做决策，AI 做执行</p>
+  </div>
+  <aside class="notes">
+    <p>进入第一部分——我的 AI 辅助开发工作流。</p>
+    <p>我用的是一个很简单的框架，叫<strong>PEV</strong>——Plan、Execute、Verify，三个阶段反复循环。跟传统开发的区别就一个核心原则：<strong>人做决策，AI 做执行</strong>。</p>
+    <p>这个框架不是我发明的，是我用了一年多 AI 辅助开发之后慢慢收敛出来的。接下来我拆开讲每个阶段具体做什么。</p>
+  </aside>
+</section>
+
+<!-- ===== 4. PEV OVERVIEW ===== -->
+<section class="slide" data-title="PEV Overview">
+  <p class="kicker">part 1 · framework</p>
+  <h2 class="h2 tc">PEV 框架全景</h2>
+
+  <div class="pev-diagram mt-l">
+    <div class="pev-node plan" data-anim="fade-up">
+      <div class="n-icon">📋</div>
+      <div class="n-title">PLAN</div>
+      <div class="n-sub">计划</div>
+      <div class="n-items">
+        · 准备上下文<br>
+        · AI 输出方案<br>
+        · 人工 Review<br>
+        · 沉淀为 Spec
+      </div>
+    </div>
+    <div class="pev-arrow">
+      <svg width="50" height="24" viewBox="0 0 50 24"><defs><marker id="ar1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#FF5B01"/></marker></defs><line x1="4" y1="12" x2="44" y2="12" stroke="#FF5B01" stroke-width="2" marker-end="url(#ar1)"/></svg>
+    </div>
+    <div class="pev-node exec" data-anim="fade-up">
+      <div class="n-icon">⚡</div>
+      <div class="n-title">EXECUTE</div>
+      <div class="n-sub">执行</div>
+      <div class="n-items">
+        · AI 写代码<br>
+        · AI 写测试<br>
+        · 自动修复循环<br>
+        · Lint + TypeScript
+      </div>
+    </div>
+    <div class="pev-arrow">
+      <svg width="50" height="24" viewBox="0 0 50 24"><use href="#ar1"/><line x1="4" y1="12" x2="44" y2="12" stroke="#FF5B01" stroke-width="2" marker-end="url(#ar1)"/></svg>
+    </div>
+    <div class="pev-node verify" data-anim="fade-up">
+      <div class="n-icon">🔍</div>
+      <div class="n-title">VERIFY</div>
+      <div class="n-sub">验证</div>
+      <div class="n-items">
+        · 人工 Code Review<br>
+        · 功能自测<br>
+        · 体验检查<br>
+        · 发现 Bug → FIX
+      </div>
+    </div>
+  </div>
+
+  <div class="tc" style="margin-top:8px">
+    <svg width="640" height="40" viewBox="0 0 640 40">
+      <defs><marker id="ar-fb" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--text-3)"/></marker></defs>
+      <path d="M 530 8 Q 530 32, 320 32 Q 110 32, 110 8" fill="none" stroke="var(--text-3)" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#ar-fb)"/>
+      <text x="320" y="26" text-anchor="middle" fill="var(--text-3)" font-size="11" font-family="var(--font-mono)">发现 Bug / 质量不达标 → 回到 Plan</text>
+    </svg>
+  </div>
+
+  <aside class="notes">
+    <p>这是 PEV 框架的全景——<strong>Plan、Execute、Verify</strong> 三个阶段。</p>
+    <p>Plan 阶段，我会把需求描述、PRD 原文、约束条件一起喂给 Agent，但明确告诉它<strong>"先别写代码，只出方案"</strong>。方案出来后我仔细看完、确认无误才放行。确认后的方案会沉淀为 Spec，写进项目的 CLAUDE.md。</p>
+    <p>Execute 阶段，Agent 开始写代码和测试。约束条件给得很细——遵循代码风格、不能 mock、合理拆分组件、不要写兼容代码。写完代码立刻写测试，ESLint + TypeScript + Prettier + Vitest 四道防线不能破。</p>
+    <p>Verify 阶段是我的主场——Code Review、功能自测、体验检查。发现问题就进入 Fix 阶段。</p>
+    <p>最下面的虚线箭头代表<strong>反馈回路</strong>——发现质量不达标就回到 Plan，重新来过。这个循环不是一次性的。</p>
+  </aside>
+</section>
+
+<!-- ===== 5. PLAN STAGE ===== -->
+<section class="slide" data-title="PLAN Stage">
+  <p class="kicker">part 1 · plan</p>
+  <h2 class="h2">PLAN：先想清楚，再动手</h2>
+
+  <div class="grid g3 mt-l">
+    <div class="card card-accent" data-anim="fade-up">
+      <h4>📥 告诉 Agent 三样东西</h4>
+      <p class="dim"><strong>1.</strong> 需求描述（自己总结）<br><strong>2.</strong> PRD 原文（完整参考）<br><strong>3.</strong> 约束条件（能做/不能做）</p>
+    </div>
+    <div class="card card-accent" data-anim="fade-up">
+      <h4>🛑 关键操作</h4>
+      <p class="dim"><strong>禁止 AI 写代码</strong><br>"先不要写代码，只输出需求分析和实现方案。"</p>
+    </div>
+    <div class="card card-accent" data-anim="fade-up">
+      <h4>✅ Agent 方案要回答</h4>
+      <p class="dim">· 实现什么功能？<br>· 改哪些文件？<br>· 影响哪些模块？<br>· 有没有风险点？</p>
+    </div>
+  </div>
+
+  <p class="insight-box mt-l"><strong>第二步不能省略：</strong>人工仔细看完方案，确认无误才放行。AI 可能误读 PRD，人的判断不可替代。</p>
+  <aside class="notes">
+    <p>讲 Plan 阶段的三个动作。</p>
+    <p><strong>第一步，告诉 Agent 三样东西</strong>。需求描述是我看完 PRD 后用自己的话总结的——这个动作很重要，因为它逼我自己先理解一遍。PRD 原文也发给 Agent 做参考，避免我的总结漏掉细节。约束条件就是边界——哪些能做、哪些不能改。</p>
+    <p><strong>第二步是最关键的操作：禁止 AI 写代码</strong>。我会明确说"先不要写代码，只输出需求分析和实现方案"。为什么？因为方案阶段你需要的是<em>思考</em>，不是代码。</p>
+    <p><strong>第三步，人仔细看完方案</strong>，确认无误才能放行。这一步不能被省略。</p>
+  </aside>
+</section>
+
+<!-- ===== 6. SPEC-DRIVEN DEV ===== -->
+<section class="slide" data-title="Spec-Driven Dev">
+  <p class="kicker">part 1 · plan</p>
+  <h2 class="h2">方案沉淀为 Spec，持久化到项目</h2>
+
+  <div class="grid g3 mt-l">
+    <div class="card" data-anim="fade-up">
+      <h4>🔄 跨会话复用</h4>
+      <p class="dim">关掉终端再打开，Agent 还能读到之前的方案，不用从头沟通。</p>
+    </div>
+    <div class="card" data-anim="fade-up">
+      <h4>👥 团队协作</h4>
+      <p class="dim">其他同学接手你的任务时，能看到完整的设计意图和决策背景。</p>
+    </div>
+    <div class="card" data-anim="fade-up">
+      <h4>🔍 可追溯</h4>
+      <p class="dim">出了问题可以回溯"当初为什么这么设计"。</p>
+    </div>
+  </div>
+
+  <div class="highlight-box mt-l">
+    <strong>做法：</strong>维护 <code style="font-family:var(--font-mono);background:rgba(255,91,1,0.05);padding:1px 8px;border-radius:var(--radius-sm)">CLAUDE.md</code>（或 <code style="font-family:var(--font-mono);background:rgba(255,91,1,0.05);padding:1px 8px;border-radius:var(--radius-sm)">AGENTS.md</code>）— 技术栈、架构约定、代码风格、关键决策
+  </div>
+
+  <p class="insight-box mt-m"><strong>核心理念：</strong>Spec 不是一次性输入，而是<strong>项目资产</strong>。2026 年行业趋势——Spec-Driven Development（规格驱动开发）。Andrew Ng &amp; JetBrains 2026 专门出了课程推广。</p>
+  <aside class="notes">
+    <p>Plan 阶段的第三步——<strong>方案沉淀为 Spec</strong>。</p>
+    <p>确认后的方案不要只留在对话记录里。我会把它写进项目的 CLAUDE.md 文件，提交到代码仓库。</p>
+    <p>这样做有三个好处：第一，<strong>跨会话复用</strong>——你关掉终端再打开，Agent 还能读到之前的方案。第二，<strong>团队协作</strong>——别人接手你的任务时能看到设计意图。第三，<strong>可追溯</strong>——出问题能回溯当初为什么这么设计。</p>
+    <p>这就是 2026 年行业说的 <strong>Spec-Driven Development</strong>——把需求规格当成和代码一样重要的工程制品，纳入版本控制。</p>
+  </aside>
+</section>
+
+<!-- ===== 7. EXECUTE STAGE ===== -->
+<section class="slide" data-title="EXECUTE Stage">
+  <p class="kicker">part 1 · execute</p>
+  <h2 class="h2">EXECUTE：给定约束，让 AI 写代码</h2>
+
+  <div class="grid g2 mt-l">
+    <div>
+      <h3 class="h3">写代码时的约束</h3>
+      <div class="card mb-m">
+        <p class="dim" style="line-height:2">
+          ✅ 遵循当前项目的代码风格<br>
+          ✅ 不能有 mock 数据<br>
+          ✅ 合理拆分，单文件 &le; 300 行<br>
+          ✅ 不要写兼容代码（不引入不必要的抽象）
+        </p>
+      </div>
+      <p class="text-dim" style="font-size:14px">约束越细 → AI 输出的代码越能直接用 → 返工越少</p>
+    </div>
+    <div>
+      <h3 class="h3">写完后立刻写测试</h3>
+      <div class="card mb-m">
+        <p class="dim" style="line-height:2">
+          ✅ 每个功能写完都要写单元测试<br>
+          ✅ 测试用例覆盖所有边界情况<br>
+          ✅ 每个测试用例都必须通过
+        </p>
+      </div>
+      <p class="text-dim" style="font-size:14px"><strong>四道防线：</strong>ESLint + TypeScript + Prettier + Vitest<br>代码不符合规范直接报错，AI 自动修复直到通过</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p>Plan 确认后进入 <strong>Execute 阶段</strong>。</p>
+    <p>这时候给的约束会更具体。代码风格必须跟项目一致、不能出现 mock 数据、单文件不超过 300 行、不要写兼容代码。这些约束看起来细，但越细越好，因为<strong>约束越细，AI 输出的代码越能直接用，返工越少</strong>。</p>
+    <p>代码写完后<strong>紧接着写测试</strong>。四样——ESLint、TypeScript、Prettier、Vitest——叫<strong>前端项目的四道防线</strong>。代码不符合规范直接报错，AI 会在循环里自动修到通过为止。</p>
+  </aside>
+</section>
+
+<!-- ===== 8. VERIFY STAGE ===== -->
+<section class="slide" data-title="VERIFY Stage">
+  <p class="kicker">part 1 · verify</p>
+  <h2 class="h2">VERIFY：人工把关，不能少</h2>
+
+  <div class="grid g2 mt-l">
+    <div>
+      <h3 class="h3">Code Review</h3>
+      <div class="feature-row"><span class="num orange">①</span><div><b>代码风格 & 架构</b><p class="dim">符合现有规范？有没有引入重复逻辑？</p></div></div>
+      <div class="feature-row"><span class="num orange">②</span><div><b>安全隐患</b><p class="dim">硬编码密钥？缺少输入校验？</p></div></div>
+      <div class="feature-row"><span class="num orange">③</span><div><b>类型 & 副作用</b><p class="dim">类型定义严谨吗？有没有潜在副作用？</p></div></div>
+    </div>
+    <div>
+      <h3 class="h3">功能自测</h3>
+      <div class="feature-row"><span class="num green">①</span><div><b>流程完整性</b><p class="dim">整个流程走一遍，有没有断点？</p></div></div>
+      <div class="feature-row"><span class="num green">②</span><div><b>交互体验</b><p class="dim">流畅度、loading 状态、错误提示是否友好？</p></div></div>
+      <div class="feature-row"><span class="num green">③</span><div><b>响应式</b><p class="dim">各种屏幕尺寸下布局是否正常？</p></div></div>
+    </div>
+  </div>
+
+  <p class="insight-box mt-m"><strong>AI 写代码能跑 ≠ 能上线。</strong>这一层人工验证是质量的底线。</p>
+  <aside class="notes">
+    <p>代码写完了，测试也通过了，但我的工作还没完。<strong>Verify 阶段</strong>是我自己对 AI 产出做把关。</p>
+    <p>分两块来看。第一块是 <strong>Code Review</strong>。我检查三件事：代码风格和架构规范——AI 容易埋头写，不管项目里已有实现；安全隐患——硬编码密钥、缺少输入校验；还有类型定义和副作用。</p>
+    <p>第二块是<strong>功能自测</strong>。流程走一遍看完整性，检查交互体验，各种屏幕尺寸下布局是否正常。</p>
+    <p>AI 写代码能跑不等于能上线。这一层人工验证是质量的底线。</p>
+  </aside>
+</section>
+
+<!-- ===== 9. TRIPLE DEBT MODEL ===== -->
+<section class="slide" data-title="Triple Debt">
+  <p class="kicker">part 1 · verify 进阶</p>
+  <h2 class="h2">三重债务模型 <span class="text-dim" style="font-size:clamp(12px,1vw,15px);font-weight:400">— Martin Fowler &amp; Storey, 2026</span></h2>
+
+  <div class="debt-grid mt-l">
+    <div class="debt-card d1" data-anim="fade-up">
+      <div class="d-icon">🛠️</div>
+      <div class="d-title">技术债务</div>
+      <div class="d-risk">Technical Debt — "写得不够好"</div>
+      <div class="d-fix">紧耦合、缺错误处理、缺边界考虑。<br>AI 的 PR 比人类多 <strong style="color:var(--accent)">1.7 倍</strong> 重大问题。<br><em>Code Review 已经在查。</em></div>
+    </div>
+    <div class="debt-card d2" data-anim="fade-up">
+      <div class="d-icon">🧠</div>
+      <div class="d-title">认知债务</div>
+      <div class="d-risk">Cognitive Debt — 理解在流失</div>
+      <div class="d-fix">代码不是你一行行写的，理解不够深。<br>团队变得<strong style="color:var(--accent)">不敢改代码</strong>，系统变成黑盒。<br><em>检查：我能给别人讲清楚吗？</em></div>
+    </div>
+    <div class="debt-card d3" data-anim="fade-up">
+      <div class="d-icon">🎯</div>
+      <div class="d-title">意图债务</div>
+      <div class="d-risk">Intent Debt — "为什么"丢了</div>
+      <div class="d-fix">代码能表达做了什么，但很难表达为什么。<br>AI 写的代码尤其缺这个。<br><em>在关键决策处注释"为什么"，不是"做什么"。</em></div>
+    </div>
+  </div>
+
+  <p class="highlight-box mt-m"><strong>应对：</strong>注释写"为什么"，Spec 里保留设计意图，代码就不容易变成只可执行不可理解的黑盒。</p>
+  <aside class="notes">
+    <p>Martin Fowler 和 Margaret-Anne Storey 2026 年提了一个模型，叫<strong>三重债务模型</strong>，专门描述 AI 辅助开发带来的隐性成本。</p>
+    <p>第一重，<strong>技术债务</strong>——就是写得不够好。行业数据说 AI 生成的 PR 比人类多 1.7 倍的重大问题。这个我们在 Code Review 里已经在查了。</p>
+    <p>第二重，<strong>认知债务</strong>——代码不是你一行行写的，你对它的理解就不够深。应对就是 Verify 时问自己：<strong>我能不能给别人讲清楚这段代码为什么这么写？</strong></p>
+    <p>第三重，<strong>意图债务</strong>——代码能表达做了什么，但很难表达为什么。AI 写的代码尤其缺这个。应对就是在关键决策处加注释，记录的是"为什么"。</p>
+  </aside>
+</section>
+
+<!-- ===== 10. FIX: TDD BUG FIX ===== -->
+<section class="slide" data-title="FIX Stage">
+  <p class="kicker">part 1 · fix</p>
+  <h2 class="h2">FIX：TDD 驱动修 Bug</h2>
+  <p class="lede mb-m">发现 Bug 后的做法：<strong>先让 Agent 写一个复现 Bug 的测试，再修代码。</strong></p>
+
+  <div class="fix-flow mt-l">
+    <div class="fix-step s1" data-anim="fade-up">🐛 发现 Bug</div>
+    <div class="fix-arr">→</div>
+    <div class="fix-step s2" data-anim="fade-up">📝 写失败测试<br><span style="font-size:10px;font-weight:400">复现问题</span></div>
+    <div class="fix-arr">→</div>
+    <div class="fix-step s3" data-anim="fade-up">🔧 AI 修代码</div>
+    <div class="fix-arr">→</div>
+    <div class="fix-step s4" data-anim="fade-up">✅ 测试通过</div>
+    <div class="fix-arr">→</div>
+    <div class="fix-step s5" data-anim="fade-up">🎯 确认修复</div>
+  </div>
+
+  <div class="grid g3 mt-l">
+    <div class="card"><p class="dim"><strong>精确定位</strong><br>用测试定位问题，不凭感觉猜</p></div>
+    <div class="card"><p class="dim"><strong>可验证</strong><br>跑测试，过了就是过了</p></div>
+    <div class="card"><p class="dim"><strong>先复现再修复</strong><br>TDD 核心思路用在 debug 场景</p></div>
+  </div>
+
+  <p class="insight-box mt-m"><strong>闭环：</strong>人始终在环路里做决策，AI 负责帮你跑得快。</p>
+  <aside class="notes">
+    <p>如果自测发现 Bug，我的做法跟很多人不太一样——<strong>先让 Agent 写一个复现 Bug 的测试，再修代码</strong>。</p>
+    <p>流程就五步：发现 Bug、写一个失败的测试来复现问题、让 AI 修代码、跑测试确认通过、最终确认修复。这就是 <strong>TDD 的核心思路用在 debug 场景</strong>——先复现，再修复。</p>
+    <p>PEV 加 Fix 形成完整闭环。好，第一部分到这里。接下来进入第二部分——<strong>AI Agent 背后到底怎么工作的</strong>。</p>
+  </aside>
+</section>
+
+<!-- ===== 11. SECTION: PART 2 ===== -->
+<section class="slide" data-title="Part 2">
+  <div class="section-div">
+    <div class="divider-accent" style="margin:0 auto 20px"></div>
+    <div class="s-num">Part 2 · ~15 min</div>
+    <h2 class="s-title">AI Agent<br>运行原理</h2>
+    <p class="s-sub">Agent = 大模型 + 工具 + 循环<br>面向零基础，不用技术背景也能听懂</p>
+  </div>
+  <aside class="notes">
+    <p>进入第二部分——AI Agent 的运行原理。这部分专门面向零基础的同学，你不用技术背景也能听懂。</p>
+    <p>先问一个问题：你在终端跟 Claude Code 说"帮我在用户列表页加一个搜索框"，然后你看到它自己读文件、分析代码、写改动、写测试、跑 lint——你有没有想过，<strong>它到底是怎么做到这一串操作的？</strong></p>
+    <p>这一部分我们就把这个过程拆开来看。</p>
+  </aside>
+</section>
+
+<!-- ===== 12. AGENT FORMULA ===== -->
+<section class="slide" data-title="Agent Formula">
+  <p class="kicker">part 2 · what is agent</p>
+  <h2 class="h2 tc">一句话理解 Agent</h2>
+
+  <div class="agent-formula mt-l">
+    <div class="agent-box model" data-anim="fade-up">
+      <div class="box-title">🧠 大模型</div>
+      <div class="box-sub">思考</div>
+    </div>
+    <div class="agent-op">+</div>
+    <div class="agent-box tools" data-anim="fade-up">
+      <div class="box-title">🔧 工具</div>
+      <div class="box-sub">行动</div>
+    </div>
+    <div class="agent-op">+</div>
+    <div class="agent-box loop" data-anim="fade-up">
+      <div class="box-title">🔄 循环</div>
+      <div class="box-sub">观察</div>
+    </div>
+    <div class="agent-op">=</div>
+    <div style="font-size:clamp(22px,2.5vw,28px);font-weight:800;color:var(--accent)">Agent</div>
+  </div>
+
+  <p class="lede tc mt-l">普通聊天机器人只能回复文字。<strong>Agent 不同——它能做事。</strong></p>
+
+  <div class="demo-compare mt-m">
+    <div class="demo-box db-old">
+      <div class="db-label">❌ 普通 LLM</div>
+      <div class="db-line">你: "帮我查北京天气"</div>
+      <div class="db-line" style="color:var(--text-3)">它: "北京今天晴 25 度"</div>
+      <div class="db-line" style="font-size:11px;color:var(--text-3)">← 训练数据里的，可能是过期的</div>
+    </div>
+    <div class="demo-box db-new">
+      <div class="db-label">✅ Agent</div>
+      <div class="db-line">你: "帮我查北京天气"</div>
+      <div class="db-line" style="color:var(--text-3)">[思考] 需要查天气...</div>
+      <div class="db-line" style="color:var(--text-3)">[行动] 调天气 API</div>
+      <div class="db-line" style="color:var(--text-3)">[观察] API 返回：晴 25 度</div>
+      <div class="db-line">它: "北京今天晴 25 度" ✅</div>
+    </div>
+  </div>
+
+  <aside class="notes">
+    <p>一句话理解 Agent：<strong>Agent = 大模型 + 工具 + 循环</strong>。</p>
+    <p>普通聊天机器人只能回复文字。你说"帮我查天气"，它从训练数据里翻一条出来告诉你——可能已经过期了。Agent 不同——<strong>它能做事</strong>。</p>
+    <p>看右边的例子：你说"帮我查天气"，Agent 会先思考、然后调用天气 API 去查、拿到结果再告诉你。它多了两个能力——<strong>调用工具和循环观察</strong>。</p>
+    <p>普通 LLM 像一个只读过书的人，Agent 像一个<em>能上网、能操作软件、能执行命令</em>的人。</p>
+  </aside>
+</section>
+
+<!-- ===== 13. ReAct PRINCIPLE ===== -->
+<section class="slide" data-title="ReAct">
+  <p class="kicker">part 2 · react</p>
+  <h2 class="h2">核心：ReAct = Reasoning + Acting</h2>
+  <p class="lede mb-m">就是一个"边想边做"的循环</p>
+
+  <div class="react-svg-wrap">
+    <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="ra" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <polygon points="0 0, 10 4, 0 8" fill="#FF5B01"/>
+        </marker>
+        <linearGradient id="g-think" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(255,91,1,0.10)"/><stop offset="1" stop-color="rgba(255,91,1,0.02)"/></linearGradient>
+        <linearGradient id="g-act" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(255,91,1,0.16)"/><stop offset="1" stop-color="rgba(255,91,1,0.03)"/></linearGradient>
+        <linearGradient id="g-obs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(255,91,1,0.22)"/><stop offset="1" stop-color="rgba(255,91,1,0.05)"/></linearGradient>
+      </defs>
+
+      <rect x="250" y="14" width="200" height="80" rx="6" fill="url(#g-think)" stroke="rgba(255,91,1,0.20)" stroke-width="1.5"/>
+      <text x="350" y="44" text-anchor="middle" fill="#FF5B01" font-size="11" font-family="var(--font-mono)">THINK</text>
+      <text x="350" y="66" text-anchor="middle" fill="var(--text-1)" font-size="18" font-weight="700">思考</text>
+      <text x="350" y="82" text-anchor="middle" fill="var(--text-3)" font-size="11">分析现状，决定下一步</text>
+
+      <rect x="30" y="190" width="200" height="80" rx="6" fill="url(#g-act)" stroke="rgba(255,91,1,0.30)" stroke-width="1.5"/>
+      <text x="130" y="220" text-anchor="middle" fill="#FF5B01" font-size="11" font-family="var(--font-mono)">ACT</text>
+      <text x="130" y="242" text-anchor="middle" fill="var(--text-1)" font-size="18" font-weight="700">行动</text>
+      <text x="130" y="258" text-anchor="middle" fill="var(--text-3)" font-size="11">调用工具执行操作</text>
+
+      <rect x="470" y="190" width="200" height="80" rx="6" fill="url(#g-obs)" stroke="rgba(255,91,1,0.45)" stroke-width="1.5"/>
+      <text x="570" y="220" text-anchor="middle" fill="#FF5B01" font-size="11" font-family="var(--font-mono)">OBSERVE</text>
+      <text x="570" y="242" text-anchor="middle" fill="var(--text-1)" font-size="18" font-weight="700">观察</text>
+      <text x="570" y="258" text-anchor="middle" fill="var(--text-3)" font-size="11">拿到结果，评估是否继续</text>
+
+      <path d="M 300 94 Q 300 144, 180 170 Q 110 184, 130 190" fill="none" stroke="#FF5B01" stroke-opacity="0.3" stroke-width="1.8" marker-end="url(#ra)"/>
+      <path d="M 530 190 Q 570 184, 420 170 Q 300 144, 320 94" fill="none" stroke="#FF5B01" stroke-opacity="0.3" stroke-width="1.8" marker-end="url(#ra)"/>
+      <path d="M 230 230 Q 300 280, 470 230" fill="none" stroke="#FF5B01" stroke-opacity="0.3" stroke-width="1.8" marker-end="url(#ra)"/>
+
+      <text x="350" y="310" text-anchor="middle" fill="var(--text-3)" font-size="12">循环 → 直到任务完成</text>
+    </svg>
+  </div>
+
+  <aside class="notes">
+    <p>Agent 的工作方式叫 <strong>ReAct = Reasoning + Acting</strong>，就是一个"边想边做"的循环。</p>
+    <p>看这个三角形的循环图。最上面是<strong>思考</strong>——分析现在的状况，决定下一步做什么。左边是<strong>行动</strong>——调用工具来执行操作。右边是<strong>观察</strong>——拿到执行结果后评估：任务完成了吗？还需要继续吗？没完成就回到思考继续下一轮。</p>
+    <p>这个循环一直在转，直到任务完成或者达到次数上限。这就是为什么 Claude Code 能自己去读文件、改文件、修 lint——它在重复"思考→行动→观察"这个循环。</p>
+  </aside>
+</section>
+
+<!-- ===== 14. WALKTHROUGH ===== -->
+<section class="slide" data-title="Search Box Example">
+  <p class="kicker">part 2 · example</p>
+  <h2 class="h2">实例：加一个搜索框</h2>
+  <p class="lede mb-m">你在终端说：<strong>"帮我在用户列表页加一个搜索框"</strong></p>
+
+  <table class="walk-table mt-m">
+    <thead><tr><th>轮次</th><th>思考</th><th>行动</th><th>观察</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>第 1 轮</td>
+        <td>需要知道列表页长什么样</td>
+        <td style="font-family:var(--font-mono);font-size:12px;color:var(--accent)">read_file("UserList.tsx")</td>
+        <td>读到 200 行代码，有表格组件</td>
+      </tr>
+      <tr>
+        <td>第 2 轮</td>
+        <td>用 Ant Design Input.Search，表格上方加搜索栏</td>
+        <td style="font-family:var(--font-mono);font-size:12px;color:var(--accent)">edit("UserList.tsx", ...)</td>
+        <td>代码改完</td>
+      </tr>
+      <tr>
+        <td>第 3 轮</td>
+        <td>需要写测试验证搜索功能</td>
+        <td style="font-family:var(--font-mono);font-size:12px;color:var(--accent)">edit("UserList.test.tsx", ...)</td>
+        <td>测试写完，跑一下</td>
+      </tr>
+      <tr>
+        <td>第 4 轮</td>
+        <td>Lint 报了类型错误，需要修</td>
+        <td style="font-family:var(--font-mono);font-size:12px;color:var(--accent)">edit(...)</td>
+        <td>Lint 通过 ✅</td>
+      </tr>
+      <tr>
+        <td>第 5 轮</td>
+        <td>功能实现、测试通过、Lint 通过 → 任务完成</td>
+        <td style="color:var(--text-3)">—</td>
+        <td style="color:var(--accent)">回答"已完成"</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="insight-box mt-m"><strong>5 轮思考→行动→观察，一个搜索框就加好了。</strong>每一轮的决策你都能看清楚。</p>
+  <aside class="notes">
+    <p>拿一个具体例子走一遍——加一个搜索框。</p>
+    <p>你在终端跟 Claude Code 说"帮我在用户列表页加一个搜索框"。</p>
+    <p><strong>第一轮</strong>，Agent 思考：我得先知道这个页面现在长什么样。于是它调用 read_file 工具去读 UserList.tsx。读完观察到了 200 行代码，里面有表格组件。</p>
+    <p><strong>第二轮</strong>，思考：基于现有代码，用 Ant Design 的 Input.Search 组件，在表格上方加搜索栏。</p>
+    <p><strong>第三轮</strong>，思考：代码改完了，需要写测试。</p>
+    <p><strong>第四轮</strong>，思考：lint 报了一个类型错误。行动：edit 修复。</p>
+    <p><strong>第五轮</strong>，思考：功能实现、测试通过、lint 通过——任务完成。</p>
+    <p>五轮循环，一个搜索框就加好了。<strong>每一轮的决策你都能看清楚</strong>。它不是魔法，是可追踪的步骤序列。</p>
+  </aside>
+</section>
+
+<!-- ===== 15. THREE KEY POINTS ===== -->
+<section class="slide" data-title="Key Points">
+  <p class="kicker">part 2 · tech</p>
+  <h2 class="h2">三个关键技术点</h2>
+
+  <div class="grid g3 mt-l">
+    <div class="card card-accent" data-anim="fade-up">
+      <h4>🔧 工具 (Tools)</h4>
+      <p class="dim">read_file · edit · bash · grep · glob<br>每个工具都有描述，告诉 AI "什么时候用、怎么用"。</p>
+    </div>
+    <div class="card card-accent" data-anim="fade-up">
+      <h4>📝 消息历史 (Memory)</h4>
+      <p class="dim">维护完整消息记录。<br>每一轮都能看到前面的对话和操作结果。<br>所以能做多步操作不会"忘"。</p>
+    </div>
+    <div class="card card-accent" data-anim="fade-up">
+      <h4>🔄 循环上限</h4>
+      <p class="dim">不是无限循环。<br>设置了最大迭代次数，防止"死循环"。<br>超了没完成就停下来让你介入。</p>
+    </div>
+  </div>
+
+  <div class="closing-quote mt-l">
+    <p class="q">带走两个认知：<br>1. AI 写代码不是魔法，是"思考→行动→观察"的循环<br>2. <strong>人在环路上的位置：你定规则，AI 在规则内执行，最终你验证</strong></p>
+  </div>
+  <aside class="notes">
+    <p>三个关键技术点快速过一下。</p>
+    <p>第一个，<strong>工具</strong>。Agent 能用的工具不止打字。读文件、改文件、执行命令、搜索代码——每个工具都有描述告诉 AI 什么时候用、怎么用。</p>
+    <p>第二个，<strong>消息历史</strong>。Agent 维护一个完整的消息记录，每一轮思考它都能看到前面的所有对话和操作结果。这就像它有记忆一样。</p>
+    <p>第三个，<strong>循环上限</strong>。Agent 不是无限循环的，设置了最大迭代次数防止死循环。</p>
+    <p>这一部分的重点就两个认知：第一，AI 写代码不是魔法，是可理解的循环；第二，<strong>人在环路上的位置——你定规则，AI 在规则内执行，最终你验证</strong>。</p>
+  </aside>
+</section>
+
+<!-- ===== 16. SECTION: PART 3 ===== -->
+<section class="slide" data-title="Part 3">
+  <div class="section-div">
+    <div class="divider-accent" style="margin:0 auto 20px"></div>
+    <div class="s-num">Part 3 · ~10 min</div>
+    <h2 class="s-title">我的 AI<br>学习方法</h2>
+    <p class="s-sub">GitHub Trending + AI 辅助读源码<br>保持感知 + 深入理解</p>
+  </div>
+  <aside class="notes">
+    <p>第三部分很短，因为我的方法确实不复杂。就两件事——<strong>GitHub Trending 保持感知，AI 辅助读源码深入理解</strong>。我花十分钟讲清楚。</p>
+  </aside>
+</section>
+
+<!-- ===== 17. LEARNING METHOD ===== -->
+<section class="slide" data-title="Learning Method">
+  <p class="kicker">part 3 · method</p>
+  <h2 class="h2">两步走</h2>
+
+  <div class="grid g2 mt-l">
+    <div>
+      <h3 class="h3">第一步：定期刷 GitHub Trending</h3>
+      <div class="card mb-m">
+        <p class="dim" style="line-height:2">
+          每周花十几分钟扫一眼<br>
+          <strong style="color:var(--accent)">github.com/trending</strong><br>
+          关注点：<br>
+          · 解决什么问题？<br>
+          · 新的开发范式或工具？<br>
+          · 跟我的技术栈有关系吗？
+        </p>
+      </div>
+      <p class="text-faint">不是为了追热点，是保持对"大家都在关注什么"的感知</p>
+    </div>
+    <div>
+      <h3 class="h3">第二步：AI 辅助读源码</h3>
+      <div class="card">
+        <p class="dim" style="line-height:2">
+          <strong>传统方式：</strong>clone → 啃 README → 看目录 → 一点一点读 → 半天还没搞清核心<br>
+          <strong style="color:var(--accent)">我的方式：</strong><br>
+          1. git clone 项目<br>
+          2. 把项目目录喂给 AI Agent<br>
+          3. 问 AI：<br>
+          &nbsp;&nbsp;"核心架构是什么？"<br>
+          &nbsp;&nbsp;"最关键的代码在哪？"<br>
+          &nbsp;&nbsp;"XX 功能怎么实现的？"<br>
+          &nbsp;&nbsp;"这个设计为什么这么写？"
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box mt-m">
+    <strong>为什么有效？</strong>读源码是最直接的学习方式，但门槛高。AI 帮你降低"看不懂"的门槛，相当于有一个随时可以问的导师。你是<strong>主动探索</strong>，不是被动输入——理解深度完全不一样。
+  </div>
+  <aside class="notes">
+    <p>学习方法就两步。</p>
+    <p><strong>第一步，定期刷 GitHub Trending</strong>。每周花十几分钟扫一眼，看看最近最火的项目。不是追热点，而是保持对"大家都在关注什么"的感知。</p>
+    <p><strong>第二步，AI 辅助读源码</strong>。传统方式是 clone 下来从 README 开始啃——半天过去了还没搞清楚核心逻辑。我的方式是把项目目录喂给 AI Agent，让它做代码导航和讲解。</p>
+    <p>为什么有效？读源码是最直接的学习方式，但门槛高——看不懂、找不着入口。AI 帮你降低了"看不懂"的门槛，你是在<strong>主动探索</strong>，不是在被动输入。</p>
+  </aside>
+</section>
+
+<!-- ===== 18. SECTION: PART 4 ===== -->
+<section class="slide" data-title="Part 4">
+  <div class="section-div">
+    <div class="divider-accent" style="margin:0 auto 20px"></div>
+    <div class="s-num">Part 4 · ~5 min</div>
+    <h2 class="s-title">团队可以<br>尝试什么</h2>
+    <p class="s-sub">把 SaaS 业务能力暴露给 Agent<br>让它直接操作业务系统</p>
+  </div>
+  <aside class="notes">
+    <p>最后一部分聊一个想法——把我们的 SaaS 系统的业务能力暴露给 Agent，让它直接操作业务系统。这个想法不复杂，但我觉得值得团队讨论。</p>
+  </aside>
+</section>
+
+<!-- ===== 19. CLI COMMANDS ===== -->
+<section class="slide" data-title="CLI Commands">
+  <p class="kicker">part 4 · idea</p>
+  <h2 class="h2">把业务操作变成 CLI 命令</h2>
+  <p class="lede mb-m">我们已经有完整的 services/ 层和 API 接口，只需包一层 CLI</p>
+
+  <div class="code-block">
+<span class="comment"># 业务操作 CLI</span>
+<span class="cmd">saas</span> <span class="key">payment</span> <span class="flag">list</span> <span class="val">--status=pending</span>        <span class="comment">查看待处理的付款单</span>
+<span class="cmd">saas</span> <span class="key">payment</span> <span class="flag">detail</span> <span class="val">--id=PAY20260509001</span>  <span class="comment">查看某笔付款详情</span>
+<span class="cmd">saas</span> <span class="key">deal</span> <span class="flag">quote</span> <span class="val">--pair=USD/CNH</span>            <span class="comment">查询实时汇率</span>
+<span class="cmd">saas</span> <span class="key">deal</span> <span class="flag">execute</span> <span class="val">--pair=USD/CNH --amount=10000</span> <span class="comment">执行交易</span>
+<span class="cmd">saas</span> <span class="key">approval</span> <span class="flag">list</span> <span class="val">--pending</span>              <span class="comment">查看待审批列表</span>
+<span class="cmd">saas</span> <span class="key">approval</span> <span class="flag">approve</span> <span class="val">--id=APV001</span>        <span class="comment">审批通过</span>
+<span class="cmd">saas</span> <span class="key">balance</span> <span class="flag">check</span> <span class="val">--currency=USD</span>           <span class="comment">查询余额</span>
+  </div>
+
+  <p class="highlight-box mt-m"><strong>本质：</strong>这些命令就是调用现有的 API 接口。CLI 只是加一层薄壳，技术上不难。</p>
+  <aside class="notes">
+    <p>思路就是<strong>把常用的业务操作封装成 CLI 命令</strong>。</p>
+    <p>我们现在的系统，所有操作都通过网页界面完成。但如果把这些操作封装成 CLI 命令，你就可以在终端里用一条命令完成。</p>
+    <p>本质上这些命令就是调用现有的 API 接口。我们已经有完整的 services/ 层和后端 API，CLI 只是包一层薄壳。<strong>技术上不难</strong>。</p>
+  </aside>
+</section>
+
+<!-- ===== 20. AGENT IN ACTION ===== -->
+<section class="slide" data-title="Agent in Action">
+  <p class="kicker">part 4 · agent + cli</p>
+  <h2 class="h2">Agent 直接操作业务系统</h2>
+
+  <div class="chat-demo mt-m">
+<span class="dim"># 场景一：日常查询</span>
+<span class="user">你:</span> "查一下今天有多少笔待审批的付款"
+<span class="agent">Agent:</span> [执行 saas approval list --pending]
+        当前有 <strong style="color:var(--accent)">12 笔</strong>待审批付款，其中 3 笔超过 24 小时未处理
+
+<span class="user">你:</span> "把金额最大的那笔详情给我看"
+<span class="agent">Agent:</span> [执行 saas payment detail --id=PAY20260509087]
+        付款编号: PAY20260509087  金额: <strong style="color:var(--accent)">USD 500,000</strong>
+        收款人: ABC Trading Co., Ltd.  状态: 待审批
+
+<span style="margin-top:10px;display:block;"></span>
+<span class="dim"># 场景二：自动化流程</span>
+<span class="user">你:</span> "帮我监控 USD/CNH 汇率，低于 7.20 时自动买入 10 万美元"
+<span class="agent">Agent:</span> 收到，开始监控...
+        <span style="color:var(--accent)">14:32</span> 汇率触及 <span style="color:var(--accent)">7.198</span>，已自动执行买入
+        交易编号: DEAL20260509001  成交价: 7.198  金额: USD 100,000
+  </div>
+
+  <p class="insight-box mt-m"><strong>核心：</strong>让 Agent 成为业务系统的操作者。人定规则，Agent 在规则内自动执行。难的不是技术，是想清楚哪些操作适合暴露、权限怎么控制。</p>
+  <aside class="notes">
+    <p>一旦业务操作变成了 CLI 命令，Agent 就能<strong>直接操作我们的业务系统</strong>。</p>
+    <p>看场景一。你在终端里用自然语言说"查一下今天有多少笔待审批的付款"，Agent 帮你执行命令然后告诉你结果。你不需要打开浏览器、登录系统、点点点。</p>
+    <p>更进一步的，看场景二——<strong>自动化流程</strong>。你说"帮我监控汇率，低于 7.20 时自动买入 10 万美元"，Agent 就在后台持续监控，触发条件时自动执行。</p>
+    <p>这个想法的核心是：<strong>让 Agent 成为业务系统的操作者。人定规则，Agent 在规则内自动执行</strong>。</p>
+  </aside>
+</section>
+
+<!-- ===== 21. CLOSING ===== -->
+<section class="slide" data-title="Closing">
+  <p class="kicker">summary</p>
+  <h2 class="h2 tc">今天聊了四件事</h2>
+
+  <div class="takeaway-grid mt-l">
+    <div class="takeaway-card" data-anim="fade-up">
+      <div class="tk-num">01</div>
+      <div class="tk-content">
+        <b>PEV 工作流</b>
+        <p>Plan → Execute → Verify<br>人做决策，AI 做执行</p>
+      </div>
+    </div>
+    <div class="takeaway-card" data-anim="fade-up">
+      <div class="tk-num">02</div>
+      <div class="tk-content">
+        <b>Agent 原理</b>
+        <p>思考 → 行动 → 观察<br>AI 写代码不是魔法，是可理解的循环</p>
+      </div>
+    </div>
+    <div class="takeaway-card" data-anim="fade-up">
+      <div class="tk-num">03</div>
+      <div class="tk-content">
+        <b>学习方法</b>
+        <p>GitHub Trending 保持感知<br>AI 辅助读源码深入理解</p>
+      </div>
+    </div>
+    <div class="takeaway-card" data-anim="fade-up">
+      <div class="tk-num">04</div>
+      <div class="tk-content">
+        <b>团队实践</b>
+        <p>SaaS 业务 → CLI → Agent<br>让 Agent 操作系统业务</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="closing-quote">
+    <p class="q">AI 能<strong style="color:var(--accent)">放大</strong>你的能力，但不能<strong style="color:var(--accent)">替代</strong>你的判断。<br>会写约束条件、能判断方案好坏、能发现代码中的隐患——<em>这些才是你应该持续打磨的。</em></p>
+  </div>
+  <aside class="notes">
+    <p>总结一下今天聊的四件事。</p>
+    <p>第一，<strong>PEV 工作流</strong>——Plan、Execute、Verify，核心是人做决策、AI 做执行。第二，<strong>Agent 原理</strong>——思考、行动、观察的循环，不是魔法，是可理解的。第三，<strong>学习方法</strong>——GitHub Trending 保持感知，AI 辅助读源码深入理解。第四，<strong>团队实践</strong>——把 SaaS 业务封装成 CLI，让 Agent 直接操作。</p>
+    <p>最后想说：AI 工具现在的进步速度比我们想象的快，但核心逻辑没变——<strong>它能放大你的能力，但不能替代你的判断</strong>。会写约束条件、能判断方案好坏、能发现代码中的隐患——这些才是你应该持续打磨的。</p>
+    <p>谢谢大家！下面进入 Q&A。</p>
+  </aside>
+</section>
+
+<!-- ===== 22. Q&A ===== -->
+<section class="slide" data-title="Q&A">
+  <div class="section-div">
+    <div class="divider-accent" style="margin:0 auto 20px"></div>
+    <div class="s-num">thanks</div>
+    <h2 class="s-title" style="font-size:clamp(40px,5vw,64px)">Q &amp; A</h2>
+    <p class="s-sub">欢迎提问</p>
+    <div class="row wrap mt-l" style="margin-top:24px;justify-content:center">
+      <span class="pill pill-accent">#AI</span>
+      <span class="pill">#前端开发</span>
+      <span class="pill">#Agent</span>
+      <span class="pill">#团队实践</span>
+    </div>
+    <div class="deck-footer" style="margin-top:24px">
+      <span class="mono">#AI #前端开发 #Agent #团队实践</span>
+      <span class="slide-number" data-current="22" data-total="22"></span>
+    </div>
+  </div>
+  <aside class="notes">
+    <p>好的，我的分享到这里结束。现在开放提问，什么问题都可以——关于工作流、Agent 原理、学习方法、团队实践，或者你自己用 AI 开发时遇到的坑。</p>
+    <p>谢谢大家的时间！</p>
+  </aside>
+</section>
+
+</div>
+
+<div style="position:fixed;bottom:12px;left:12px;font-size:11px;color:#484f5866;z-index:100;pointer-events:none">
+  S 演讲者视图 · T 切换主题 · ← → 翻页 · F 全屏 · O 总览 · R 重置计时
+</div>
+
+<script src="../../assets/runtime.js"></script>
+</body>
+</html>
