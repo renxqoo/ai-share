@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 前端开发分享</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'apple-primary': '#0066cc',
+            'apple-primary-focus': '#0071e3',
+            'apple-primary-dark': '#2997ff',
+            'apple-ink': '#1d1d1f',
+            'apple-body-muted': '#cccccc',
+            'apple-ink-muted-80': '#333333',
+            'apple-ink-muted-48': '#7a7a7a',
+            'apple-divider': '#f0f0f0',
+            'apple-hairline': '#e0e0e0',
+            'apple-canvas': '#ffffff',
+            'apple-parchment': '#f5f5f7',
+            'apple-pearl': '#fafafc',
+            'apple-tile-1': '#272729',
+            'apple-tile-2': '#2a2a2c',
+            'apple-tile-3': '#252527',
+          },
+          fontFamily: {
+            'display': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            'body': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; overflow: hidden; font-family: 'Inter', system-ui, sans-serif; }
+
+    /* Slide container */
+    .slides-container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .slide {
+      min-width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: clamp(24px, 5vh, 80px) clamp(20px, 5vw, 80px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Page indicator dots */
+    .page-dots {
+      position: fixed;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 50;
+    }
+    .page-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .page-dot.active {
+      background: #0066cc;
+      transform: scale(1.4);
+    }
+    .page-dot.dark-mode { background: rgba(255,255,255,0.3); }
+    .page-dot.dark-mode.active { background: #2997ff; }
+
+    /* Navigation arrows */
+    .nav-arrow {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(210, 210, 215, 0.64);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 50;
+      transition: all 0.2s ease;
+      border: none;
+      color: #1d1d1f;
+      font-size: 18px;
+    }
+    .nav-arrow:hover { background: rgba(210, 210, 215, 0.85); transform: translateY(-50%) scale(1.1); }
+    .nav-arrow:active { transform: translateY(-50%) scale(0.95); }
+    .nav-arrow.prev { left: 16px; }
+    .nav-arrow.next { right: 16px; }
+
+    /* Animations */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .fade-up-d1 { animation-delay: 0.1s; }
+    .fade-up-d2 { animation-delay: 0.2s; }
+    .fade-up-d3 { animation-delay: 0.3s; }
+    .fade-up-d4 { animation-delay: 0.4s; }
+    .fade-up-d5 { animation-delay: 0.5s; }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .scale-in {
+      opacity: 0;
+      transform: scale(0.9);
+      animation: scaleIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    @keyframes scaleIn {
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Flow chart styles */
+    .flow-box {
+      padding: clamp(12px, 2vw, 20px) clamp(16px, 2.5vw, 28px);
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: clamp(14px, 1.8vw, 18px);
+      text-align: center;
+      white-space: nowrap;
+      transition: all 0.3s ease;
+    }
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0066cc;
+      font-size: clamp(20px, 3vw, 28px);
+      animation: pulseArrow 2s ease-in-out infinite;
+    }
+    @keyframes pulseArrow {
+      0%, 100% { transform: translateX(0); opacity: 0.7; }
+      50% { transform: translateX(4px); opacity: 1; }
+    }
+
+    /* Code block styling */
+    .code-block {
+      background: #1d1d1f;
+      color: #f5f5f7;
+      border-radius: 12px;
+      padding: clamp(12px, 2vw, 20px);
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      font-size: clamp(11px, 1.4vw, 15px);
+      line-height: 1.6;
+      overflow-x: auto;
+      max-width: 100%;
+    }
+    .code-keyword { color: #ff7b72; }
+    .code-string { color: #a5d6ff; }
+    .code-function { color: #d2a8ff; }
+    .code-comment { color: #8b949e; }
+    .code-variable { color: #79c0ff; }
+
+    /* Card styles */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 18px;
+      padding: clamp(16px, 2.5vw, 28px);
+      transition: transform 0.3s ease;
+    }
+    .dark .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255,255,255,0.1);
+    }
+    .glass-card:hover { transform: translateY(-4px); }
+
+    /* Progress bar */
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: #0066cc;
+      z-index: 100;
+      transition: width 0.4s ease;
+    }
+
+    /* Typing animation for code */
+    .typewriter {
+      overflow: hidden;
+      white-space: pre;
+      animation: typing 1.5s steps(40, end);
+    }
+    @keyframes typing { from { width: 0; } to { width: 100%; } }
+
+    /* Slide number */
+    .slide-number {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: -0.12px;
+      opacity: 0.5;
+    }
+
+    /* Message bubble animation */
+    .msg-bubble {
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin: 6px 0;
+      max-width: 90%;
+      animation: slideInLeft 0.5s ease forwards;
+      opacity: 0;
+    }
+    .msg-user { background: #e3f2fd; align-self: flex-end; margin-left: auto; }
+    .msg-assistant { background: #f5f5f7; align-self: flex-start; }
+    .msg-tool { background: #fff3e0; align-self: flex-start; }
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .page-dots { display: none; }
+      .nav-arrow { width: 36px; height: 36px; font-size: 14px; }
+      .flow-box { white-space: normal; }
+    }
+    @media (max-width: 640px) {
+      .slide { padding: 16px; }
+      .nav-arrow { display: none; }
+    }
+
+    /* Touch swipe hint */
+    .swipe-hint {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: swipeHint 2s ease-in-out infinite;
+      opacity: 0.4;
+    }
+    @keyframes swipeHint {
+      0%, 100% { transform: translateX(-50%) translateX(0); }
+      50% { transform: translateX(-50%) translateX(10px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-bar" id="progressBar"></div>
+
+  <!-- Page Dots -->
+  <div class="page-dots" id="pageDots"></div>
+
+  <!-- Navigation Arrows -->
+  <button class="nav-arrow prev" id="prevBtn" aria-label="上一页">&#10094;</button>
+  <button class="nav-arrow next" id="nextBtn" aria-label="下一页">&#10095;</button>
+
+  <!-- Slides Container -->
+  <div class="slides-container" id="slidesContainer">
+
+    <!-- Slide 1: Cover -->
+    <div class="slide bg-apple-parchment" data-theme="light">
+      <div class="text-center max-w-4xl w-full">
+        <p class="fade-up text-apple-primary font-body text-sm tracking-widest uppercase mb-6" style="letter-spacing: 0.2em;">技术分享</p>
+        <h1 class="fade-up fade-up-d1 text-apple-ink font-display font-semibold leading-tight mb-6" style="font-size: clamp(28px, 5vw, 56px); letter-spacing: -0.02em;">
+          AI 是如何在前端开发<br>流程中应用的
+        </h1>
+        <p class="fade-up fade-up-d2 text-apple-ink-muted-80 font-body mb-10" style="font-size: clamp(16px, 2.2vw, 24px); line-height: 1.5;">
+          从个人工作流，到 Agent 原理，再到团队实践
+        </p>
+        <div class="fade-up fade-up-d3 flex flex-wrap items-center justify-center gap-8 text-sm text-apple-ink-muted-48">
+          <span>分享人：XXX</span>
+          <span class="hidden sm:inline">·</span>
+          <span>面向：产品 / 前端 / 后端 / 测试 / 设计 / 技术负责人</span>
+        </div>
+      </div>
+      <div class="swipe-hint text-apple-ink-muted-48 text-xs">滑动或按方向键翻页 &#8594;</div>
+      <div class="slide-number text-apple-ink-muted-48">1 / 18</div>
+    </div>
+
+    <!-- Slide 2: Main Line -->
+    <div class="slide bg-apple-canvas" data-theme="light">
+      <div class="text-center max-w-4xl w-full">
+        <p class="fade-up text-apple-primary font-body text-sm tracking-widest uppercase mb-4" style="letter-spacing: 0.15em;">这场分享的主线</p>
+        <h2 class="fade-up fade-up-d1 text-apple-ink font-display font-semibold mb-12" style="font-size: clamp(22px, 3.5vw, 40px); letter-spacing: -0.02em;">
+          AI 不是替你做判断，而是把执行这件事放大了。
+        </h2>
+        <div class="fade-up fade-up-d2 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-10">
+          <div class="glass-card text-center py-6 md:py-8">
+            <div class="text-apple-primary font-display text-3xl md:text-4xl font-semibold mb-2">1</div>
+            <div class="text-apple-ink font-body font-semibold text-sm md:text-base">工作流</div>
+          </div>
+          <div class="glass-card text-center py-6 md:py-8">
+            <div class="text-apple-primary font-display text-3xl md:text-4xl font-semibold mb-2">2</div>
+            <div class="text-apple-ink font-body font-semibold text-sm md:text-base">Agent 原理</div>
+          </div>
+          <div class="glass-card text-center py-6 md:py-8">
+            <div class="text-apple-primary font-display text-3xl md:text-4xl font-semibold mb-2">3</div>
+            <div class="text-apple-ink font-body font-semibold text-sm md:text-base">学习方法</div>
+          </div>
+          <div class="glass-card text-center py-6 md:py-8">
+            <div class="text-apple-primary font-display text-3xl md:text-4xl font-semibold mb-2">4</div>
+            <div class="text-apple-ink font-body font-semibold text-sm md:text-base">团队实践</div>
+          </div>
+        </div>
+        <p class="fade-up fade-up-d3 text-apple-ink-muted-48 font-body text-sm md:text-base">
+          从怎么用，到为什么能这样用，再到团队怎么放大价值。
+        </p>
+      </div>
+      <div class="slide-number text-apple-ink-muted-48">2 / 18</div>
+    </div>
+
+    <!-- Slide 3: AI Common Failures -->
+    <div class="slide bg-apple-tile-1" data-theme="dark">
+      <div class="max-w-4xl w-full">
+        <p class="fade-up text-apple-primary-dark font-body text-sm tracking-widest uppercase mb-4" style="letter-spacing: 0.15em;">常见陷阱</p>
+        <h2 class="fade-up fade-up-d1 text-white font-display font-semibold mb-8" style="font-size: clamp(22px, 3.5vw, 40px); letter-spacing: -0.02em;">
+          为什么不能一上来就让 AI 直接写？
+        </h2>
+        <div class="fade-up fade-up-d2 grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-8">
+          <div class="glass-card">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-400 font-semibold text-sm shrink-0">1</div>
+              <div>
+                <h3 class="text-white font-body font-semibold text-base mb-1">自信地写错</h3>
+                <p class="text-apple-body-muted text-sm">看起来没问题，实际上逻辑有误</p>
+              </div>
+            </div>
+          </div>
+          <div class="glass-card">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-400 font-semibold text-sm shrink-0">2</div>
+              <div>
+                <h3 class="text-white font-body font-semibold text-base mb-1">重复造轮子</h3>
+                <p class="text-apple-body-muted text-sm">忽略已有方案，自己重写一遍</p>
+              </div>
+            </div>
+          </div>
+          <div class="glass-card">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-400 font-semibold text-sm shrink-0">3</div>
+              <div>
+                <h3 class="text-white font-body font-semibold text-base mb-1">漏看上下文</h3>
+                <p class="text-apple-body-muted text-sm">只看到了局部，没理解全局约束</p>
+              </div>
+            </div>
+          </div>
+          <div class="glass-card">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-semibold text-sm shrink-0">4</div>
+              <div>
+                <h3 class="text-white font-body font-semibold text-base mb-1">能跑，但难维护</h3>
+                <p class="text-apple-body-muted text-sm">短期可用，长期技术债务堆积</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="fade-up fade-up-d3 text-apple-body-muted font-body text-center text-sm md:text-base leading-relaxed">
+          很多时候，问题不是 AI 完全不会做，而是它很容易做得"像对的一样"。<br>
+          <span class="text-white/60">所以我们需要一套流程，不是为了拖慢 AI，而是为了把风险控制住。</span>
+        </p>
+      </div>
+      <div class="slide-number text-white/40">3 / 18</div>
+    </div>
+
+    <!-- Slide 4: PEV Workflow -->
+    <div class="slide bg-apple-parchment" data-theme="light">
+      <div class="max-w-4xl w-full text-center">
+        <p class="fade-up text-apple-primary font-body text-sm tracking-widest uppercase mb-4" style="letter-spacing: 0.15em;">核心工作流</p>
+        <h2 class="fade-up fade-up-d1 text-apple-ink font-display font-semibold mb-12" style="font-size: clamp(22px, 3.5vw, 40px); letter-spacing: -0.02em;">
+          PEV 工作流
+        </h2>
+        <div class="fade-up fade-up-d2 flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-12">
+          <div class="flow-box bg-apple-primary text-white shadow-lg">Plan<br><span class="text-sm font-normal opacity-80">计划</span></div>
+          <div class="flow-arrow hidden md:flex">&#8594;</div>
+          <div class="flow-arrow md:hidden rotate-90">&#8594;</div>
+          <div class="flow-box bg-apple-ink text-white shadow-lg">Execute<br><span class="text-sm font-normal opacity-80">执行</span></div>
+          <div class="flow-arrow hidden md:flex">&#8594;</div>
+          <div class="flow-arrow md:hidden rotate-90">&#8594;</div>
+          <div class="flow-box bg-apple-primary text-white shadow-lg">Verify<br><span class="text-sm font-normal opacity-80">验证</span></div>
+        </div>
+        <div class="fade-up fade-up-d3 space-y-3">
+          <p class="text-apple-ink-muted-80 font-body text-lg md:text-xl font-light">先想清楚，再让它做，最后认真验。</p>
+          <p class="text-apple-ink-muted-48 font-body text-base">人做决策，AI 做执行。</p>
+        </div>
+      </div>
+      <div class="slide-number text-apple-ink-muted-48">4 / 18</div>
+    </div>
+
+    <!-- Slide 5: PLAN -->
+    <div class="slide bg-apple-canvas" data-theme="light">
+      <div class="max-w-5xl w-full">
+        <p class="fade-up text-apple-primary font-body text-sm tracking-widest uppercase mb-4" style="letter-spacing: 0.15em;">PLAN</p>
+        <h2 class="fade-up fade-up-d1 text-apple-ink font-display font-semibold mb-8 md:mb-12" style="font-size: clamp(22px, 3.5vw, 40px); letter-spacing: -0.02em;">
+          先出计划，不先写代码
+        </h2>
+        <div class="fade-up fade-up-d2 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+          <div class="bg-apple-parchment rounded-2xl p-6 md:p-8">
+            <h3 class="text-apple-ink font-body font-semibold text-lg mb-4 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-apple-primary text-white flex items-center justify-center text-xs">1</span>
+              先给 Agent 三样东西
+            </h3>
+            <ul class="space-y-3">
+              <li class="flex items-center gap-3 text-apple-ink-muted-80">
+                <span class="w-2 h-2 rounded-full bg-apple-primary shrink-0"></span>
+                <span class="font-body text-sm md:text-base">需求描述</span>
+              </li>
+              <li class="flex items-center gap-3 text-apple-ink-muted-80">
+                <span class="w-2 h-2 rounded-full bg-apple-primary shrink-0"></span>
+                <span class="font-body text-sm md:text-base">PRD 原文</span>
+              </li>
+              <li class="flex items-center gap-3 text-apple-ink-muted-80">
+                <span class="w-2 h-2 rounded-full bg-apple-primary shrink-0"></span>
+                <span class="font-body text-sm md:text-base">约束条件</span>
+              </li>
+            </ul>
+          </div>
+          <div class="bg-apple-parchment rounded-2xl p-6 md:p-8">
+            <h3 class="text-apple-ink font-body font-semibold text-lg mb-4 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-apple-ink text-white flex items-center justify-center text-xs">2</span>
+              Agent 输出实现计划
+            </h3>
+            <ul class="space-y-3">
+              <li class="flex items-center gap-3 text-apple-ink-muted-80">
+                <span class="w-2 h-2 rounded-full bg-apple-ink shrink-0"></span>
+                <span class="font-body text-sm md:text-base">任务拆解</span>
+              </li>
+              <li class="flex items-center gap-3 text-apple-ink-muted-80">
+                <span class="w-2 h-2 rounded-full bg-apple-ink shrink-0"></span>
+                <span class="font-body text-sm md:text-base">关键文件</span>
+              </li>
+              <li class="flex items-center gap-3 text-apple-ink-muted-80">
+                <span class="w-2 h-2 rounded-full bg-apple-ink shrink-0"></span>
+                <span class="font-body text-sm md:text-base">架构权衡</span>
+              </li>
+              <li class="flex items-center gap-3 text-apple-ink-muted-80">
+                <span class="w-2 h-2 rounded-full bg-apple-ink shrink-0"></span>
+                <span class="font-body text-sm md:text-base">实施步骤</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <p class="fade-up fade-up-d3 text-apple-ink-muted-48 font-body text-center mt-8 text-sm md:text-base">
+          先看清方向，再让 AI 动手。
+        </p>
+      </div>
+      <div class="slide-number text-apple-ink-muted-48">5 / 18</div>
+    </div>
+
+    <!-- Slide 6: Confirm then Execute -->
+    <div class="slide bg-apple-tile-1" data-theme="dark">
+      <div class="max-w-4xl w-full">
+        <p class="fade-up text-apple-primary-dark font-body text-sm tracking-widest uppercase mb-4" style="letter-spacing: 0.15em;">EXECUTE</p>
+        <h2 class="fade-up fade-up-d1 text-white font-display font-semibold mb-8 md:mb-12" style="font-size: clamp(22px, 3.5vw, 40px); letter-spacing: -0.02em;">
+          确认方案后，再放行执行
+        </h2>
+        <div class="fade-up fade-up-d2 space-y-4 md:space-y-6">
+          <div class="glass-card">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-xl bg-apple-primary flex items-center justify-center text-white font-semibold shrink-0 text-sm">1</div>
+              <div>
+                <h3 class="text-white font-body font-semibold text-base md:text-lg mb-2">先审查计划</h3>
+                <div class="flex flex-wrap gap-2">
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-white/80 text-xs md:text-sm">步骤是否合理</span>
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-white/80 text-xs md:text-sm">场景是否遗漏</span>
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-white/80 text-xs md:text-sm">范围是否清楚</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="glass-card">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center text-white font-semibold shrink-0 text-sm">2</div>
+              <div>
+                <h3 class="text-white font-body font-semibold text-base md:text-lg mb-2">再给反馈（如果需要）</h3>
+                <div class="flex flex-wrap gap-2">
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-white/80 text-xs md:text-sm">提出疑问</span>
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-white/80 text-xs md:text-sm">调整方案</span>
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-white/80 text-xs md:text-sm">补充需求</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="glass-card border-apple-primary/30">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center text-white font-semibold shrink-0 text-sm">3</div>
+              <div>
+                <h3 class="text-white font-body font-semibold text-base md:text-lg mb-2">最后放行执行</h3>
+                <div class="flex flex-wrap gap-2">
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-white/80 text-xs md:text-sm">AI 开始写代码</span>
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-white/80 text-xs md:text-sm">按规则执行</span>
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-white/80 text-xs md:text-sm">写完补测试并跑校验</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="fade-up fade-up-d3 text-apple-body-muted font-body text-center mt-8 text-sm md:text-base">
+          先把方案看对、想全、调顺，再放行执行。
+        </p>
+      </div>
+      <div class="slide-number text-white/40">6 / 18</div>
+    </div>
+
+    <!-- Slide 7: Quality Check -->
+    <div class="slide bg-apple-parchment" data-theme="light">
+      <div class="max-w-4xl w-full">
+        <p class="fade-up text-apple-primary font-body text-sm tracking-widest uppercase mb-4" style="letter-spacing: 0.15em;">VERIFY</p>
+        <h2 class="fade-up fade-up-d1 text-apple-ink font-display font-semibold mb-8 md:mb-12" style="font-size: clamp(22px, 3.5vw, 40px); letter-spacing: -0.02em;">
+          人做最后的质量把关
+        </h2>
+        <div class="fade-up fade-up-d2 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+          <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-apple-divider">
+            <h3 class="text-apple-ink font-body font-semibold text-lg mb-5 flex items-center gap-2">
+              <svg class="w-5 h-5 text-apple-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              Code Review
+            </h3>
+            <ul class="space-y-3">
+              <li class="flex items-center gap-3 text-apple-ink-muted-80 text-sm md:text-base">
+                <span class="w-1.5 h-1.5 rounded-full bg-apple-primary shrink-0"></span>风格和架构
+              </li>
+              <li class="flex items-center gap-3 text-apple-ink-muted-80 text-sm md:text-base">
+                <span class="w-1.5 h-1.5 rounded-full bg-apple-primary shrink-0"></span>重复逻辑
+              </li>
+              <li class="flex items-center gap-3 text-apple-ink-muted-80 text-sm md:text-base">
+                <span class="w-1.5 h-1.5 rounded-full bg-apple-primary shrink-0"></span>安全隐患
+              </li>
+              <li class="flex items-center gap-3 text-apple-ink-muted-80 text-sm md:text-base">
+                <span class="w-1.5 h-1.5 rounded-full bg-apple-primary shrink-0"></span>类型严谨性
+              </li>
+            </ul>
+          </div>
+          <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-apple-divider">
+            <h3 class="text-apple-ink font-body font-semibold text-lg mb-5 flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              功能自测
+            </h3>
+            <ul class="space-y-3">
+              <li class="flex items-center gap-3 text-apple-ink-muted-80 text-sm md:text-base">
+                <span class="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>流程完整
+              </li>
+              <li class="flex items-center gap-3 text-apple-ink-muted-80 text-sm md:text-base">
+                <span class="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>交互流畅
+              </li>
+              <li class="flex items-center gap-3 text-apple-ink-muted-80 text-sm md:text-base">
+                <span class="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>错误提示
+              </li>
+              <li class="flex items-center gap-3 text-apple-ink-muted-80 text-sm md:text-base">
+                <span class="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>响应式布局
+              </li>
+            </ul>
+          </div>
+        </div>
+        <p class="fade-up fade-up-d3 text-apple-ink-muted-48 font-body text-center mt-8 text-sm md:text-base">
+          AI 加快的是产出速度，人负责最后的质量把关。
+        </p>
+      </div>
+      <div class="slide-number text-apple-ink-muted-48">7 / 18</div>
+    </div>
+
+    <!-- Slide 8: Bug Fix Loop -->
+    <div class="slide bg-apple-tile-2" data-theme="dark">
+      <div class="max-w-4xl w-full text-center">
+        <p class="fade-up text-apple-primary-dark font-body text-sm tracking-widest uppercase mb-4" style="letter-spacing: 0.15em;">修 Bug 的闭环</p>
+        <h2 class="fade-up fade-up-d1 text-white font-display font-semibold mb-10 md:mb-14" style="font-size: clamp(20px, 3.2vw, 36px); letter-spacing: -0.02em;">
+          发现 Bug 后，不是直接修，而是先写红测
+        </h2>
+        <div class="fade-up fade-up-d2 flex flex-col md:flex-row items-center justify-center gap-3 md:gap-4 mb-10 md:mb-14">
+          <div class="flow-box bg-red-500/90 text-white">发现 Bug</div>
+          <div class="flow-arrow hidden md:flex">&#8594;</div>
+          <div class="flow-arrow md:hidden rotate-90">&#8594;</div>
+          <div class="flow-box bg-orange-500/90 text-white">写失败测试</div>
+          <div class="flow-arrow hidden md:flex">&#8594;</div>
+          <div class="flow-arrow md:hidden rotate-90">&#8594;</div>
+          <div class="flow-box bg-yellow-500/90 text-white">修代码</div>
+          <div class="flow-arrow hidden md:flex">&#8594;</div>
+          <div class="flow-arrow md:hidden rotate-90">&#8594;</div>
+          <div class="flow-box bg-green-500/90 text-white">测试通过</div>
+          <div class="flow-arrow hidden md:flex">&#8594;</div>
+          <div class="flow-arrow md:hidden rotate-90">&#8594;</div>
+          <div class="flow-box bg-apple-primary/90 text-white">回到 Verify</div>
+        </div>
+        <div class="fade-up fade-up-d3 space-y-3">
+          <p class="text-white/80 font-body text-base md:text-lg">先复现，再修复</p>
+          <p class="text-apple-body-muted font-body text-sm md:text-base">修 Bug 不靠感觉，靠可重复验证的闭环</p>
+        </div>
+      </div>
+      <div class="slide-number text-white/40">8 / 18</div>
+    </div>
+
+    <!-- Slide 9: Part 2 Cover -->
+    <div class="slide bg-apple-canvas" data-theme="light">
+      <div class="text-center max-w-3xl w-full">
+        <p class="fade-up text-apple-primary font-body text-sm tracking-widest uppercase mb-6" style="letter-spacing: 0.15em;">第二部分</p>
+        <h2 class="fade-up fade-up-d1 text-apple-ink font-display font-semibold mb-6" style="font-size: clamp(26px, 4.5vw, 48px); letter-spacing: -0.02em;">
+          AI Agent 的运行原理
+        </h2>
+        <p class="fade-up fade-up-d2 text-apple-ink-muted-80 font-body text-lg md:text-xl mb-8">
+          为什么它看起来像会自己干活？
+        </p>
+        <div class="fade-up fade-up-d3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-apple-parchment text-apple-ink-muted-48 text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          这一部分统一用"查天气"这个例子来讲清楚原理
+        </div>
+      </div>
+      <div class="slide-number text-apple-ink-muted-48">9 / 18</div>
+    </div>
+
+    <!-- Slide 10: Agent Loop -->
+    <div class="slide bg-apple-parchment" data-theme="light">
+      <div class="max-w-5xl w-full">
+        <p class="fade-up text-apple-primary font-body text-sm tracking-widest uppercase mb-4" style="letter-spacing: 0.15em;">核心循环</p>
+        <h2 class="fade-up fade-up-d1 text-apple-ink font-display font-semibold mb-6 md:mb-8" style="font-size: clamp(20px, 3.2vw, 36px); letter-spacing: -0.02em;">
+          Agent 是怎么一轮轮工作的？
+        </h2>
+        <div class="fade-up fade-up-d2 grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+          <div class="code-block">
+            <div class="text-apple-ink-muted-48 text-xs mb-2">// TS 伪代码</div>
+            <pre class="typewriter">while (!taskComplete) {
+  const response = <span class="code-function">LLM</span>(messages, tools);
+
+  if (response.toolCalls) {
+    const results = <span class="code-function">executeTools</span>(
+      response.toolCalls
+    );
+    messages.<span class="code-function">push</span>(...results);
+  } else {
+    return response.content;
+  }
+}</pre>
+          </div>
+          <div class="bg-white rounded-2xl p-6 border border-apple-divider">
+            <h3 class="text-apple-ink font-body font-semibold text-sm mb-4">循环流程</h3>
+            <div class="flex flex-col gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-apple-primary/10 flex items-center justify-center text-apple-primary text-xs font-semibold shrink-0">1</div>
+                <span class="text-apple-ink-muted-80 text-sm">读取当前上下文</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-apple-primary/10 flex items-center justify-center text-apple-primary text-xs font-semibold shrink-0">2</div>
+                <span class="text-apple-ink-muted-80 text-sm">调用 LLM 判断下一步</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-apple-primary/10 flex items-center justify-center text-apple-primary text-xs font-semibold shrink-0">3</div>
+                <span class="text-apple-ink-muted-80 text-sm">是否需要调用工具？</span>
+              </div>
+              <div class="flex items-center gap-3 ml-4">
+                <div class="text-apple-ink-muted-48 text-xs">是 →</div>
+                <span class="text-apple-ink-muted-80 text-sm">执行工具，结果放回上下文</span>
+              </div>
+              <div class="flex items-center gap-3 ml-4">
+                <div class="text-apple-ink-muted-48 text-xs">否 →</div>
+                <span class="text-apple-ink-muted-80 text-sm">返回结果</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="fade-up fade-up-d3 text-apple-ink-muted-48 font-body text-center mt-6 text-sm md:text-base">
+          Agent 不是一次性把答案想完，而是带着最新上下文一轮轮继续判断和执行。
+        </p>
+      </div>
+      <div class="slide-number text-apple-ink-muted-48">10 / 18</div>
+    </div>
+
+    <!-- Slide 11: Messages Growth -->
+    <div class="slide bg-apple-tile-1" data-theme="dark">
+      <div class="max-w-4xl w-full">
+        <p class="fade-up text-apple-primary-dark font-body text-sm tracking-widest uppercase mb-4" style="letter-spacing: 0.15em;">上下文累积</p>
+        <h2 class="fade-up fade-up-d1 text-white font-display font-semibold mb-6 md:mb-8" style="font-size: clamp(20px, 3.2vw, 36px); letter-spacing: -0.02em;">
+          messages 为什么会越来越长？
+        </h2>
+        <div class="fade-up fade-up-d2 space-y-4">
+          <div class="glass-card">
+            <div class="text-xs text-apple-primary-dark font-semibold mb-2 uppercase tracking-wider">第一次传给 LLM</div>
+            <div class="space-y-1 text-sm text-white/80 font-mono text-xs md:text-sm">
+              <div class="text-white/50">- system:</div>
+              <div class="ml-4">你是一个 agent，需要优先使用工具获取实时信息。</div>
+              <div class="text-white/50 mt-2">- user:</div>
+              <div class="ml-4">帮我查一下杭州今天的天气。</div>
+            </div>
+          </div>
+          <div class="glass-card border-l-4 border-l-apple-primary">
+            <div class="text-xs text-apple-primary-dark font-semibold mb-2 uppercase tracking-wider">LLM 返回</div>
+            <div class="text-sm text-white/80 font-mono text-xs md:text-sm">
+              <div class="text-white/50">- tool call:</div>
+              <div class="ml-4">name: "getWeather"</div>
+              <div class="ml-4">arguments: { city: "杭州" }</div>
+            </div>
+          </div>
+          <div class="glass-card">
+            <div class="text-xs text-apple-primary-dark font-semibold mb-2 uppercase tracking-wider">第二次传给 LLM</div>
+            <div class="space-y-1 text-sm text-white/80 font-mono text-xs md:text-sm">
+              <div class="text-white/50">- system: ...</div>
+              <div class="text-white/50">- user: 帮我查一下杭州今天的天气。</div>
+              <div class="text-white/50 mt-1">- assistant:</div>
+              <div class="ml-4">调用工具 getWeather({ city: "杭州" })</div>
+              <div class="text-white/50 mt-1">- tool:</div>
+              <div class="ml-4">杭州，晴，25°C，东北风 2 级。</div>
+            </div>
+          </div>
+        </div>
+        <p class="fade-up fade-up-d3 text-apple-body-muted font-body text-center mt-6 text-sm md:text-base">
+          下一轮不是重新开始，而是把上一轮的 tool call 和工具结果一起带回给 LLM。
+        </p>
+      </div>
+      <div class="slide-number text-white/40">11 / 18</div>
+    </div>
+
+    <!-- Slide 12: Tools -->
+    <div class="slide bg-apple-canvas" data-theme="light">
+      <div class="max-w-5xl w-full">
+        <p class="fade-up text-apple-primary font-body text-sm tracking-widest uppercase mb-4" style="letter-spacing: 0.15em;">工具系统</p>
+        <h2 class="fade-up fade-up-d1 text-apple-ink font-display font-semibold mb-6 md:mb-8" style="font-size: clamp(20px, 3.2vw, 36px); letter-spacing: -0.02em;">
+          LLM 为什么不只是会回答，还能调用工具？
+        </h2>
+        <div class="fade-up fade-up-d2 grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+          <div class="code-block">
+            <div class="text-apple-ink-muted-48 text-xs mb-2">// 工具定义与调用</div>
+            <pre>const <span class="code-variable">tools</span> = {
+  <span class="code-variable">getWeather</span>: {
+    <span class="code-variable">description</span>: "查询指定城市的实时天气",
+    <span class="code-function">execute</span>: ({ city }) => {
+      return `${city}，晴，25°C`;
+    }
+  }
+};
+
+const <span class="code-variable">call</span> = {
+  name: "getWeather",
+  args: { city: "杭州" }
+};
+const <span class="code-variable">result</span> = tools[call.name]
+  .<span class="code-function">execute</span>(call.args);</pre>
+          </div>
+          <div class="flex flex-col justify-center">
+            <div class="bg-apple-parchment rounded-2xl p-6 md:p-8 mb-4">
+              <h3 class="text-apple-ink font-body font-semibold text-base mb-3">可以把 tools 理解成一张菜单</h3>
+              <ul class="space-y-2 text-sm text-apple-ink-muted-80">
+                <li class="flex gap-2"><span class="text-apple-primary font-semibold shrink-0">tools</span><span>菜单上有哪些服务可以点</span></li>
+                <li class="flex gap-2"><span class="text-apple-primary font-semibold shrink-0">name</span><span>点的是哪一项服务</span></li>
+                <li class="flex gap-2"><span class="text-apple-primary font-semibold shrink-0">args</span><span>这次具体要什么</span></li>
+                <li class="flex gap-2"><span class="text-apple-primary font-semibold shrink-0">execute()</span><span>后台真正去完成这项服务</span></li>
+                <li class="flex gap-2"><span class="text-apple-primary font-semibold shrink-0">result</span><span>最后返回给模型的结果</span></li>
+              </ul>
+            </div>
+            <div class="text-center">
+              <p class="text-apple-ink font-body font-semibold text-base md:text-lg">"LLM 更像是在下单，不是在亲自做事。"</p>
+            </div>
+          </div>
+        </div>
+        <p class="fade-up fade-up-d3 text-apple-ink-muted-48 font-body text-center mt-6 text-sm md:text-base">
+          LLM 负责决定"调用什么"，外层程序负责真正"把事情做完"。
+        </p>
+      </div>
+      <div class="slide-number text-apple-ink-muted-48">12 / 18</div>
+    </div>
+
+    <!-- Slide 13: One Sentence -->
+    <div class="slide bg-apple-tile-3" data-theme="dark">
+      <div class="text-center max-w-3xl w-full">
+        <p class="fade-up text-apple-primary-dark font-body text-sm tracking-widest uppercase mb-6" style="letter-spacing: 0.15em;">一句话总结</p>
+        <h2 class="fade-up fade-up-d1 text-white font-display font-semibold mb-10 md:mb-14" style="font-size: clamp(22px, 3.8vw, 42px); letter-spacing: -0.02em; line-height: 1.3;">
+          Agent 不是魔法，<br>它只是把"会回答"变成了"会行动"。
+        </h2>
+        <div class="fade-up fade-up-d2 space-y-4 text-left max-w-lg mx-auto">
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-full bg-apple-primary/20 flex items-center justify-center text-apple-primary-dark text-xs font-semibold shrink-0 mt-0.5">1</div>
+            <p class="text-white/70 text-sm md:text-base">每一轮都带着最新上下文重新调用 LLM</p>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-full bg-apple-primary/20 flex items-center justify-center text-apple-primary-dark text-xs font-semibold shrink-0 mt-0.5">2</div>
+            <p class="text-white/70 text-sm md:text-base">LLM 决定是否调用工具</p>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-full bg-apple-primary/20 flex items-center justify-center text-apple-primary-dark text-xs font-semibold shrink-0 mt-0.5">3</div>
+            <p class="text-white/70 text-sm md:text-base">工具结果再回到上下文里进入下一轮</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-number text-white/40">13 / 18</div>
+    </div>
+
+    <!-- Slide 14: Keep Up -->
+    <div class="slide bg-apple-parchment" data-theme="light">
+      <div class="max-w-3xl w-full text-center">
+        <p class="fade-up text-apple-primary font-body text-sm tracking-widest uppercase mb-4" style="letter-spacing: 0.15em;">持续学习</p>
+        <h2 class="fade-up fade-up-d1 text-apple-ink font-display font-semibold mb-6" style="font-size: clamp(22px, 3.5vw, 40px); letter-spacing: -0.02em;">
+          怎么持续跟进 AI 变化
+        </h2>
+        <p class="fade-up fade-up-d2 text-apple-ink-muted-80 font-body text-lg md:text-xl mb-10">
+          不是追所有变化，而是建立感知，<br>然后在需要的时候快速深入。
+        </p>
+        <div class="fade-up fade-up-d3 space-y-4 max-w-lg mx-auto">
+          <div class="bg-white rounded-2xl p-5 md:p-6 shadow-sm border border-apple-divider flex items-center gap-4 text-left">
+            <div class="w-10 h-10 rounded-xl bg-apple-primary/10 flex items-center justify-center text-apple-primary font-semibold shrink-0">1</div>
+            <div>
+              <h3 class="text-apple-ink font-body font-semibold text-sm md:text-base">GitHub Trending 保持感知</h3>
+              <p class="text-apple-ink-muted-48 text-xs md:text-sm">每周花 10 分钟看趋势，知道什么在火</p>
+            </div>
+          </div>
+          <div class="bg-white rounded-2xl p-5 md:p-6 shadow-sm border border-apple-divider flex items-center gap-4 text-left">
+            <div class="w-10 h-10 rounded-xl bg-apple-primary/10 flex items-center justify-center text-apple-primary font-semibold shrink-0">2</div>
+            <div>
+              <h3 class="text-apple-ink font-body font-semibold text-sm md:text-base">AI 辅助读源码</h3>
+              <p class="text-apple-ink-muted-48 text-xs md:text-sm">让 AI 帮你梳理框架核心逻辑</p>
+            </div>
+          </div>
+          <div class="bg-white rounded-2xl p-5 md:p-6 shadow-sm border border-apple-divider flex items-center gap-4 text-left">
+            <div class="w-10 h-10 rounded-xl bg-apple-primary/10 flex items-center justify-center text-apple-primary font-semibold shrink-0">3</div>
+            <div>
+              <h3 class="text-apple-ink font-body font-semibold text-sm md:text-base">固定关注高质量信息源</h3>
+              <p class="text-apple-ink-muted-48 text-xs md:text-sm">精选 3-5 个可靠的渠道，减少噪音</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-number text-apple-ink-muted-48">14 / 18</div>
+    </div>
+
+    <!-- Slide 15: Business Assistant -->
+    <div class="slide bg-apple-canvas" data-theme="light">
+      <div class="max-w-3xl w-full text-center">
+        <p class="fade-up text-apple-primary font-body text-sm tracking-widest uppercase mb-4" style="letter-spacing: 0.15em;">团队实践</p>
+        <h2 class="fade-up fade-up-d1 text-apple-ink font-display font-semibold mb-6" style="font-size: clamp(22px, 3.5vw, 40px); letter-spacing: -0.02em;">
+          从代码助手，到业务助手
+        </h2>
+        <p class="fade-up fade-up-d2 text-apple-ink-muted-80 font-body text-lg md:text-xl mb-10">
+          AI 能不能不只是代码助手，还能变成业务助手？
+        </p>
+        <div class="fade-up fade-up-d3 flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-10">
+          <div class="flow-box bg-apple-ink text-white shadow-lg">后端 API</div>
+          <div class="flow-arrow hidden md:flex">&#8594;</div>
+          <div class="flow-arrow md:hidden rotate-90">&#8594;</div>
+          <div class="flow-box bg-apple-primary text-white shadow-lg">CLI 命令</div>
+          <div class="flow-arrow hidden md:flex">&#8594;</div>
+          <div class="flow-arrow md:hidden rotate-90">&#8594;</div>
+          <div class="flow-box bg-green-600 text-white shadow-lg">Agent</div>
+        </div>
+        <p class="fade-up fade-up-d4 text-apple-ink-muted-48 font-body text-sm md:text-base">
+          把已有系统能力，换一种更适合 Agent 调用的暴露方式。
+        </p>
+      </div>
+      <div class="slide-number text-apple-ink-muted-48">15 / 18</div>
+    </div>
+
+    <!-- Slide 16: Low Risk Start -->
+    <div class="slide bg-apple-tile-2" data-theme="dark">
+      <div class="max-w-4xl w-full">
+        <p class="fade-up text-apple-primary-dark font-body text-sm tracking-widest uppercase mb-4" style="letter-spacing: 0.15em;">落地建议</p>
+        <h2 class="fade-up fade-up-d1 text-white font-display font-semibold mb-8 md:mb-10" style="font-size: clamp(22px, 3.5vw, 40px); letter-spacing: -0.02em;">
+          建议从低风险场景开始
+        </h2>
+        <div class="fade-up fade-up-d2 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <div class="glass-card">
+            <h3 class="text-white font-body font-semibold text-base mb-4 flex items-center gap-2">
+              <svg class="w-5 h-5 text-apple-primary-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+              自然语言交互示例
+            </h3>
+            <div class="space-y-3">
+              <div class="bg-white/5 rounded-lg px-4 py-3 text-white/80 text-sm">"查一下今天有多少笔待审批的付款"</div>
+              <div class="bg-white/5 rounded-lg px-4 py-3 text-white/80 text-sm">"把金额最大的那笔详情给我看"</div>
+              <div class="bg-white/5 rounded-lg px-4 py-3 text-white/80 text-sm">"这笔交易的汇率是多少"</div>
+            </div>
+          </div>
+          <div class="glass-card">
+            <h3 class="text-white font-body font-semibold text-base mb-4 flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+              建议下一步
+            </h3>
+            <div class="space-y-3">
+              <div class="flex items-center gap-3 text-white/80 text-sm">
+                <span class="w-6 h-6 rounded-full bg-apple-primary/30 flex items-center justify-center text-xs font-semibold shrink-0">1</span>
+                先做查询类 CLI
+              </div>
+              <div class="flex items-center gap-3 text-white/80 text-sm">
+                <span class="w-6 h-6 rounded-full bg-apple-primary/30 flex items-center justify-center text-xs font-semibold shrink-0">2</span>
+                打通权限体系
+              </div>
+              <div class="flex items-center gap-3 text-white/80 text-sm">
+                <span class="w-6 h-6 rounded-full bg-apple-primary/30 flex items-center justify-center text-xs font-semibold shrink-0">3</span>
+                留好审计日志
+              </div>
+              <div class="flex items-center gap-3 text-white/80 text-sm">
+                <span class="w-6 h-6 rounded-full bg-apple-primary/30 flex items-center justify-center text-xs font-semibold shrink-0">4</span>
+                再逐步扩展复杂操作
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-number text-white/40">16 / 18</div>
+    </div>
+
+    <!-- Slide 17: Closing -->
+    <div class="slide bg-apple-parchment" data-theme="light">
+      <div class="text-center max-w-3xl w-full">
+        <p class="fade-up text-apple-primary font-body text-sm tracking-widest uppercase mb-6" style="letter-spacing: 0.15em;">结束语</p>
+        <h2 class="fade-up fade-up-d1 text-apple-ink font-display font-semibold mb-8 md:mb-12" style="font-size: clamp(24px, 4vw, 48px); letter-spacing: -0.02em; line-height: 1.2;">
+          AI 能放大你的能力，<br>但不能替代你的判断。
+        </h2>
+        <div class="fade-up fade-up-d2 space-y-4 max-w-md mx-auto text-left">
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-apple-primary shrink-0"></div>
+            <p class="text-apple-ink-muted-80 text-sm md:text-base">工具会越来越强</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-apple-primary shrink-0"></div>
+            <p class="text-apple-ink-muted-80 text-sm md:text-base">速度会越来越快</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-apple-primary shrink-0"></div>
+            <p class="text-apple-ink-muted-80 text-sm md:text-base">但结果质量仍然取决于人的判断、规则和把关</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-number text-apple-ink-muted-48">17 / 18</div>
+    </div>
+
+    <!-- Slide 18: Q&A -->
+    <div class="slide bg-apple-canvas" data-theme="light">
+      <div class="text-center max-w-3xl w-full">
+        <h2 class="fade-up text-apple-ink font-display font-semibold mb-6" style="font-size: clamp(40px, 8vw, 80px); letter-spacing: -0.04em;">
+          Q&A
+        </h2>
+        <p class="fade-up fade-up-d1 text-apple-ink-muted-80 font-body text-lg md:text-xl leading-relaxed">
+          中间任何部分，如果你想继续展开，<br>我们可以直接往下聊。
+        </p>
+        <div class="fade-up fade-up-d2 mt-12">
+          <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-apple-primary text-white text-sm font-body">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+            欢迎提问
+          </div>
+        </div>
+      </div>
+      <div class="slide-number text-apple-ink-muted-48">18 / 18</div>
+    </div>
+
+  </div>
+
+  <script>
+    (function() {
+      const container = document.getElementById('slidesContainer');
+      const dotsContainer = document.getElementById('pageDots');
+      const progressBar = document.getElementById('progressBar');
+      const slides = document.querySelectorAll('.slide');
+      const totalSlides = slides.length;
+      let currentSlide = 0;
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+      // Create dots
+      slides.forEach((slide, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'page-dot' + (slide.dataset.theme === 'dark' ? ' dark-mode' : '');
+        dot.addEventListener('click', () => goToSlide(i));
+        dotsContainer.appendChild(dot);
+      });
+
+      const dots = document.querySelectorAll('.page-dot');
+
+      function updateUI() {
+        container.style.transform = `translateX(-${currentSlide * 100}vw)`;
+        progressBar.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+        dots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === currentSlide);
+        });
+        document.getElementById('prevBtn').style.opacity = currentSlide === 0 ? '0.3' : '1';
+        document.getElementById('nextBtn').style.opacity = currentSlide === totalSlides - 1 ? '0.3' : '1';
+      }
+
+      function goToSlide(index) {
+        if (index < 0 || index >= totalSlides) return;
+        currentSlide = index;
+        updateUI();
+      }
+
+      function nextSlide() { goToSlide(currentSlide + 1); }
+      function prevSlide() { goToSlide(currentSlide - 1); }
+
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') {
+          e.preventDefault();
+          nextSlide();
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          prevSlide();
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          goToSlide(0);
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          goToSlide(totalSlides - 1);
+        }
+      });
+
+      // Touch swipe
+      document.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+
+      document.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchStartX - touchEndX;
+        if (Math.abs(diff) > 50) {
+          if (diff > 0) nextSlide();
+          else prevSlide();
+        }
+      }, { passive: true });
+
+      // Button clicks
+      document.getElementById('prevBtn').addEventListener('click', prevSlide);
+      document.getElementById('nextBtn').addEventListener('click', nextSlide);
+
+      // Mouse wheel
+      let wheelTimeout;
+      document.addEventListener('wheel', (e) => {
+        clearTimeout(wheelTimeout);
+        wheelTimeout = setTimeout(() => {
+          if (e.deltaY > 30) nextSlide();
+          else if (e.deltaY < -30) prevSlide();
+        }, 50);
+      }, { passive: true });
+
+      // Initialize
+      updateUI();
+    })();
+  </script>
+</body>
+</html>

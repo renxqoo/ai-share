@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI ??????????????</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #cc785c;
+  --primary-active: #a9583e;
+  --ink: #141413;
+  --body: #3d3d3a;
+  --muted: #6c6a64;
+  --muted-soft: #8e8b82;
+  --hairline: #e6dfd8;
+  --canvas: #faf9f5;
+  --surface-soft: #f5f0e8;
+  --surface-card: #efe9de;
+  --surface-cream-strong: #e8e0d2;
+  --surface-dark: #181715;
+  --surface-dark-elevated: #252320;
+  --surface-dark-soft: #1f1e1b;
+  --on-primary: #ffffff;
+  --on-dark: #faf9f5;
+  --on-dark-soft: #a09d96;
+  --accent-teal: #5db8a6;
+  --accent-amber: #e8a55a;
+  --success: #5db872;
+  --warning: #d4a017;
+  --error: #c64545;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: auto; overflow: hidden; height: 100%; }
+body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: var(--canvas); color: var(--body); height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; }
+.display-xl { font-family: 'Georgia', serif; font-size: clamp(2rem, 5vw, 4rem); font-weight: 400; line-height: 1.05; letter-spacing: -0.03em; color: var(--ink); }
+.display-lg { font-family: 'Georgia', serif; font-size: clamp(1.75rem, 4vw, 3rem); font-weight: 400; line-height: 1.1; letter-spacing: -0.02em; color: var(--ink); }
+.display-md { font-family: 'Georgia', serif; font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 400; line-height: 1.15; letter-spacing: -0.01em; color: var(--ink); }
+.display-sm { font-family: 'Georgia', serif; font-size: clamp(1.25rem, 2.5vw, 1.75rem); font-weight: 400; line-height: 1.2; color: var(--ink); }
+.body-md { font-size: clamp(0.875rem, 1.5vw, 1rem); line-height: 1.55; }
+.body-sm { font-size: clamp(0.75rem, 1.2vw, 0.875rem); line-height: 1.55; }
+.caption { font-size: 0.8125rem; font-weight: 500; line-height: 1.4; color: var(--muted); }
+.code-font { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 1.1vw, 0.875rem); line-height: 1.6; }
+.slides-wrapper { height: 100vh; width: 100%; position: relative; overflow: hidden; }
+.slide { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center; padding: clamp(1rem, 3vh, 3rem) clamp(1rem, 4vw, 4rem); opacity: 0; transform: translateX(60px); transition: opacity 0.5s ease, transform 0.5s ease; pointer-events: none; overflow-y: auto; overflow-x: hidden; }
+.slide.active { opacity: 1; transform: translateX(0); pointer-events: auto; z-index: 2; }
+.slide.prev { opacity: 0; transform: translateX(-60px); pointer-events: none; z-index: 1; }
+.slide-inner { width: 100%; max-width: 1100px; max-height: 90vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.75rem, 2vh, 2rem); }
+.nav-btn { position: fixed; top: 50%; transform: translateY(-50%); z-index: 100; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--hairline); background: var(--canvas); color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.nav-btn:hover { background: var(--surface-card); border-color: var(--primary); }
+.nav-btn:active { background: var(--surface-cream-strong); }
+.nav-btn.prev { left: clamp(0.5rem, 2vw, 1.5rem); }
+.nav-btn.next { right: clamp(0.5rem, 2vw, 1.5rem); }
+.nav-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
+.progress-bar { position: fixed; bottom: 0; left: 0; height: 3px; background: var(--primary); z-index: 101; transition: width 0.4s ease; }
+.page-indicator { position: fixed; bottom: clamp(0.5rem, 2vh, 1.5rem); right: clamp(0.5rem, 2vw, 1.5rem); z-index: 100; font-size: 0.75rem; color: var(--muted-soft); font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; }
+.dot-nav { position: fixed; bottom: clamp(0.5rem, 2vh, 1.5rem); left: 50%; transform: translateX(-50%); z-index: 100; display: flex; gap: 6px; }
+.dot-nav .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--hairline); cursor: pointer; transition: all 0.3s ease; }
+.dot-nav .dot.active { background: var(--primary); width: 20px; border-radius: 3px; }
+.card-cream { background: var(--surface-card); border: 1px solid var(--hairline); border-radius: 12px; padding: clamp(0.75rem, 2vh, 1.5rem); }
+.card-dark { background: var(--surface-dark); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: clamp(0.75rem, 2vh, 1.5rem); color: var(--on-dark); }
+.card-dark-elevated { background: var(--surface-dark-elevated); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: clamp(0.75rem, 2vh, 1.5rem); color: var(--on-dark); }
+.tag { display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.05em; }
+.tag-coral { background: rgba(204,120,92,0.12); color: var(--primary); }
+.tag-teal { background: rgba(93,184,166,0.12); color: var(--accent-teal); }
+.tag-amber { background: rgba(232,165,90,0.12); color: var(--accent-amber); }
+.flow-container { display: flex; align-items: center; justify-content: center; gap: clamp(0.5rem, 2vw, 1.5rem); flex-wrap: wrap; }
+.flow-node { background: var(--surface-card); border: 2px solid var(--hairline); border-radius: 12px; padding: clamp(0.5rem, 1.5vh, 1rem) clamp(0.75rem, 2vw, 1.5rem); text-align: center; min-width: 100px; }
+.flow-node.highlight { border-color: var(--primary); background: rgba(204,120,92,0.06); }
+.flow-arrow { font-size: 1.5rem; color: var(--primary); animation: arrowPulse 1.5s ease-in-out infinite; }
+@keyframes arrowPulse { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.15); } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeInScale { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.anim-reveal { opacity: 0; }
+.slide.active .anim-reveal { animation: fadeInUp 0.6s ease forwards; }
+.slide.active .anim-reveal-delay-1 { animation-delay: 0.1s; }
+.slide.active .anim-reveal-delay-2 { animation-delay: 0.2s; }
+.slide.active .anim-reveal-delay-3 { animation-delay: 0.3s; }
+.slide.active .anim-reveal-delay-4 { animation-delay: 0.4s; }
+.slide.active .anim-reveal-delay-5 { animation-delay: 0.5s; }
+.coral-callout { background: var(--primary); color: var(--on-primary); border-radius: 16px; padding: clamp(0.75rem, 2vh, 1.5rem) clamp(1rem, 3vw, 2rem); text-align: center; }
+.coral-callout .display-md, .coral-callout .display-sm { color: var(--on-primary); }
+.num-badge { width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.875rem; flex-shrink: 0; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(0.5rem, 1.5vh, 1.25rem); width: 100%; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(0.5rem, 1.5vh, 1.25rem); width: 100%; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(0.5rem, 1.5vh, 1.25rem); width: 100%; }
+.cover-bg { background: radial-gradient(ellipse at 20% 50%, rgba(204,120,92,0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(93,184,166,0.04) 0%, transparent 50%), var(--canvas); }
+.code-block { background: var(--surface-dark); border-radius: 10px; padding: clamp(0.5rem, 1.5vh, 1rem) clamp(0.75rem, 2vw, 1.25rem); color: var(--on-dark); overflow-x: auto; border: 1px solid rgba(255,255,255,0.06); }
+.code-block .comment { color: #6c6a64; }
+.code-block .keyword { color: #cc785c; }
+.code-block .string { color: #5db8a6; }
+.code-block .func { color: #e8a55a; }
+.chat-bubble { display: flex; gap: 0.5rem; align-items: flex-start; margin-bottom: clamp(0.25rem, 0.8vh, 0.5rem); }
+.chat-bubble.reverse { flex-direction: row-reverse; }
+.chat-bubble .avatar { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; }
+.chat-bubble.reverse .avatar { background: var(--primary); color: white; }
+.chat-bubble.normal .avatar { background: var(--surface-dark-elevated); color: var(--on-dark); }
+.chat-bubble .msg { padding: 0.4rem 0.75rem; border-radius: 10px; font-size: clamp(0.65rem, 1vw, 0.85rem); line-height: 1.5; max-width: 80%; }
+.chat-bubble.reverse .msg { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
+.chat-bubble.normal .msg { background: var(--surface-card); color: var(--body); border-bottom-left-radius: 4px; }
+.connector-h { height: 2px; background: var(--hairline); flex: 1; min-width: 20px; position: relative; }
+.connector-h::after { content: ''; position: absolute; right: -4px; top: -3px; width: 0; height: 0; border-left: 6px solid var(--primary); border-top: 4px solid transparent; border-bottom: 4px solid transparent; }
+.slide-dark { background: var(--surface-dark); color: var(--on-dark); }
+.slide-dark .display-xl, .slide-dark .display-lg, .slide-dark .display-md, .slide-dark .display-sm { color: var(--on-dark); }
+.slide-dark .body-md { color: var(--on-dark-soft); }
+.slide-dark .caption { color: var(--on-dark-soft); }
+.text-center { text-align: center; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.mb-1 { margin-bottom: clamp(0.5rem, 1.5vh, 1rem); }
+.mb-2 { margin-bottom: clamp(1rem, 2.5vh, 2rem); }
+.mt-1 { margin-top: clamp(0.5rem, 1.5vh, 1rem); }
+.mt-2 { margin-top: clamp(1rem, 2.5vh, 2rem); }
+.mt-3 { margin-top: clamp(1.5rem, 3vh, 2.5rem); }
+.w-full { width: 100%; }
+@media (max-width: 768px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; } .nav-btn { width: 36px; height: 36px; } .nav-btn svg { width: 16px; height: 16px; } .dot-nav { gap: 4px; } .dot-nav .dot { width: 5px; height: 5px; } .dot-nav .dot.active { width: 14px; } .chat-bubble .msg { max-width: 90%; } }
+@media (max-width: 480px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } .slide { padding: 0.75rem; } }
+</style>
+</head>
+<body>
+<div class="slides-wrapper" id="slidesWrapper">
+
+<!-- Slide 1: Cover -->
+<div class="slide active cover-bg" data-index="0">
+<div class="slide-inner text-center">
+<div class="anim-reveal tag tag-coral mb-1">??????</div>
+<h1 class="display-xl anim-reveal anim-reveal-delay-1 mb-1">AI ??????<br>????????</h1>
+<p class="body-md anim-reveal anim-reveal-delay-2" style="color:var(--muted);max-width:520px;">?????? AI???? AI ??????????</p>
+<div class="anim-reveal anim-reveal-delay-3 mt-2" style="display:flex;gap:2rem;">
+<span class="caption">????XXX</span>
+<span class="caption">???2026/05/12</span>
+</div>
+<div class="anim-reveal anim-reveal-delay-4 mt-1" style="display:flex;gap:0.5rem;">
+<span class="tag tag-teal">Plan</span>
+<span class="tag tag-coral">Execute</span>
+<span class="tag tag-amber">Verify</span>
+</div>
+</div>
+</div>
+
+<!-- Slide 2: TOC -->
+<div class="slide" data-index="1">
+<div class="slide-inner">
+<h2 class="display-md anim-reveal text-center mb-2">????????</h2>
+<div class="grid-4 anim-reveal anim-reveal-delay-1 w-full">
+<div class="card-cream text-center">
+<div class="num-badge mx-auto mb-1">1</div>
+<div class="body-md" style="font-weight:600;">?????</div>
+<div class="body-sm" style="color:var(--muted);">PEV ????</div>
+</div>
+<div class="card-cream text-center">
+<div class="num-badge mx-auto mb-1">2</div>
+<div class="body-md" style="font-weight:600;">Agent ??</div>
+<div class="body-sm" style="color:var(--muted);">??????</div>
+</div>
+<div class="card-cream text-center">
+<div class="num-badge mx-auto mb-1">3</div>
+<div class="body-md" style="font-weight:600;">????</div>
+<div class="body-sm" style="color:var(--muted);">???? AI</div>
+</div>
+<div class="card-cream text-center">
+<div class="num-badge mx-auto mb-1">4</div>
+<div class="body-md" style="font-weight:600;">????</div>
+<div class="body-sm" style="color:var(--muted);">??????</div>
+</div>
+</div>
+<div class="anim-reveal anim-reveal-delay-2 mt-2" style="display:flex;align-items:center;gap:0;width:100%;max-width:600px;">
+<span class="tag tag-teal">???</span>
+<span class="connector-h"></span>
+<span class="tag tag-coral">Agent</span>
+<span class="connector-h"></span>
+<span class="tag tag-amber">??</span>
+<span class="connector-h"></span>
+<span class="tag tag-teal">??</span>
+</div>
+</div>
+</div>
+
+<!-- Slide 3: Why Not AI First -->
+<div class="slide" data-index="2">
+<div class="slide-inner">
+<h2 class="display-md anim-reveal text-center mb-1">?????? AI ????????</h2>
+<div class="grid-2 anim-reveal anim-reveal-delay-1 w-full">
+<div class="card-cream">
+<div class="body-md" style="font-weight:600;color:var(--error);">? ????????</div>
+<div class="body-sm" style="color:var(--muted);">????????????????</div>
+</div>
+<div class="card-cream">
+<div class="body-md" style="font-weight:600;color:var(--error);">? ??????????</div>
+<div class="body-sm" style="color:var(--muted);">?????????????</div>
+</div>
+<div class="card-cream">
+<div class="body-md" style="font-weight:600;color:var(--warning);">? ???????????</div>
+<div class="body-sm" style="color:var(--muted);">????????????????</div>
+</div>
+<div class="card-cream">
+<div class="body-md" style="font-weight:600;color:var(--warning);">? ?????????</div>
+<div class="body-sm" style="color:var(--muted);">??????????????</div>
+</div>
+</div>
+<div class="coral-callout anim-reveal anim-reveal-delay-2 mt-1" style="max-width:700px;width:100%;">
+<p class="display-sm" style="margin:0;">???????????<br>?????????????</p>
+</div>
+</div>
+</div>
+
+<!-- Slide 4: PEV Flowchart -->
+<div class="slide" data-index="3">
+<div class="slide-inner">
+<h2 class="display-md anim-reveal text-center mb-1">?????? AI ????PEV</h2>
+<div class="flow-container anim-reveal anim-reveal-delay-1 mb-1">
+<div class="flow-node highlight">
+<div class="body-md" style="font-weight:600;">Plan</div>
+<div class="body-sm" style="color:var(--muted);">????</div>
+</div>
+<span class="flow-arrow">?</span>
+<div class="flow-node">
+<div class="body-md" style="font-weight:600;">Execute</div>
+<div class="body-sm" style="color:var(--muted);">? AI ??</div>
+</div>
+<span class="flow-arrow">?</span>
+<div class="flow-node">
+<div class="body-md" style="font-weight:600;">Verify</div>
+<div class="body-sm" style="color:var(--muted);">????</div>
+</div>
+</div>
+<div class="anim-reveal anim-reveal-delay-2 text-center" style="max-width:600px;">
+<p class="body-md" style="font-weight:500;">????????????????</p>
+<p class="body-sm" style="color:var(--muted);">?????AI ????</p>
+</div>
+</div>
+</div>
+
+<!-- Slide 5: PLAN Detail -->
+<div class="slide" data-index="4">
+<div class="slide-inner">
+<h2 class="display-md anim-reveal text-center mb-1">PLAN????????????</h2>
+<div class="anim-reveal anim-reveal-delay-1" style="display:flex;gap:clamp(0.75rem,2vw,2rem);width:100%;align-items:stretch;">
+<div class="card-cream" style="flex:1;">
+<div class="body-md mb-1" style="font-weight:600;">???? AI ?????</div>
+<div class="body-sm" style="color:var(--muted);">?? ????</div>
+<div class="body-sm" style="color:var(--muted);">?? PRD ??</div>
+<div class="body-sm" style="color:var(--muted);">?? ????</div>
+</div>
+<div style="display:flex;align-items:center;color:var(--primary);font-size:1.5rem;flex-shrink:0;">?</div>
+<div class="card-dark" style="flex:1;">
+<div class="body-md mb-1" style="font-weight:600;color:var(--on-dark);">AI ??????</div>
+<div class="body-sm" style="color:var(--on-dark-soft);">?? ????</div>
+<div class="body-sm" style="color:var(--on-dark-soft);">?? ???? & ????</div>
+<div class="body-sm" style="color:var(--on-dark-soft);">? ????</div>
+<div class="body-sm" style="color:var(--on-dark-soft);">?? ????</div>
+</div>
+</div>
+<div class="coral-callout anim-reveal anim-reveal-delay-2 mt-1" style="max-width:600px;width:100%;">
+<p class="body-md" style="margin:0;font-weight:500;">?? AI ???????? AI ???</p>
+</div>
+</div>
+</div>
+
+
+<!-- Slide 6: Human Review -->
+<div class="slide slide-dark" data-index="5">
+<div class="slide-inner">
+<h2 class="display-md anim-reveal text-center mb-1">???????????</h2>
+<div class="anim-reveal anim-reveal-delay-1" style="display:flex;gap:clamp(0.75rem,2vw,2rem);width:100%;max-width:900px;">
+<div class="card-dark-elevated text-center" style="flex:1;">
+<div class="body-md mb-1" style="font-weight:600;color:var(--on-dark);">?? ?? Review</div>
+<div class="body-sm" style="color:var(--on-dark-soft);">???????</div>
+<div class="body-sm" style="color:var(--on-dark-soft);">??????</div>
+<div class="body-sm" style="color:var(--on-dark-soft);">??????</div>
+</div>
+<div style="display:flex;align-items:center;color:var(--primary);font-size:1.5rem;flex-shrink:0;">?</div>
+<div class="card-dark-elevated text-center" style="flex:1;">
+<div class="body-md mb-1" style="font-weight:600;color:var(--on-dark);">?? AI ??</div>
+<div class="body-sm" style="color:var(--on-dark-soft);">???????</div>
+<div class="body-sm" style="color:var(--on-dark-soft);">????????</div>
+</div>
+<div style="display:flex;align-items:center;color:var(--primary);font-size:1.5rem;flex-shrink:0;">?</div>
+<div class="card-dark-elevated text-center" style="flex:1;">
+<div class="body-md mb-1" style="font-weight:600;color:var(--on-dark);">?? ????</div>
+<div class="body-sm" style="color:var(--on-dark-soft);">?? Review</div>
+<div class="body-sm" style="color:var(--on-dark-soft);">????</div>
+</div>
+</div>
+<p class="body-sm anim-reveal anim-reveal-delay-2 mt-1" style="color:var(--on-dark-soft);text-align:center;">????? + AI ???? = ?????</p>
+</div>
+</div>
+
+<!-- Slide 7: What is Agent -->
+<div class="slide" data-index="6">
+<div class="slide-inner">
+<h2 class="display-md anim-reveal text-center mb-1">??? Agent?</h2>
+<div class="anim-reveal anim-reveal-delay-1" style="width:100%;max-width:800px;">
+<div class="card-cream mb-1">
+<div class="body-md" style="font-weight:600;">?? AI ??</div>
+<div class="body-sm" style="color:var(--muted);">?? ? ?? ? ????????????</div>
+</div>
+<div class="card-cream" style="border:2px solid var(--primary);background:rgba(204,120,92,0.04);">
+<div class="body-md" style="font-weight:600;">AI Agent</div>
+<div class="body-sm" style="color:var(--muted);">???? ? ????? ? ??????????????????? ???? ? ?? ? ?????</div>
+</div>
+</div>
+<p class="body-sm anim-reveal anim-reveal-delay-2 text-center mt-1" style="color:var(--muted);max-width:600px;">Agent ?"???"???"???"?????????????????</p>
+</div>
+</div>
+
+<!-- Slide 8: Agent Loop -->
+<div class="slide slide-dark" data-index="7">
+<div class="slide-inner">
+<h2 class="display-md anim-reveal text-center mb-1">Agent ?????????</h2>
+<div class="anim-reveal anim-reveal-delay-1" style="width:100%;max-width:700px;">
+<div class="mermaid-container">
+<pre class="mermaid">
+graph TD
+    A[????] --> B[????]
+    B --> C{?????}
+    C -->|?| D[????]
+    D --> E[????]
+    E --> B
+    C -->|?| F[??????]
+</pre>
+</div>
+</div>
+<p class="body-sm anim-reveal anim-reveal-delay-2 text-center mt-1" style="color:var(--on-dark-soft);">??????????? ? ?????????? ? ???????????</p>
+</div>
+</div>
+
+<!-- Slide 9: Cursor and Codex -->
+<div class="slide" data-index="8">
+<div class="slide-inner">
+<h2 class="display-md anim-reveal text-center mb-1">?????? Agent</h2>
+<div class="grid-2 anim-reveal anim-reveal-delay-1" style="width:100%;max-width:900px;">
+<div class="card-cream">
+<div class="body-md mb-1" style="font-weight:600;">??? Cursor Agent</div>
+<div class="body-sm" style="color:var(--muted);">? IDE ???????</div>
+<div class="body-sm" style="color:var(--muted);">???????????????</div>
+<div class="body-sm" style="color:var(--muted);">?????"????????"</div>
+</div>
+<div class="card-cream">
+<div class="body-md mb-1" style="font-weight:600;">?? Codex CLI</div>
+<div class="body-sm" style="color:var(--muted);">????? AI Agent</div>
+<div class="body-sm" style="color:var(--muted);">??????????????</div>
+<div class="body-sm" style="color:var(--muted);">????????</div>
+</div>
+</div>
+<p class="body-sm anim-reveal anim-reveal-delay-2 text-center mt-1" style="color:var(--muted);max-width:600px;">?????"?? Agent"???????????????????????????</p>
+</div>
+</div>
+
+<!-- Slide 10: Agent Internals -->
+<div class="slide slide-dark" data-index="9">
+<div class="slide-inner">
+<h2 class="display-md anim-reveal text-center mb-1">Agent ???????</h2>
+<div class="anim-reveal anim-reveal-delay-1" style="width:100%;max-width:700px;">
+<div class="code-block">
+<pre style="margin:0;font-family:'JetBrains Mono',monospace;font-size:clamp(0.6rem,1vw,0.8rem);">
+<span class="comment">// Agent ?????</span>
+{
+  <span class="keyword">"role"</span>: <span class="string">"assistant"</span>,
+  <span class="keyword">"content"</span>: <span class="string">"???????..."</span>,
+  <span class="keyword">"tool_calls"</span>: [{
+    <span class="keyword">"id"</span>: <span class="string">"call_abc123"</span>,
+    <span class="keyword">"type"</span>: <span class="string">"function"</span>,
+    <span class="keyword">"function"</span>: {
+      <span class="keyword">"name"</span>: <span class="string">"read_file"</span>,
+      <span class="keyword">"arguments"</span>: <span class="string">"{ \"path\": \"src/app.ts\" }"</span>
+    }
+  }]
+}</pre>
+</div>
+</div>
+<p class="body-sm anim-reveal anim-reveal-delay-2 text-center mt-1" style="color:var(--on-dark-soft);max-width:600px;">?????<span style="color:var(--primary);">role</span>?<span style="color:var(--primary);">tool_calls</span>?<span style="color:var(--primary);">name</span>?<span style="color:var(--primary);">parameters</span></p>
+</div>
+</div>
+
+<!-- Slide 11: Agent Summary -->
+<div class="slide" data-index="10">
+<div class="slide-inner text-center">
+<div class="coral-callout anim-reveal mb-2" style="max-width:700px;width:100%;">
+<h2 class="display-lg" style="margin:0;">Agent ????</h2>
+<p class="body-md mt-1" style="margin:0;opacity:0.9;">????"???"???"???"</p>
+</div>
+<div class="anim-reveal anim-reveal-delay-1" style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+<div class="card-cream" style="max-width:200px;text-align:center;">
+<div class="body-sm">?? ???????????</div>
+</div>
+<div class="card-cream" style="max-width:200px;text-align:center;">
+<div class="body-sm">?? ??????????</div>
+</div>
+<div class="card-cream" style="max-width:200px;text-align:center;">
+<div class="body-sm">?? ???????????</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Slide 12: How I Learn AI -->
+<div class="slide slide-dark" data-index="11">
+<div class="slide-inner">
+<h2 class="display-md anim-reveal text-center mb-1">?????? AI ?</h2>
+<p class="body-sm anim-reveal anim-reveal-delay-1 text-center mb-1" style="color:var(--on-dark-soft);">????????? AI ??????</p>
+<div class="grid-3 anim-reveal anim-reveal-delay-2 w-full" style="max-width:900px;">
+<div class="card-dark-elevated text-center">
+<div class="body-md mb-1" style="font-weight:600;color:var(--on-dark);">?? GitHub Trending</div>
+<div class="body-sm" style="color:var(--on-dark-soft);">?? GitHub ?????????</div>
+<a href="https://github.com/trending" target="_blank" class="body-sm" style="color:var(--primary);">github.com/trending</a>
+</div>
+<div class="card-dark-elevated text-center">
+<div class="body-md mb-1" style="font-weight:600;color:var(--on-dark);">?? AI ?????</div>
+<div class="body-sm" style="color:var(--on-dark-soft);">??????? AI?????????</div>
+</div>
+<div class="card-dark-elevated text-center">
+<div class="body-md mb-1" style="font-weight:600;color:var(--on-dark);">?? ??????</div>
+<div class="body-sm" style="color:var(--on-dark-soft);">??????? GitHub ?????????</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Slide 13: Code to Business -->
+<div class="slide" data-index="12">
+<div class="slide-inner text-center">
+<h2 class="display-md anim-reveal mb-1">?????? Agent ???????????</h2>
+<div class="anim-reveal anim-reveal-delay-1 mb-2" style="max-width:650px;">
+<p class="body-md" style="font-weight:500;">?? AI Agent ??????????</p>
+<p class="body-md">????????<br>??????????? Agent ??????</p>
+</div>
+<div class="anim-reveal anim-reveal-delay-2" style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+<span class="tag tag-amber">??????</span>
+<span class="tag tag-teal">?????? Agent ?????</span>
+</div>
+</div>
+</div>
+
+<!-- Slide 14: CLI Commands -->
+<div class="slide slide-dark" data-index="13">
+<div class="slide-inner">
+<h2 class="display-md anim-reveal text-center mb-1">?????????? CLI ??</h2>
+<div class="anim-reveal anim-reveal-delay-1" style="width:100%;max-width:750px;">
+<div class="code-block">
+<pre style="margin:0;font-family:'JetBrains Mono',monospace;font-size:clamp(0.65rem,1.1vw,0.85rem);">
+<span class="comment"># ?????????</span>
+<span class="func">saas</span> payment list --status=pending
+
+<span class="comment"># ????????</span>
+<span class="func">saas</span> payment detail --id=PAY20260509001
+
+<span class="comment"># ??????</span>
+<span class="func">saas</span> deal quote --pair=USD/CNH
+
+<span class="comment"># ???????</span>
+<span class="func">saas</span> approval list --pending
+
+<span class="comment"># ????</span>
+<span class="func">saas</span> balance check --currency=USD</pre>
+</div>
+</div>
+<p class="body-sm anim-reveal anim-reveal-delay-2 text-center mt-1" style="color:var(--on-dark-soft);max-width:600px;">CLI ?????????????????????? Agent ?????</p>
+</div>
+</div>
+
+<!-- Slide 15: Agent Handles Business -->
+<div class="slide" data-index="14">
+<div class="slide-inner">
+<h2 class="display-md anim-reveal text-center mb-1">Agent ???????????</h2>
+<div class="anim-reveal anim-reveal-delay-1" style="width:100%;max-width:750px;">
+<div class="chat-bubble reverse">
+<div class="avatar">?</div>
+<div class="msg">????????????????</div>
+</div>
+<div class="chat-bubble normal">
+<div class="avatar">A</div>
+<div class="msg">
+<div style="font-family:monospace;font-size:0.7rem;opacity:0.7;">?? saas approval list --pending</div>
+??? 12 ????????? 3 ??? 24 ??????
+</div>
+</div>
+<div class="chat-bubble reverse">
+<div class="avatar">?</div>
+<div class="msg">??????????????</div>
+</div>
+<div class="chat-bubble normal">
+<div class="avatar">A</div>
+<div class="msg">
+<div style="font-family:monospace;font-size:0.7rem;opacity:0.7;">?? saas payment detail --id=PAY20260509087</div>
+???USD 500,000???????
+</div>
+</div>
+<div class="chat-bubble reverse">
+<div class="avatar">?</div>
+<div class="msg">???????????</div>
+</div>
+<div class="chat-bubble normal">
+<div class="avatar">A</div>
+<div class="msg">
+<div style="font-family:monospace;font-size:0.7rem;opacity:0.7;">?? saas deal quote --pair=USD/CNH</div>
+?? USD/CNH ???7.2450
+</div>
+</div>
+</div>
+<div class="anim-reveal anim-reveal-delay-2 text-center mt-1" style="font-family:monospace;font-size:0.75rem;color:var(--muted);">???? ? Agent ? CLI ? API ? ????</div>
+</div>
+</div>
+
+<!-- Slide 16: Architecture -->
+<div class="slide slide-dark" data-index="15">
+<div class="slide-inner text-center">
+<h2 class="display-md anim-reveal mb-1">???????????????</h2>
+<div class="anim-reveal anim-reveal-delay-1" style="width:100%;max-width:750px;">
+<div class="mermaid-container">
+<pre class="mermaid">
+graph LR
+    A[?? ????] --> B[?? Agent]
+    B --> C[?? CLI ?]
+    C --> D[?? API ??]
+    D --> E[??? ????]
+    E --> D --> C --> B --> A
+</pre>
+</div>
+</div>
+<div class="anim-reveal anim-reveal-delay-2 mt-2" style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+<div class="card-dark-elevated" style="max-width:180px;text-align:center;">
+<div class="body-sm" style="color:var(--on-dark-soft);">??????</div>
+</div>
+<div class="card-dark-elevated" style="max-width:180px;text-align:center;">
+<div class="body-sm" style="color:var(--on-dark-soft);">Agent ????</div>
+</div>
+<div class="card-dark-elevated" style="max-width:180px;text-align:center;">
+<div class="body-sm" style="color:var(--on-dark-soft);">CLI ?????</div>
+</div>
+<div class="card-dark-elevated" style="max-width:180px;text-align:center;">
+<div class="body-sm" style="color:var(--on-dark-soft);">API ????</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Slide 17: Key Takeaway -->
+<div class="slide" data-index="16">
+<div class="slide-inner text-center">
+<h2 class="display-md anim-reveal mb-2">????</h2>
+<div class="grid-2 anim-reveal anim-reveal-delay-1 w-full" style="max-width:700px;">
+<div class="card-cream text-center">
+<div class="tag tag-coral mb-1">PEV ???</div>
+<div class="body-sm" style="color:var(--muted);">Plan ? Execute ? Verify</div>
+<div class="body-sm" style="color:var(--muted);">?????????????</div>
+</div>
+<div class="card-cream text-center">
+<div class="tag tag-teal mb-1">Agent ??</div>
+<div class="body-sm" style="color:var(--muted);">?"???"?"???"</div>
+<div class="body-sm" style="color:var(--muted);">?? + ?? + ??</div>
+</div>
+<div class="card-cream text-center">
+<div class="tag tag-amber mb-1">????</div>
+<div class="body-sm" style="color:var(--muted);">???? ? AI ????</div>
+<div class="body-sm" style="color:var(--muted);">?????????</div>
+</div>
+<div class="card-cream text-center">
+<div class="tag tag-teal mb-1">????</div>
+<div class="body-sm" style="color:var(--muted);">CLI + Agent + API</div>
+<div class="body-sm" style="color:var(--muted);">??????????</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Slide 18: Q&A -->
+<div class="slide slide-dark" data-index="17">
+<div class="slide-inner text-center">
+<h1 class="display-xl anim-reveal mb-2" style="color:var(--on-dark);">Q&A</h1>
+<p class="display-sm anim-reveal anim-reveal-delay-1" style="color:var(--on-dark-soft);margin:0;">??</p>
+<div class="anim-reveal anim-reveal-delay-2 mt-2" style="display:flex;gap:0.5rem;">
+<span class="tag tag-coral">Plan</span>
+<span class="tag tag-teal">Execute</span>
+<span class="tag tag-amber">Verify</span>
+</div>
+</div>
+</div>
+
+</div><!-- /slides-wrapper -->
+
+<!-- Navigation -->
+<button class="nav-btn prev" id="prevBtn" aria-label="Previous">
+<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+</button>
+<button class="nav-btn next" id="nextBtn" aria-label="Next">
+<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+</button>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="dot-nav" id="dotNav"></div>
+<div class="page-indicator" id="pageIndicator"></div>
+
+<script>
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  themeVariables: {
+    primaryColor: '#efe9de',
+    primaryTextColor: '#141413',
+    primaryBorderColor: '#e6dfd8',
+    lineColor: '#cc785c',
+    secondaryColor: '#f5f0e8',
+    tertiaryColor: '#faf9f5',
+    fontFamily: 'Inter, sans-serif',
+    fontSize: '14px',
+  },
+  flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+});
+
+const slides = document.querySelectorAll('.slide');
+const totalSlides = slides.length;
+let currentIndex = 0;
+
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const progressBar = document.getElementById('progressBar');
+const pageIndicator = document.getElementById('pageIndicator');
+const dotNav = document.getElementById('dotNav');
+
+for (let i = 0; i < totalSlides; i++) {
+  const dot = document.createElement('span');
+  dot.className = 'dot' + (i === 0 ? ' active' : '');
+  dot.addEventListener('click', () => goToSlide(i));
+  dotNav.appendChild(dot);
+}
+const dots = document.querySelectorAll('.dot-nav .dot');
+
+async function updateUI() {
+  slides.forEach((slide, i) => {
+    slide.classList.remove('active', 'prev');
+    if (i === currentIndex) slide.classList.add('active');
+    else if (i < currentIndex) slide.classList.add('prev');
+  });
+
+  dots.forEach((dot, i) => dot.classList.toggle('active', i === currentIndex));
+
+  progressBar.style.width = ((currentIndex + 1) / totalSlides * 100) + '%';
+  pageIndicator.textContent = (currentIndex + 1) + ' / ' + totalSlides;
+
+  prevBtn.style.opacity = currentIndex === 0 ? '0.3' : '1';
+  prevBtn.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
+  nextBtn.style.opacity = currentIndex === totalSlides - 1 ? '0.3' : '1';
+  nextBtn.style.pointerEvents = currentIndex === totalSlides - 1 ? 'none' : 'auto';
+
+  const activeSlide = slides[currentIndex];
+  const mermaidEls = activeSlide.querySelectorAll('pre.mermaid');
+  for (const el of mermaidEls) {
+    if (el.hasAttribute('data-processed')) continue;
+    el.setAttribute('data-processed', 'true');
+    try {
+      const id = 'm-' + Math.random().toString(36).substr(2, 9);
+      const { svg } = await mermaid.render(id, el.textContent);
+      el.innerHTML = svg;
+    } catch (e) {
+      console.error('Mermaid error:', e);
+    }
+  }
+}
+
+function goToSlide(index) {
+  if (index < 0 || index >= totalSlides) return;
+  currentIndex = index;
+  updateUI();
+}
+
+prevBtn.addEventListener('click', () => goToSlide(currentIndex - 1));
+nextBtn.addEventListener('click', () => goToSlide(currentIndex + 1));
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+    e.preventDefault();
+    goToSlide(currentIndex + 1);
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    goToSlide(currentIndex - 1);
+  } else if (e.key === 'Home') {
+    e.preventDefault();
+    goToSlide(0);
+  } else if (e.key === 'End') {
+    e.preventDefault();
+    goToSlide(totalSlides - 1);
+  }
+});
+
+let touchStartX = 0;
+document.addEventListener('touchstart', (e) => {
+  touchStartX = e.touches[0].clientX;
+});
+document.addEventListener('touchend', (e) => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) > 50) {
+    dx < 0 ? goToSlide(currentIndex + 1) : goToSlide(currentIndex - 1);
+  }
+});
+
+updateUI();
+</script>
+
+</body>
+</html>

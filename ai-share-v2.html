@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 是如何在前端开发流程中应用的</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#cc785c', 'primary-active': '#a9583e',
+        ink: '#141413', body: '#3d3d3a', muted: '#6c6a64', 'muted-soft': '#8e8b82',
+        canvas: '#faf9f5', 'surface-card': '#efe9de', 'surface-dark': '#181715',
+        'surface-dark-soft': '#1f1e1b', 'surface-dark-elevated': '#252320',
+        'on-dark': '#faf9f5', 'on-dark-soft': '#a09d96', hairline: '#e6dfd8',
+        'accent-teal': '#5db8a6', 'accent-amber': '#e8a55a',
+      },
+      fontFamily: {
+        display: ['"Cormorant Garamond"', 'Garamond', '"Times New Roman"', 'serif'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+      },
+    }
+  }
+}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; overflow: hidden; background: #faf9f5; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
+  .presentation { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
+
+  .slide { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    opacity: 0; transform: translateX(60px); pointer-events: none;
+    transition: opacity .5s cubic-bezier(.4,0,.2,1), transform .5s cubic-bezier(.4,0,.2,1); }
+  .slide.active { opacity: 1; transform: translateX(0); pointer-events: auto; z-index: 10; }
+  .slide.exit-left { opacity: 0; transform: translateX(-60px); }
+
+  .inner { width: 100%; height: 100%; max-width: 1200px; margin: 0 auto;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 3rem 3.5rem; }
+
+  /* Typography */
+  .t-display-xl { font-family: 'Cormorant Garamond', Garamond, 'Times New Roman', serif; font-size: clamp(40px, 5vw, 64px); font-weight: 400; line-height: 1.05; letter-spacing: -1.5px; }
+  .t-display-lg { font-family: 'Cormorant Garamond', Garamond, 'Times New Roman', serif; font-size: clamp(32px, 4vw, 48px); font-weight: 400; line-height: 1.1; letter-spacing: -1px; }
+  .t-display-md { font-family: 'Cormorant Garamond', Garamond, 'Times New Roman', serif; font-size: clamp(26px, 3.2vw, 36px); font-weight: 400; line-height: 1.15; letter-spacing: -0.5px; }
+  .t-display-sm { font-family: 'Cormorant Garamond', Garamond, 'Times New Roman', serif; font-size: clamp(22px, 2.6vw, 28px); font-weight: 400; line-height: 1.2; letter-spacing: -0.3px; }
+  .t-title-lg { font-size: clamp(18px, 1.8vw, 22px); font-weight: 500; line-height: 1.3; }
+  .t-title-md { font-size: clamp(16px, 1.5vw, 18px); font-weight: 500; line-height: 1.4; }
+  .t-title-sm { font-size: 16px; font-weight: 500; line-height: 1.4; }
+  .t-body { font-size: clamp(14px, 1.3vw, 16px); font-weight: 400; line-height: 1.55; color: #3d3d3a; }
+  .t-body-sm { font-size: 14px; font-weight: 400; line-height: 1.55; color: #3d3d3a; }
+  .t-caption { font-size: 13px; font-weight: 500; line-height: 1.4; color: #6c6a64; }
+  .t-code { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: clamp(11px, 1.05vw, 14px); font-weight: 400; line-height: 1.6; }
+
+  /* Cards */
+  .card-cream { background: #efe9de; border-radius: 12px; padding: clamp(16px, 2.5vh, 28px); }
+  .card-dark { background: #181715; border-radius: 12px; padding: clamp(16px, 2.5vh, 28px); color: #faf9f5; }
+  .card-code { background: #181715; border-radius: 12px; padding: clamp(12px, 2vh, 24px);
+    font-family: 'JetBrains Mono', ui-monospace, monospace; color: #faf9f5; overflow: auto; }
+
+  /* Decorative */
+  .spike-mark { width: 18px; height: 18px; position: relative; display: inline-flex; align-items: center; justify-content: center; }
+  .spike-mark::before, .spike-mark::after { content: ''; position: absolute; background: #141413; }
+  .spike-mark::before { width: 2px; height: 100%; }
+  .spike-mark::after { width: 100%; height: 2px; }
+
+  .page-indicator { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; z-index: 100; }
+  .page-dot { width: 8px; height: 8px; border-radius: 50%; background: #e6dfd8;
+    transition: all .3s; cursor: pointer; }
+  .page-dot.active { background: #cc785c; width: 24px; border-radius: 4px; }
+
+  .nav-btn { position: fixed; top: 50%; transform: translateY(-50%); z-index: 100;
+    width: 44px; height: 44px; border-radius: 50%; background: #faf9f5; border: 1px solid #e6dfd8;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: #141413; font-size: 18px; transition: all .2s; }
+  .nav-btn:hover { background: #efe9de; border-color: #cc785c; color: #cc785c; }
+  .nav-btn.left { left: 24px; }
+  .nav-btn.right { right: 24px; }
+
+  .page-num { position: fixed; top: 24px; right: 32px; z-index: 100;
+    font-size: 13px; color: #8e8b82; font-weight: 500; }
+
+  /* Animations */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pulse-subtle { 0%, 100% { opacity: 1; } 50% { opacity: .7; } }
+  @keyframes draw-line { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
+  .anim-fade-up { animation: fadeUp .7s cubic-bezier(.4,0,.2,1) both; }
+  .anim-delay-1 { animation-delay: .1s; }
+  .anim-delay-2 { animation-delay: .2s; }
+  .anim-delay-3 { animation-delay: .3s; }
+  .anim-delay-4 { animation-delay: .4s; }
+  .anim-delay-5 { animation-delay: .5s; }
+
+  /* Mermaid overrides */
+  .mermaid-container svg { max-width: 100%; max-height: 100%; }
+  .mermaid-container .node rect, .mermaid-container .node circle, .mermaid-container .node polygon { stroke: #cc785c !important; }
+  .mermaid-container .edgePath .path { stroke: #6c6a64 !important; }
+  .mermaid-container .edgeLabel { background: #faf9f5 !important; }
+
+  /* Slide-specific hacks */
+  .slide-12 .card-code { font-size: clamp(9px, .85vw, 12px); line-height: 1.45; }
+  .slide-12 .card-code pre { margin: 0; white-space: pre-wrap; }
+
+  @media (max-width: 768px) {
+    .inner { padding: 1.5rem 1.5rem; }
+    .nav-btn { width: 36px; height: 36px; font-size: 14px; }
+    .nav-btn.left { left: 8px; } .nav-btn.right { right: 8px; }
+    .page-num { top: 12px; right: 16px; font-size: 11px; }
+  }
+</style>
+</head>
+<body class="bg-canvas text-ink">
+
+<div class="presentation" id="app">
+
+  <!-- Slide 1: Cover -->
+  <div class="slide active" id="s1">
+    <div class="inner items-center text-center">
+      <div class="spike-mark mb-8 mx-auto" style="width:28px;height:28px;"></div>
+      <h1 class="t-display-xl text-ink mb-4 anim-fade-up">AI 是如何在<br/>前端开发流程中应用的</h1>
+      <div class="w-16 h-px bg-hairline my-6 mx-auto anim-fade-up anim-delay-1"></div>
+      <p class="t-body text-muted anim-fade-up anim-delay-2">分享人：XXX</p>
+      <p class="t-caption anim-fade-up anim-delay-3">2026 / 05 / 12</p>
+      <div class="mt-12 flex gap-2 items-center anim-fade-up anim-delay-4">
+        <span class="w-1 h-1 rounded-full bg-primary"></span>
+        <span class="w-1 h-1 rounded-full bg-muted-soft"></span>
+        <span class="w-1 h-1 rounded-full bg-muted-soft"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 2: TOC -->
+  <div class="slide" id="s2">
+    <div class="inner">
+      <h2 class="t-display-md text-ink mb-10 anim-fade-up">今天主要讲四部分</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="card-cream flex flex-col items-start anim-fade-up anim-delay-1">
+          <span class="t-display-sm text-primary mb-3">01</span>
+          <span class="t-title-md text-ink mb-1">我的工作流</span>
+          <span class="t-body-sm text-muted">PEV 方法与实践</span>
+        </div>
+        <div class="card-cream flex flex-col items-start anim-fade-up anim-delay-2">
+          <span class="t-display-sm text-primary mb-3">02</span>
+          <span class="t-title-md text-ink mb-1">Agent 原理</span>
+          <span class="t-body-sm text-muted">LLM + Tools + Loop</span>
+        </div>
+        <div class="card-cream flex flex-col items-start anim-fade-up anim-delay-3">
+          <span class="t-display-sm text-primary mb-3">03</span>
+          <span class="t-title-md text-ink mb-1">学习方法</span>
+          <span class="t-body-sm text-muted">如何跟上 AI 节奏</span>
+        </div>
+        <div class="card-cream flex flex-col items-start anim-fade-up anim-delay-4">
+          <span class="t-display-sm text-primary mb-3">04</span>
+          <span class="t-title-md text-ink mb-1">团队实践</span>
+          <span class="t-body-sm text-muted">Agent + CLI 落地</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3: Why not code immediately -->
+  <div class="slide" id="s3">
+    <div class="inner">
+      <h2 class="t-display-md text-ink mb-8 anim-fade-up">为什么不能让 AI 一上来就写代码？</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        <div class="card-cream flex items-start gap-3 anim-fade-up anim-delay-1">
+          <span class="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">1</span>
+          <div><span class="t-title-sm text-ink block mb-1">代码结构很快失控</span><span class="t-body-sm text-muted">一上来就写，缺少整体规划</span></div>
+        </div>
+        <div class="card-cream flex items-start gap-3 anim-fade-up anim-delay-2">
+          <span class="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">2</span>
+          <div><span class="t-title-sm text-ink block mb-1">返工成本高</span><span class="t-body-sm text-muted">需要反复纠偏，来回修改</span></div>
+        </div>
+        <div class="card-cream flex items-start gap-3 anim-fade-up anim-delay-3">
+          <span class="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">3</span>
+          <div><span class="t-title-sm text-ink block mb-1">代码质量差</span><span class="t-body-sm text-muted">功能能跑，但架构混乱</span></div>
+        </div>
+        <div class="card-cream flex items-start gap-3 anim-fade-up anim-delay-4">
+          <span class="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">4</span>
+          <div><span class="t-title-sm text-ink block mb-1">维护成本高</span><span class="t-body-sm text-muted">最后还得人工重构</span></div>
+        </div>
+      </div>
+      <div class="border-l-2 border-primary pl-4 anim-fade-up anim-delay-5">
+        <p class="t-title-md text-ink">最大的问题不是写不出来，而是写出来以后越来越难收拾。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 4: PEV Framework -->
+  <div class="slide" id="s4">
+    <div class="inner">
+      <h2 class="t-display-md text-ink mb-6 anim-fade-up">我现在常用的一套 AI 工作流：PEV</h2>
+      <div class="mermaid-container bg-canvas rounded-xl p-4 mb-6 flex justify-center anim-fade-up anim-delay-1" style="min-height:160px;">
+        <div class="mermaid">
+flowchart LR
+    A["Plan\n先想清楚"] --> B["Execute\n让 AI 执行"] --> C["Verify\n由人验收"]
+    style A fill:#faf9f5,stroke:#cc785c,stroke-width:2px,color:#141413
+    style B fill:#faf9f5,stroke:#cc785c,stroke-width:2px,color:#141413
+    style C fill:#faf9f5,stroke:#cc785c,stroke-width:2px,color:#141413
+        </div>
+      </div>
+      <p class="t-title-md text-ink text-center mb-1 anim-fade-up anim-delay-2">先想清楚，再让它做，最后认真验。</p>
+      <p class="t-body text-muted text-center anim-fade-up anim-delay-3">人做决策，AI 做执行。</p>
+    </div>
+  </div>
+
+  <!-- Slide 5: PLAN -->
+  <div class="slide" id="s5">
+    <div class="inner">
+      <h2 class="t-display-md text-ink mb-8 anim-fade-up">PLAN：先想清楚，再动手写代码</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="card-cream anim-fade-up anim-delay-1">
+          <h3 class="t-title-sm text-ink mb-3" style="color:#cc785c;">我会先给 AI 这三样东西</h3>
+          <ul class="space-y-2">
+            <li class="t-body flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></span>需求描述</li>
+            <li class="t-body flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></span>PRD 原文</li>
+            <li class="t-body flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></span>约束条件</li>
+          </ul>
+        </div>
+        <div class="card-cream anim-fade-up anim-delay-2">
+          <h3 class="t-title-sm text-ink mb-3" style="color:#cc785c;">AI 输出计划文档</h3>
+          <ul class="space-y-2">
+            <li class="t-body flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-accent-teal flex-shrink-0"></span>任务拆解</li>
+            <li class="t-body flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-accent-teal flex-shrink-0"></span>影响范围</li>
+            <li class="t-body flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-accent-teal flex-shrink-0"></span>关键文件</li>
+            <li class="t-body flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-accent-teal flex-shrink-0"></span>验收标准</li>
+            <li class="t-body flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-accent-teal flex-shrink-0"></span>风险判断</li>
+          </ul>
+        </div>
+      </div>
+      <p class="t-title-md text-ink text-center anim-fade-up anim-delay-3">先让 AI 想方案，不要先让 AI 动手。</p>
+    </div>
+  </div>
+
+  <!-- Slide 6: Human Review -->
+  <div class="slide" id="s6">
+    <div class="inner">
+      <h2 class="t-display-md text-ink mb-8 anim-fade-up">方案先过人，再放行执行</h2>
+      <div class="space-y-4 mb-8 max-w-2xl mx-auto w-full">
+        <div class="card-cream anim-fade-up anim-delay-1">
+          <h3 class="t-title-sm mb-2" style="color:#cc785c;">先看三件事</h3>
+          <div class="flex flex-wrap gap-3"><span class="text-sm bg-white px-3 py-1 rounded-full border border-hairline">步骤对不对</span><span class="text-sm bg-white px-3 py-1 rounded-full border border-hairline">范围全不全</span><span class="text-sm bg-white px-3 py-1 rounded-full border border-hairline">风险大不大</span></div>
+        </div>
+        <div class="flex justify-center"><span class="text-muted-soft text-lg">↓</span></div>
+        <div class="card-cream anim-fade-up anim-delay-2">
+          <h3 class="t-title-sm mb-2" style="color:#cc785c;">再做三件事</h3>
+          <div class="flex flex-wrap gap-3"><span class="text-sm bg-white px-3 py-1 rounded-full border border-hairline">提疑问</span><span class="text-sm bg-white px-3 py-1 rounded-full border border-hairline">调方案</span><span class="text-sm bg-white px-3 py-1 rounded-full border border-hairline">补边界</span></div>
+        </div>
+        <div class="flex justify-center"><span class="text-muted-soft text-lg">↓</span></div>
+        <div class="card-cream anim-fade-up anim-delay-3">
+          <h3 class="t-title-sm mb-2" style="color:#cc785c;">最后才执行</h3>
+          <div class="flex flex-wrap gap-3"><span class="text-sm bg-white px-3 py-1 rounded-full border border-hairline">开始实现</span><span class="text-sm bg-white px-3 py-1 rounded-full border border-hairline">补测试</span><span class="text-sm bg-white px-3 py-1 rounded-full border border-hairline">跑校验</span></div>
+        </div>
+      </div>
+      <p class="t-title-md text-ink text-center anim-fade-up anim-delay-4">不是 AI 想完就做，而是人看完再做。</p>
+    </div>
+  </div>
+
+  <!-- Slide 7: VERIFY -->
+  <div class="slide" id="s7">
+    <div class="inner">
+      <h2 class="t-display-md text-ink mb-8 anim-fade-up">VERIFY：真正决定质量的地方</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="card-cream anim-fade-up anim-delay-1">
+          <h3 class="t-title-sm text-ink mb-3" style="color:#cc785c;">Code Review 看什么</h3>
+          <ul class="space-y-2">
+            <li class="t-body flex items-center gap-2"><span class="w-5 h-5 rounded bg-accent-teal flex-shrink-0 flex items-center justify-center text-white text-xs">✓</span>风格和架构</li>
+            <li class="t-body flex items-center gap-2"><span class="w-5 h-5 rounded bg-accent-teal flex-shrink-0 flex items-center justify-center text-white text-xs">✓</span>重复逻辑</li>
+            <li class="t-body flex items-center gap-2"><span class="w-5 h-5 rounded bg-accent-teal flex-shrink-0 flex items-center justify-center text-white text-xs">✓</span>安全问题</li>
+            <li class="t-body flex items-center gap-2"><span class="w-5 h-5 rounded bg-accent-teal flex-shrink-0 flex items-center justify-center text-white text-xs">✓</span>类型严谨性</li>
+          </ul>
+        </div>
+        <div class="card-cream anim-fade-up anim-delay-2">
+          <h3 class="t-title-sm text-ink mb-3" style="color:#cc785c;">功能自测看什么</h3>
+          <ul class="space-y-2">
+            <li class="t-body flex items-center gap-2"><span class="w-5 h-5 rounded bg-accent-amber flex-shrink-0 flex items-center justify-center text-white text-xs">●</span>流程完整</li>
+            <li class="t-body flex items-center gap-2"><span class="w-5 h-5 rounded bg-accent-amber flex-shrink-0 flex items-center justify-center text-white text-xs">●</span>交互顺畅</li>
+            <li class="t-body flex items-center gap-2"><span class="w-5 h-5 rounded bg-accent-amber flex-shrink-0 flex items-center justify-center text-white text-xs">●</span>错误提示</li>
+            <li class="t-body flex items-center gap-2"><span class="w-5 h-5 rounded bg-accent-amber flex-shrink-0 flex items-center justify-center text-white text-xs">●</span>响应式表现</li>
+          </ul>
+        </div>
+      </div>
+      <p class="t-title-md text-ink text-center anim-fade-up anim-delay-3">AI 提高的是产出速度，人守住的是交付质量。</p>
+    </div>
+  </div>
+
+  <!-- Slide 8: Bug Fix Loop -->
+  <div class="slide" id="s8">
+    <div class="inner">
+      <h2 class="t-display-md text-ink mb-6 anim-fade-up">发现 Bug 后，先写红测，再修复</h2>
+      <div class="mermaid-container bg-canvas rounded-xl p-4 mb-6 flex justify-center anim-fade-up anim-delay-1" style="min-height:140px;">
+        <div class="mermaid">
+flowchart LR
+    A["发现 Bug"] --> B["写失败测试"] --> C["修改代码"] --> D["测试通过"] --> E["回到 Verify"]
+    style A fill:#faf9f5,stroke:#cc785c,stroke-width:2px,color:#141413
+    style B fill:#faf9f5,stroke:#cc785c,stroke-width:2px,color:#141413
+    style C fill:#faf9f5,stroke:#cc785c,stroke-width:2px,color:#141413
+    style D fill:#faf9f5,stroke:#cc785c,stroke-width:2px,color:#141413
+    style E fill:#faf9f5,stroke:#cc785c,stroke-width:2px,color:#141413
+        </div>
+      </div>
+      <p class="t-title-md text-ink text-center mb-1 anim-fade-up anim-delay-2">先复现，再修复</p>
+      <p class="t-body text-muted text-center anim-fade-up anim-delay-3">修 Bug 不靠感觉，靠可重复验证的闭环</p>
+    </div>
+  </div>
+
+  <!-- Slide 9: Agent Principles -->
+  <div class="slide" id="s9">
+    <div class="inner items-center text-center">
+      <h2 class="t-display-md text-ink mb-8 anim-fade-up">AI Agent 实现原理</h2>
+      <p class="t-display-sm text-muted mb-4 anim-fade-up anim-delay-1">为什么 AI 能帮你干活？</p>
+      <div class="flex flex-wrap items-center justify-center gap-3 mb-6 anim-fade-up anim-delay-2">
+        <span class="card-cream t-title-lg text-ink px-5 py-3">LLM <span class="t-body-sm text-muted block">大模型</span></span>
+        <span class="t-display-sm text-muted">+</span>
+        <span class="card-cream t-title-lg text-ink px-5 py-3">TOOLS <span class="t-body-sm text-muted block">工具</span></span>
+        <span class="t-display-sm text-muted">+</span>
+        <span class="card-cream t-title-lg text-ink px-5 py-3">LOOP <span class="t-body-sm text-muted block">循环执行</span></span>
+        <span class="t-display-sm text-muted">=</span>
+        <span class="bg-primary text-white rounded-xl px-5 py-3 t-title-lg">AI Agent</span>
+      </div>
+      <p class="t-body text-muted max-w-2xl anim-fade-up anim-delay-3">它看起来像在"自己干活"，本质上是因为它会结合上下文反复判断，并在需要时调用工具。</p>
+    </div>
+  </div>
+
+  <!-- Slide 10: Agent Loop -->
+  <div class="slide" id="s10">
+    <div class="inner">
+      <h2 class="t-display-md text-ink mb-4 anim-fade-up">Agent 循环</h2>
+      <div class="mermaid-container bg-canvas rounded-xl p-2 mb-4 flex justify-center anim-fade-up anim-delay-1" style="min-height:280px;">
+        <div class="mermaid">
+flowchart TD
+    A["接收任务\n用户说一句话"] --> B["LLM 思考\n这件事要怎么做"]
+    B --> C{"LLM 决定"}
+    C -- "自己能回答" --> D["直接输出结果"]
+    C -- "需要工具" --> E["决定调用哪个工具\n传什么参数"]
+    E --> F["系统执行工具\n阅读文档 / 访问浏览器 / 写文件"]
+    F --> G["把工具结果返回给 LLM"]
+    G --> B
+    style A fill:#faf9f5,stroke:#cc785c,stroke-width:2px,color:#141413
+    style B fill:#faf9f5,stroke:#cc785c,stroke-width:2px,color:#141413
+    style C fill:#efe9de,stroke:#cc785c,stroke-width:2px,color:#141413
+    style D fill:#faf9f5,stroke:#5db8a6,stroke-width:2px,color:#141413
+    style E fill:#faf9f5,stroke:#e8a55a,stroke-width:2px,color:#141413
+    style F fill:#faf9f5,stroke:#cc785c,stroke-width:2px,color:#141413
+    style G fill:#faf9f5,stroke:#cc785c,stroke-width:2px,color:#141413
+        </div>
+      </div>
+      <p class="t-body text-muted text-center anim-fade-up anim-delay-2">Agent 的本质不是一次生成答案，而是"判断 → 调用工具 → 看结果 → 再判断"的循环。</p>
+    </div>
+  </div>
+
+  <!-- Slide 11: Agent Execution -->
+  <div class="slide" id="s11">
+    <div class="inner">
+      <h2 class="t-display-md text-ink mb-5 anim-fade-up">Agent 的执行机制</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+        <div class="card-code anim-fade-up anim-delay-1 overflow-auto" style="max-height:50vh;">
+          <pre class="t-code" style="font-size:clamp(10px,0.95vw,13px);line-height:1.5;margin:0;">
+<span style="color:#8e8b82;">while</span> <span style="color:#faf9f5;">(!taskComplete) {</span>
+  <span style="color:#8e8b82;">// 基于当前上下文和可用工具，判断下一步</span>
+  <span style="color:#8e8b82;">const</span> <span style="color:#5db8a6;">response</span> <span style="color:#faf9f5;">=</span> <span style="color:#e8a55a;">LLM</span><span style="color:#faf9f5;">(messages, tools);</span>
+
+  <span style="color:#8e8b82;">// 如果模型认为需要调用工具</span>
+  <span style="color:#8e8b82;">if</span> <span style="color:#faf9f5;">(response.toolCalls) {</span>
+    <span style="color:#8e8b82;">// 系统执行工具调用</span>
+    <span style="color:#8e8b82;">const</span> <span style="color:#5db8a6;">results</span> <span style="color:#faf9f5;">=</span> <span style="color:#e8a55a;">executeTools</span><span style="color:#faf9f5;">(response.toolCalls);</span>
+
+    <span style="color:#8e8b82;">// 把工具结果放回上下文</span>
+    <span style="color:#faf9f5;">messages.push(...results);</span>
+  <span style="color:#faf9f5;">}</span> <span style="color:#8e8b82;">else</span> <span style="color:#faf9f5;">{</span>
+    <span style="color:#8e8b82;">// 不需要工具，直接输出</span>
+    <span style="color:#8e8b82;">return</span> <span style="color:#faf9f5;">response.content;</span>
+  <span style="color:#faf9f5;">}</span>
+<span style="color:#faf9f5;">}</span></pre>
+        </div>
+        <div class="flex flex-col gap-3 anim-fade-up anim-delay-2">
+          <div class="card-cream flex-1">
+            <span class="t-caption" style="color:#cc785c;">第 1 轮</span>
+            <p class="t-body-sm mb-1"><span class="text-muted">用户：</span>帮我查一下杭州今天的天气</p>
+            <p class="t-body-sm mb-1"><span class="text-muted">LLM 判断：</span>这是实时信息，不能直接编</p>
+            <p class="t-body-sm"><span class="text-muted">动作：</span>调用天气工具</p>
+          </div>
+          <div class="card-cream flex-1">
+            <span class="t-caption" style="color:#cc785c;">第 2 轮</span>
+            <p class="t-body-sm mb-1"><span class="text-muted">工具返回：</span>杭州，晴，25°C，东北风 2 级</p>
+            <p class="t-body-sm mb-1"><span class="text-muted">LLM 判断：</span>信息已经够了</p>
+            <p class="t-body-sm"><span class="text-muted">动作：</span>整理结果，准备回复</p>
+          </div>
+          <div class="card-cream flex-1">
+            <span class="t-caption" style="color:#cc785c;">第 3 轮</span>
+            <p class="t-body-sm">输出最终答案，循环结束</p>
+          </div>
+        </div>
+      </div>
+      <p class="t-body text-muted text-center anim-fade-up anim-delay-3">Agent 不是一次想完答案，而是带着最新上下文反复判断和执行。</p>
+    </div>
+  </div>
+
+  <!-- Slide 12: Messages and Tools -->
+  <div class="slide slide-12" id="s12">
+    <div class="inner">
+      <h2 class="t-display-md text-ink mb-4 anim-fade-up">messages 和 tools 是什么？</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        <div class="card-code overflow-auto anim-fade-up anim-delay-1" style="max-height:52vh;">
+          <h3 class="t-title-sm mb-2" style="color:#8e8b82;">messages</h3>
+          <pre style="font-size:clamp(9px,0.78vw,11px);line-height:1.4;margin:0;color:#a09d96;">
+[<span style="color:#8e8b82;">  {</span>
+    <span style="color:#5db8a6;">"role"</span>: <span style="color:#e8a55a;">"system"</span>,
+    <span style="color:#5db8a6;">"content"</span>: <span style="color:#e8a55a;">"你是个人 AI 助手..."</span>
+<span style="color:#8e8b82;">  },</span>
+<span style="color:#8e8b82;">  {</span>
+    <span style="color:#5db8a6;">"role"</span>: <span style="color:#e8a55a;">"user"</span>,
+    <span style="color:#5db8a6;">"content"</span>: <span style="color:#e8a55a;">"帮我查一下杭州今天的天气"</span>
+<span style="color:#8e8b82;">  },</span>
+<span style="color:#8e8b82;">  {</span>
+    <span style="color:#5db8a6;">"role"</span>: <span style="color:#e8a55a;">"assistant"</span>,
+    <span style="color:#5db8a6;">"tool_calls"</span>: [{
+      <span style="color:#5db8a6;">"id"</span>: <span style="color:#e8a55a;">"call_1"</span>,
+      <span style="color:#5db8a6;">"type"</span>: <span style="color:#e8a55a;">"function"</span>,
+      <span style="color:#5db8a6;">"function"</span>: {
+        <span style="color:#5db8a6;">"name"</span>: <span style="color:#e8a55a;">"get_weather"</span>,
+        <span style="color:#5db8a6;">"arguments"</span>: <span style="color:#e8a55a;">"{\"city\":\"杭州\"}"</span>
+      }
+    }]
+<span style="color:#8e8b82;">  },</span>
+<span style="color:#8e8b82;">  {</span>
+    <span style="color:#5db8a6;">"role"</span>: <span style="color:#e8a55a;">"tool"</span>,
+    <span style="color:#5db8a6;">"tool_call_id"</span>: <span style="color:#e8a55a;">"call_1"</span>,
+    <span style="color:#5db8a6;">"content"</span>: <span style="color:#e8a55a;">"杭州，晴，25°C"</span>
+<span style="color:#8e8b82;">  },</span>
+<span style="color:#8e8b82;">  {</span>
+    <span style="color:#5db8a6;">"role"</span>: <span style="color:#e8a55a;">"assistant"</span>,
+    <span style="color:#5db8a6;">"content"</span>: <span style="color:#e8a55a;">"杭州今天是晴天..."</span>
+<span style="color:#8e8b82;">  }</span>]</pre>
+        </div>
+        <div class="card-code overflow-auto anim-fade-up anim-delay-2" style="max-height:52vh;">
+          <h3 class="t-title-sm mb-2" style="color:#8e8b82;">tools</h3>
+          <pre style="font-size:clamp(9px,0.78vw,11px);line-height:1.4;margin:0;color:#a09d96;">
+[<span style="color:#8e8b82;">  {</span>
+    <span style="color:#5db8a6;">"type"</span>: <span style="color:#e8a55a;">"function"</span>,
+    <span style="color:#5db8a6;">"function"</span>: {
+      <span style="color:#5db8a6;">"name"</span>: <span style="color:#e8a55a;">"get_weather"</span>,
+      <span style="color:#5db8a6;">"description"</span>: <span style="color:#e8a55a;">"查询指定城市的天气"</span>,
+      <span style="color:#5db8a6;">"parameters"</span>: {
+        <span style="color:#5db8a6;">"type"</span>: <span style="color:#e8a55a;">"object"</span>,
+        <span style="color:#5db8a6;">"properties"</span>: {
+          <span style="color:#5db8a6;">"city"</span>: {
+            <span style="color:#5db8a6;">"type"</span>: <span style="color:#e8a55a;">"string"</span>,
+            <span style="color:#5db8a6;">"description"</span>: <span style="color:#e8a55a;">"城市名称，例如：杭州"</span>
+          }
+        },
+        <span style="color:#5db8a6;">"required"</span>: [<span style="color:#e8a55a;">"city"</span>]
+      }
+    }
+<span style="color:#8e8b82;">  }</span>]</pre>
+        </div>
+      </div>
+      <p class="t-title-sm text-ink text-center anim-fade-up anim-delay-3">messages 决定它"看到了什么"，tools 决定它"能做什么"。</p>
+    </div>
+  </div>
+
+  <!-- Slide 13: One Sentence -->
+  <div class="slide" id="s13">
+    <div class="inner items-center text-center">
+      <h2 class="t-display-md text-ink mb-8 anim-fade-up">一句话理解 Agent</h2>
+      <p class="t-display-lg text-primary mb-10 anim-fade-up anim-delay-1" style="font-size:clamp(26px,4vw,48px);">Agent 不是魔法，<br/>它只是把"会回答"变成了"会行动"。</p>
+      <div class="flex flex-wrap justify-center gap-4 anim-fade-up anim-delay-2">
+        <span class="card-cream t-body-sm">带着上下文反复调用模型</span>
+        <span class="card-cream t-body-sm">模型决定要不要用工具</span>
+        <span class="card-cream t-body-sm">工具结果回来后再继续下一轮</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 14: How I Learn -->
+  <div class="slide" id="s14">
+    <div class="inner">
+      <h2 class="t-display-md text-ink mb-6 anim-fade-up">我是怎么学习 AI 的</h2>
+      <p class="t-title-md text-primary mb-8 text-center anim-fade-up anim-delay-1">先关注新东西，再用 AI 帮我快速入门</p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+        <div class="card-cream text-center anim-fade-up anim-delay-2">
+          <span class="t-display-sm text-primary block mb-2">01</span>
+          <p class="t-title-sm text-ink mb-1">GitHub Trending</p>
+          <p class="t-body-sm text-muted">关注最火的项目</p>
+          <p class="t-caption mt-1" style="word-break:break-all;">github.com/trending</p>
+        </div>
+        <div class="card-cream text-center anim-fade-up anim-delay-3">
+          <span class="t-display-sm text-primary block mb-2">02</span>
+          <p class="t-title-sm text-ink mb-1">用 AI 读源码</p>
+          <p class="t-body-sm text-muted">让 AI 帮我理解新项目</p>
+        </div>
+        <div class="card-cream text-center anim-fade-up anim-delay-4">
+          <span class="t-display-sm text-primary block mb-2">03</span>
+          <p class="t-title-sm text-ink mb-1">关注大厂开源</p>
+          <p class="t-body-sm text-muted">固定关注大厂 GitHub</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 15: Business Assistant -->
+  <div class="slide" id="s15">
+    <div class="inner items-center text-center">
+      <h2 class="t-display-md text-ink mb-8 anim-fade-up">我们能不能给 Agent 一套更好用的操作方式？</h2>
+      <p class="t-display-sm text-muted mb-6 anim-fade-up anim-delay-1">既然 AI Agent 已经能处理信息和任务</p>
+      <p class="t-title-lg text-ink mb-10 anim-fade-up anim-delay-2">那我们公司的项目，能不能也提供一种<br/>更适合 Agent 操作的方式？</p>
+      <div class="flex gap-3 text-center anim-fade-up anim-delay-3">
+        <span class="t-body-sm text-muted">不是重做系统</span>
+        <span class="text-hairline">·</span>
+        <span class="t-body-sm text-muted">而是换一种更适合 Agent 操作的方式</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 16: CLI Commands -->
+  <div class="slide" id="s16">
+    <div class="inner">
+      <h2 class="t-display-md text-ink mb-6 anim-fade-up">思路：把业务操作变成 CLI 命令</h2>
+      <div class="card-code mb-6 max-w-2xl mx-auto w-full anim-fade-up anim-delay-1" style="font-size:clamp(12px,1.1vw,15px);">
+        <pre style="margin:0;line-height:1.7;">
+<span style="color:#8e8b82;"># 查看待处理的付款单</span>
+<span style="color:#faf9f5;">saas payment list --status=pending</span>
+<span style="color:#8e8b82;"># 查看某笔付款详情</span>
+<span style="color:#faf9f5;">saas payment detail --id=PAY20260509001</span>
+<span style="color:#8e8b82;"># 查询实时汇率</span>
+<span style="color:#faf9f5;">saas deal quote --pair=USD/CNH</span>
+<span style="color:#8e8b82;"># 查看待审批列表</span>
+<span style="color:#faf9f5;">saas approval list --pending</span>
+<span style="color:#8e8b82;"># 查询余额</span>
+<span style="color:#faf9f5;">saas balance check --currency=USD</span></pre>
+      </div>
+      <p class="t-title-sm text-ink text-center anim-fade-up anim-delay-2">CLI 不是重做一套系统，而是给现有系统再加一层适合 Agent 调用的壳。</p>
+    </div>
+  </div>
+
+  <!-- Slide 17: Agent Business Dialogue -->
+  <div class="slide" id="s17">
+    <div class="inner">
+      <h2 class="t-display-md text-ink mb-6 anim-fade-up">Agent 怎么接手这些业务动作？</h2>
+      <div class="space-y-4 mb-6 max-w-3xl mx-auto w-full">
+        <div class="card-cream anim-fade-up anim-delay-1">
+          <p class="t-body-sm mb-1"><span style="color:#cc785c;">你：</span>查一下今天有多少笔待审批的付款</p>
+          <p class="t-body-sm text-muted mb-1"><span style="color:#6c6a64;">Agent：</span>执行 <span class="font-mono text-xs bg-surface-dark text-on-dark px-2 py-0.5 rounded">saas approval list --pending</span></p>
+          <p class="t-body-sm text-muted">当前有 12 笔待审批付款，其中 3 笔超过 24 小时未处理</p>
+        </div>
+        <div class="card-cream anim-fade-up anim-delay-2">
+          <p class="t-body-sm mb-1"><span style="color:#cc785c;">你：</span>把金额最大的那笔详情给我看</p>
+          <p class="t-body-sm text-muted mb-1"><span style="color:#6c6a64;">Agent：</span>执行 <span class="font-mono text-xs bg-surface-dark text-on-dark px-2 py-0.5 rounded">saas payment detail --id=PAY20260509087</span></p>
+          <p class="t-body-sm text-muted">金额：USD 500,000，状态：待审批</p>
+        </div>
+        <div class="card-cream anim-fade-up anim-delay-3">
+          <p class="t-body-sm mb-1"><span style="color:#cc785c;">你：</span>这笔交易的汇率是多少？</p>
+          <p class="t-body-sm text-muted mb-1"><span style="color:#6c6a64;">Agent：</span>执行 <span class="font-mono text-xs bg-surface-dark text-on-dark px-2 py-0.5 rounded">saas deal quote --pair=USD/CNH</span></p>
+          <p class="t-body-sm text-muted">当前 USD/CNH 汇率：7.2450</p>
+        </div>
+      </div>
+      <p class="t-body text-muted text-center anim-fade-up anim-delay-4">
+        <span class="bg-surface-card px-3 py-1 rounded-full text-sm">自然语言</span>
+        <span class="mx-1">→</span>
+        <span class="bg-surface-card px-3 py-1 rounded-full text-sm">Agent</span>
+        <span class="mx-1">→</span>
+        <span class="bg-surface-card px-3 py-1 rounded-full text-sm">CLI</span>
+        <span class="mx-1">→</span>
+        <span class="bg-surface-card px-3 py-1 rounded-full text-sm">API</span>
+        <span class="mx-1">→</span>
+        <span class="bg-surface-card px-3 py-1 rounded-full text-sm">结果返回</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Slide 18: Q&A -->
+  <div class="slide" id="s18">
+    <div class="inner items-center text-center">
+      <div class="spike-mark mb-8 mx-auto" style="width:28px;height:28px;"></div>
+      <p class="t-display-xl text-ink mb-4 anim-fade-up">Q&A</p>
+      <p class="t-display-md text-muted anim-fade-up anim-delay-1">谢谢</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Navigation -->
+<button class="nav-btn left" onclick="prevSlide()" aria-label="上一页">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+<button class="nav-btn right" onclick="nextSlide()" aria-label="下一页">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+<div class="page-indicator" id="dots"></div>
+<div class="page-num" id="pageNum">1 / 18</div>
+
+<script>
+(function() {
+  const TOTAL = 18;
+  let current = 0;
+
+  function initMermaid() {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#faf9f5',
+        primaryTextColor: '#141413',
+        primaryBorderColor: '#cc785c',
+        lineColor: '#6c6a64',
+        secondaryColor: '#efe9de',
+        tertiaryColor: '#faf9f5',
+      },
+      flowchart: {
+        htmlLabels: true,
+        curve: 'basis',
+        nodeSpacing: 50,
+        rankSpacing: 50,
+      }
+    });
+  }
+
+  function renderAllMermaid() {
+    const slides = document.querySelectorAll('.slide');
+    const orig = [];
+    slides.forEach(s => { orig.push(s.style.display); s.style.display = 'flex'; });
+    slides.forEach(s => { s.style.opacity = '1'; s.style.transform = 'none'; s.style.pointerEvents = 'auto'; });
+
+    return mermaid.run({ querySelector: '.mermaid' }).then(() => {
+      slides.forEach((s, i) => {
+        s.style.display = orig[i];
+        s.style.opacity = i === current ? '1' : '0';
+        s.style.transform = i === current ? 'translateX(0)' : 'translateX(60px)';
+        s.style.pointerEvents = i === current ? 'auto' : 'none';
+      });
+    });
+  }
+
+  function showSlide(idx) {
+    const slides = document.querySelectorAll('.slide');
+    const old = slides[current];
+    const dir = idx > current ? -1 : 1;
+
+    if (old) {
+      old.classList.remove('active');
+      if (dir < 0) old.classList.add('exit-left');
+      else old.style.transform = 'translateX(' + (dir * 60) + 'px)';
+      old.style.opacity = '0';
+      old.style.pointerEvents = 'none';
+      setTimeout(() => { if (old) old.classList.remove('exit-left'); }, 500);
+    }
+
+    current = idx;
+    const next = slides[current];
+    next.classList.add('active');
+    next.style.display = 'flex';
+    // Force reflow
+    next.offsetHeight;
+    next.style.transform = 'translateX(0)';
+    next.style.opacity = '1';
+    next.style.pointerEvents = 'auto';
+
+    // Re-trigger animations
+    const anims = next.querySelectorAll('.anim-fade-up');
+    anims.forEach(el => { el.style.animation = 'none'; el.offsetHeight; el.style.animation = ''; });
+
+    updateUI();
+  }
+
+  function nextSlide() { if (current < TOTAL - 1) showSlide(current + 1); }
+  function prevSlide() { if (current > 0) showSlide(current - 1); }
+
+  function updateUI() {
+    document.getElementById('pageNum').textContent = (current + 1) + ' / ' + TOTAL;
+    const dots = document.getElementById('dots');
+    dots.innerHTML = '';
+    for (let i = 0; i < TOTAL; i++) {
+      const d = document.createElement('span');
+      d.className = 'page-dot' + (i === current ? ' active' : '');
+      d.onclick = () => showSlide(i);
+      dots.appendChild(d);
+    }
+  }
+
+  // Init
+  initMermaid();
+  updateUI();
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); nextSlide(); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); prevSlide(); }
+  });
+
+  // Touch
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) { dx < 0 ? nextSlide() : prevSlide(); }
+  });
+
+  // Wheel
+  let wheelTimeout;
+  document.addEventListener('wheel', e => {
+    if (wheelTimeout) return;
+    wheelTimeout = setTimeout(() => { wheelTimeout = null; }, 800);
+    if (Math.abs(e.deltaY) > 20) {
+      e.deltaY > 0 ? nextSlide() : prevSlide();
+    }
+  }, { passive: true });
+
+  // Render mermaid after load
+  window.addEventListener('load', () => {
+    renderAllMermaid().catch(() => {
+      // Fallback: try again
+      setTimeout(() => renderAllMermaid(), 500);
+    });
+  });
+
+  // Expose
+  window.nextSlide = nextSlide;
+  window.prevSlide = prevSlide;
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,650 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - paragraph [ref=e4]: "> tech-sharing / 2026"
+      - heading "AI 是如何在前端开发流程中 应用的" [level=1] [ref=e5]:
+        - text: AI 是如何在前端开发流程中
+        - text: 应用的
+      - paragraph [ref=e6]: PEV 工作流 · Agent 原理 · 学习方法 · 团队实践
+      - generic [ref=e9]:
+        - generic [ref=e10]: XXX
+        - text: 团队内部分享 · 按 S 进入演讲者视图
+      - generic [ref=e11]: "#AI #前端开发 #Agent"
+      - complementary [ref=e12]:
+        - paragraph [ref=e13]:
+          - text: 大家好，今天想跟大家聊聊
+          - strong [ref=e14]: AI 在前端开发流程中的应用
+          - text: 。
+        - paragraph [ref=e15]:
+          - text: 先说一句——这个话题不局限于前端。不管你是写后端、做产品、搞设计还是做测试，今天的内容都跟你有关。因为 AI 改变的不是某一个岗位的工作方式，而是
+          - strong [ref=e16]: 整个团队协作的方式
+          - text: 。
+        - paragraph [ref=e17]: 今天分四个部分：第一，我的 AI 辅助开发工作流；第二，AI Agent 背后的运行原理；第三，我的学习方法；第四，我们团队可以尝试什么。中间随时可以打断我提问。
+    - generic [ref=e18]:
+      - paragraph [ref=e19]: "> agenda"
+      - heading "今天的路线图" [level=2] [ref=e20]
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - generic [ref=e23]: "01"
+          - generic [ref=e24]: 我的 AI 辅助开发工作流 — PEV 框架
+        - generic [ref=e25]:
+          - generic [ref=e26]: "02"
+          - generic [ref=e27]: AI Agent 的运行原理 — 不是魔法是循环
+        - generic [ref=e28]:
+          - generic [ref=e29]: "03"
+          - generic [ref=e30]: 我的 AI 学习方法 — 保持感知，按需深入
+        - generic [ref=e31]:
+          - generic [ref=e32]: "04"
+          - generic [ref=e33]: 团队可以尝试什么 — CLI + Agent 融合
+      - complementary [ref=e34]:
+        - paragraph [ref=e35]: 先过一下路线图。
+        - paragraph [ref=e36]:
+          - text: 第一部分是我的日常工作流——我是怎么把 AI 嵌入到开发里的，用一个叫
+          - strong [ref=e37]: PEV
+          - text: 的框架。这部分内容最实操，你可以直接拿去用。
+        - paragraph [ref=e38]:
+          - text: 第二部分讲 Agent 原理——你可能每天都在用 Claude Code、Cursor 这些工具，但它们背后到底是怎么工作的？这一部分
+          - strong [ref=e39]: 面向所有同学，不用技术背景也能听懂
+          - text: 。
+        - paragraph [ref=e40]: 第三部分是我的学习方法，很短，但分享一个我觉得很有效的组合。
+        - paragraph [ref=e41]: 第四部分聊一个更大胆的想法——怎么让 Agent 直接操作我们的业务系统。
+    - generic [ref=e42]:
+      - generic [ref=e43]: PART 01
+      - heading "我的 AI 辅助开发工作流" [level=2] [ref=e44]
+      - paragraph [ref=e45]:
+        - text: 一个核心原则：
+        - strong [ref=e46]: 人做决策，AI 做执行
+      - complementary [ref=e47]:
+        - paragraph [ref=e48]:
+          - text: 好，进入第一部分。我先介绍一个我用了很久的框架，叫
+          - strong [ref=e49]: PEV
+          - text: ——Plan、Execute、Verify，计划、执行、验证。
+        - paragraph [ref=e50]:
+          - text: 这个框架的核心原则就一句话：
+          - strong [ref=e51]: 人做决策，AI 做执行
+          - text: 。听起来简单，但实际操作中很容易模糊边界——什么时候让 AI 自由发挥？什么时候必须亲自上手？PEV 就是用来回答这个问题的。
+    - generic [ref=e52]:
+      - paragraph [ref=e53]: "> // framework"
+      - heading "PEV：Plan → Execute → Verify" [level=2] [ref=e54]
+      - generic [ref=e55]:
+        - generic [ref=e56]:
+          - heading "Plan · 计划" [level=4] [ref=e57]
+          - paragraph [ref=e58]: 准备上下文 → AI 出方案 → 人工 Review 方案
+          - paragraph [ref=e59]:
+            - strong [ref=e60]: 禁止 AI 写代码
+            - text: ，只输出需求分析和实现方案
+        - generic [ref=e61]:
+          - heading "Execute · 执行" [level=4] [ref=e62]
+          - paragraph [ref=e63]: AI 写代码 → AI 写测试 → 自动修复循环
+          - paragraph [ref=e64]:
+            - text: 约束给得越细，
+            - strong [ref=e65]: 返工越少
+        - generic [ref=e66]:
+          - heading "Verify · 验证" [level=4] [ref=e67]
+          - paragraph [ref=e68]: Code Review + 功能自测 + 体验检查
+          - paragraph [ref=e69]:
+            - strong [ref=e70]: 人工把关，不能省
+      - complementary [ref=e71]:
+        - paragraph [ref=e72]:
+          - text: PEV 分三个阶段。
+          - strong [ref=e73]: Plan 阶段
+          - text: ，我告诉 AI 需求是什么、约束是什么，让它输出方案。这里有个关键操作——
+          - strong [ref=e74]: 禁止 AI 写代码
+          - text: ，只让它出方案。
+        - paragraph [ref=e75]: 为什么要禁止？因为你得先确认方案是对的，再让它动手。方案不对，代码写得再快也是白费。
+        - paragraph [ref=e76]:
+          - strong [ref=e77]: Execute 阶段
+          - text: ，方案确认后，才让 AI 写代码、写测试。这时候给的约束会更具体——代码风格、单文件不超过 300 行、不能有 mock 数据。约束越细，输出越能直接用。
+        - paragraph [ref=e78]:
+          - strong [ref=e79]: Verify 阶段
+          - text: ，代码写完了，但我的工作没完。我会逐项做 Code Review、功能自测、体验检查。这个阶段是人的主场，AI 替代不了。
+    - generic [ref=e80]:
+      - paragraph [ref=e81]: "> // plan phase"
+      - heading "PLAN：先想清楚，再动手" [level=2] [ref=e82]
+      - generic [ref=e83]:
+        - generic [ref=e84]:
+          - generic [ref=e85]:
+            - generic [ref=e86]: ①
+            - generic [ref=e87]:
+              - generic [ref=e88]: 告诉 Agent 三样东西
+              - paragraph [ref=e89]: 需求描述（自己总结）+ PRD 原文 + 约束条件
+          - generic [ref=e90]:
+            - generic [ref=e91]: ②
+            - generic [ref=e92]:
+              - generic [ref=e93]: 禁止 AI 写代码
+              - paragraph [ref=e94]: 只输出需求分析和实现方案，回答四个问题：做什么？改哪些文件？影响谁？有风险吗？
+          - generic [ref=e95]:
+            - generic [ref=e96]: ③
+            - generic [ref=e97]:
+              - generic [ref=e98]: 人工确认方案
+              - paragraph [ref=e99]: AI 可能误读 PRD、提出不符合架构的方案。人的判断不可替代。
+        - generic [ref=e100]:
+          - heading "Spec-Driven Development" [level=4] [ref=e101]
+          - paragraph [ref=e102]: 确认后的方案写成 Spec 文档，提交到代码仓库。
+          - paragraph [ref=e103]: 好处：① 跨会话复用 ② 团队协作 ③ 可追溯
+          - paragraph [ref=e104]: 具体做法：项目根目录维护 CLAUDE.md
+      - complementary [ref=e105]:
+        - paragraph [ref=e106]:
+          - text: Plan 阶段我怎么做？第一步，告诉 Agent
+          - strong [ref=e107]: 三样东西
+          - text: ：我自己理解的需求描述、PRD 原文、约束条件。注意需求描述一定要自己先消化一遍再告诉 AI，不要直接扔 PRD 过去。
+        - paragraph [ref=e108]:
+          - text: 第二步，明确告诉 AI：
+          - strong [ref=e109]: 先不要写代码，只输出方案
+          - text: 。方案里要回答四个问题——做什么、改哪些文件、影响哪些模块、有没有风险。
+        - paragraph [ref=e110]: 第三步，我仔细看完方案，确认无误才放行。这一步不能省。AI 真的会误读 PRD，真的会提不靠谱的方案。
+        - paragraph [ref=e111]:
+          - text: 右边这个卡片讲的是一个重要的实践——
+          - strong [ref=e112]: Spec-Driven Development
+          - text: 。确认后的方案不要只留在对话里，要写成文档提交到仓库。这样你下次开终端 AI 还能读到，其他同学接手也看得见。
+    - generic [ref=e113]:
+      - paragraph [ref=e114]: "> // execute phase"
+      - heading "EXECUTE：给定约束，让 AI 写代码" [level=2] [ref=e115]
+      - generic [ref=e116]:
+        - generic [ref=e117]:
+          - heading "约束条件越细，输出越可用" [level=4] [ref=e118]
+          - generic [ref=e119]:
+            - generic [ref=e120]: 遵循项目代码风格
+            - generic [ref=e121]: 不能有 mock 数据
+            - generic [ref=e122]: 单文件不超过 300 行
+            - generic [ref=e123]: 不引入不必要的抽象
+        - generic [ref=e124]:
+          - heading "写完代码，立刻写测试" [level=4] [ref=e125]
+          - paragraph [ref=e126]: 每个功能都要有单元测试，每个测试都要覆盖边界情况，每个测试都必须通过。
+          - paragraph [ref=e127]: 强校验防线：ESLint + TypeScript + Prettier + Vitest
+          - paragraph [ref=e128]: 不符合规范直接报错，AI 自动修复直到通过。
+      - complementary [ref=e129]:
+        - paragraph [ref=e130]: 方案确认后，进入执行阶段。这时候给 AI 的约束会更具体。左边列了几个典型的约束——代码风格、不能有 mock 数据、单文件不超过 300 行、不要写兼容代码。
+        - paragraph [ref=e131]:
+          - strong [ref=e132]: 约束给得越细，AI 输出的代码越能直接用，返工越少
+          - text: 。这个经验非常重要。你如果不给约束，AI 就按它自己的习惯写，可能跟项目风格完全不搭。
+        - paragraph [ref=e133]:
+          - text: 右边强调一个点：代码写完，
+          - strong [ref=e134]: 立刻让 AI 写测试
+          - text: 。不要等，不要想着"后面再补"。每个功能写完马上写测试，覆盖边界情况，跑通为止。
+        - paragraph [ref=e135]: 前端项目有 ESLint + TypeScript + Prettier + Vitest 这套强校验防线，代码不符合规范直接报错，AI 会自动修复直到通过。这个循环是完全自动的，不需要你干预。
+    - generic [ref=e136]:
+      - paragraph [ref=e137]: "> // verify phase"
+      - heading "VERIFY：人工把关，不能少" [level=2] [ref=e138]
+      - generic [ref=e139]:
+        - generic [ref=e140]:
+          - heading "Code Review" [level=4] [ref=e141]
+          - paragraph [ref=e142]:
+            - text: ✓ 代码风格和架构规范
+            - text: ✓ 是否引入重复逻辑（AI 容易不管已有实现）
+            - text: ✓ 安全隐患（硬编码密钥、缺少输入校验）
+            - text: ✓ 类型定义是否严谨
+            - text: ✓ 潜在的副作用
+        - generic [ref=e143]:
+          - heading "功能自测" [level=4] [ref=e144]
+          - paragraph [ref=e145]:
+            - text: ✓ 整个流程走一遍
+            - text: ✓ 交互是否流畅，有没有卡顿
+            - text: ✓ loading 状态展示是否合理
+            - text: ✓ 错误提示是否用户友好
+            - text: ✓ 各屏幕尺寸下布局是否正常
+      - complementary [ref=e146]:
+        - paragraph [ref=e147]: 执行完之后，进入 Verify 阶段。这是人最核心的工作。
+        - paragraph [ref=e148]:
+          - text: 左边是 Code Review 的检查清单。我特别标了一个——
+          - strong [ref=e149]: 是否引入重复逻辑
+          - text: 。这是 AI 最容易犯的错：它不知道你项目里已经有这个功能了，会重新写一份。所以 Review 的时候一定要看有没有"重复造轮子"。
+        - paragraph [ref=e150]:
+          - text: 右边是功能自测。不要只测"功能能不能用"，还要看
+          - strong [ref=e151]: 交互体验
+          - text: ——loading 状态有没有、错误提示用户看不看得懂、不同屏幕尺寸下会不会崩。
+        - paragraph [ref=e152]: 这些是 AI 做不了的。AI 能跑测试、能过 lint，但它不知道"这个 loading 转 5 秒用户会烦"。所以 Verify 阶段，人的判断不可替代。
+    - generic [ref=e153]:
+      - paragraph [ref=e154]: "> // verify · hidden risks"
+      - heading "隐性风险：三重债务模型" [level=2] [ref=e155]
+      - paragraph [ref=e156]: Martin Fowler & Storey, 2026 — AI 辅助开发带来的隐性成本
+      - generic [ref=e157]:
+        - generic [ref=e158]:
+          - heading "技术债务" [level=4] [ref=e159]
+          - paragraph [ref=e160]:
+            - text: AI 生成的 PR 比人类写的多
+            - strong [ref=e161]: 1.7 倍
+            - text: 重大问题——控制流错误、安全漏洞。Code Review 可以覆盖。
+        - generic [ref=e162]:
+          - heading "认知债务" [level=4] [ref=e163]
+          - paragraph [ref=e164]:
+            - text: 代码不是你写的，你对它理解不够深。久而久之团队不敢改代码——系统变成
+            - strong [ref=e165]: 黑盒
+            - text: 。
+        - generic [ref=e166]:
+          - heading "意图债务" [level=4] [ref=e167]
+          - paragraph [ref=e168]: 代码能表达"做了什么"，但表达不了"为什么这么做"。设计意图在流失。
+      - complementary [ref=e169]:
+        - paragraph [ref=e170]:
+          - text: Verify 阶段除了检查常规问题，还要注意一些
+          - strong [ref=e171]: 隐性风险
+          - text: 。2026 年 Martin Fowler 和 Storey 提出了一个模型叫
+          - strong [ref=e172]: 三重债务模型
+          - text: ，专门描述 AI 辅助开发带来的隐性成本。
+        - paragraph [ref=e173]:
+          - text: 第一种是
+          - strong [ref=e174]: 技术债务
+          - text: ，这个最好理解——AI 写的代码能跑但不够干净。行业数据显示 AI 生成的 PR 比人写的多 1.7 倍重大问题。这个我们在 Code Review 里已经在查了。
+        - paragraph [ref=e175]:
+          - text: 第二种是
+          - strong [ref=e176]: 认知债务
+          - text: ，这个更隐蔽。代码不是你一行行写的，你对它的理解就不够深。久而久之团队会变得不敢改代码——怕改了这里，那里出问题。系统变成了一个黑盒。
+        - paragraph [ref=e177]:
+          - text: 第三种是
+          - strong [ref=e178]: 意图债务
+          - text: ——代码能表达"做了什么"，但表达不了"为什么这么做"。所以 Spec 持久化特别重要，它在保留设计意图。
+    - generic [ref=e179]:
+      - paragraph [ref=e180]: "> // honest talk"
+      - heading "也要诚实面对：AI 不总是靠谱" [level=2] [ref=e181]
+      - generic [ref=e182]:
+        - generic [ref=e183]:
+          - generic [ref=e184]: ①
+          - generic [ref=e185]:
+            - generic [ref=e186]: 自信的错误
+            - paragraph [ref=e187]: 非常自信地给出一个看起来合理但实际有问题的方案。比如把该用 useMemo 的计算放在渲染循环里。
+        - generic [ref=e188]:
+          - generic [ref=e189]: ②
+          - generic [ref=e190]:
+            - generic [ref=e191]: 重复造轮子
+            - paragraph [ref=e192]: 不知道项目里已有工具函数，重新写一个功能相同但实现不同的版本。
+        - generic [ref=e193]:
+          - generic [ref=e194]: ③
+          - generic [ref=e195]:
+            - generic [ref=e196]: 忽视上下文
+            - paragraph [ref=e197]: 改了一个文件，没意识到这个改动会影响另外三个文件。跨模块影响需要人把控。
+        - generic [ref=e198]:
+          - generic [ref=e199]: ④
+          - generic [ref=e200]:
+            - generic [ref=e201]: "\"幻觉\"问题"
+            - paragraph [ref=e202]: 引用不存在的 API，或使用已废弃的方法。它自己不知道自己"不知道"。
+      - complementary [ref=e203]:
+        - paragraph [ref=e204]:
+          - text: 说完了工作流，我想特别聊一下
+          - strong [ref=e205]: AI 翻车的场景
+          - text: 。不是泼冷水，而是让大家对 AI 的能力边界有一个真实的预期。
+        - paragraph [ref=e206]:
+          - text: 第一种翻车叫
+          - strong [ref=e207]: "\"自信的错误\""
+          - text: ——AI 会非常自信地给出一个看起来完美但实际有隐患的方案。比如把一个计算密集的操作放在渲染循环里，表面上跑得通，但性能问题很大。你不仔细看根本发现不了。
+        - paragraph [ref=e208]:
+          - text: 第二种是
+          - strong [ref=e209]: 重复造轮子
+          - text: ——AI 不知道你项目里已经有一个做同样事的工具函数，它会重新写一份。结果是项目里出现两份重复代码。
+        - paragraph [ref=e210]:
+          - text: 第三种是
+          - strong [ref=e211]: 忽视上下文
+          - text: ——AI 改了一个文件，但没意识到这个改动会影响另外三个文件。
+        - paragraph [ref=e212]:
+          - text: 第四种是
+          - strong [ref=e213]: "\"幻觉\""
+          - text: ——AI 有时候会引用一个根本不存在的 API，或者使用已废弃的方法。
+        - paragraph [ref=e214]: 所以 PEV 里 Verify 阶段为什么这么重？就是因为这些翻车场景是真实存在的。
+    - generic [ref=e215]:
+      - paragraph [ref=e216]: "> // fix · TDD for bugs"
+      - heading "FIX：TDD 驱动修 Bug" [level=2] [ref=e217]
+      - generic [ref=e218]:
+        - generic [ref=e219]:
+          - generic [ref=e220]:
+            - generic [ref=e221]: ①
+            - generic [ref=e222]:
+              - generic [ref=e223]: 先写一个失败的测试（复现 Bug）
+              - paragraph [ref=e224]: 用测试精确定位问题，不是凭感觉猜。
+          - generic [ref=e225]:
+            - generic [ref=e226]: ②
+            - generic [ref=e227]:
+              - generic [ref=e228]: 让 AI 修代码
+              - paragraph [ref=e229]: AI 看到失败测试就知道该修哪里。
+          - generic [ref=e230]:
+            - generic [ref=e231]: ③
+            - generic [ref=e232]:
+              - generic [ref=e233]: 测试通过 = 修复确认
+              - paragraph [ref=e234]: 跑测试，过了就是过了。不用再猜"修好了没"。
+        - generic [ref=e235]:
+          - text: 发现 Bug → 写一个
+          - strong [ref=e236]: 失败的测试
+          - text: （复现） → 让 AI 修代码 → 测试通过 → 确认修复 ✓
+      - complementary [ref=e237]:
+        - paragraph [ref=e238]:
+          - text: 最后说一下修 Bug 的方法。如果自测发现 Bug，我的做法是：
+          - strong [ref=e239]: 先让 AI 写一个能复现这个 Bug 的测试，再修代码
+          - text: 。
+        - paragraph [ref=e240]: 为什么要先写测试？三个好处。第一，用测试精确定位问题，而不是凭感觉猜"应该是这里的问题"。第二，AI 看到失败的测试就知道该修哪里，不用你再解释半天。第三，改完之后跑一下测试就知道了，过了就是过了，不用再猜"到底修好没"。
+        - paragraph [ref=e241]:
+          - text: 这就是 TDD 的核心思路——先有测试，再改代码——只不过用在了 debug 场景。整个 PEV 工作流里，
+          - strong [ref=e242]: 人始终在环路里做决策，AI 帮你跑得快
+          - text: 。
+    - generic [ref=e243]:
+      - generic [ref=e244]: PART 02
+      - heading "AI Agent 的运行原理" [level=2] [ref=e245]
+      - paragraph [ref=e246]: 面向所有同学，不用技术背景也能听懂
+      - complementary [ref=e247]:
+        - paragraph [ref=e248]:
+          - text: 好，以上就是我的 AI 辅助开发工作流。了解了怎么用 AI，你可能会好奇——
+          - strong [ref=e249]: 它背后到底是怎么工作的
+          - text: ？这就进入第二部分。
+        - paragraph [ref=e250]: 这一部分我保证不用任何高深的技术术语，不管你是什么岗位，都能听懂。我们从一个日常场景开始。
+    - generic [ref=e251]:
+      - paragraph [ref=e252]: "> // agent 101"
+      - heading "一句话理解：Agent = 大模型 + 工具 + 循环" [level=2] [ref=e253]
+      - generic [ref=e254]:
+        - generic [ref=e255]:
+          - heading "大模型（思考）" [level=4] [ref=e256]
+          - paragraph [ref=e257]: 理解你的意图，分析当前状况，决定下一步做什么。
+        - generic [ref=e258]:
+          - heading "工具（行动）" [level=4] [ref=e259]
+          - paragraph [ref=e260]: 读文件、改文件、跑命令、搜索代码。不只是打字。
+        - generic [ref=e261]:
+          - heading "循环（观察）" [level=4] [ref=e262]
+          - paragraph [ref=e263]: 拿到结果后继续思考，直到任务完成或需要你介入。
+      - paragraph [ref=e264]:
+        - text: 普通聊天机器人只能
+        - strong [ref=e265]: 回复文字
+        - text: 。Agent 不同——它能
+        - strong [ref=e266]: 做事
+        - text: 。
+      - complementary [ref=e267]:
+        - paragraph [ref=e268]: 你在终端跟 Claude Code 说"帮我加个搜索框"，然后看到它自己去读文件、改文件、写测试、跑 lint……你有没有想过，它到底是怎么做到这一串操作的？
+        - paragraph [ref=e269]:
+          - text: 答案就三个词：
+          - strong [ref=e270]: 大模型 + 工具 + 循环
+          - text: 。大模型负责思考——理解你的意图，分析当前状况。工具负责行动——读文件、改文件、跑命令。循环负责观察——拿到结果后继续思考，直到任务完成。
+        - paragraph [ref=e271]: 普通聊天机器人只能回复文字。Agent 不一样——它能做事。这个区别很关键。你问普通 LLM"北京天气怎么样"，它靠训练数据回答，可能是过期的。你问 Agent，它会调天气 API 去查，拿到的是实时数据。
+    - generic [ref=e272]:
+      - paragraph [ref=e273]: "> // react · reason + act"
+      - heading "ReAct：思考 → 行动 → 观察" [level=2] [ref=e274]
+      - generic [ref=e275]:
+        - generic [ref=e276]:
+          - generic [ref=e277]:
+            - generic [ref=e278]: 思考
+            - generic [ref=e279]:
+              - generic [ref=e280]: Reasoning
+              - paragraph [ref=e281]: 分析现状，决定下一步做什么。比如"需要先看文件结构"。
+          - generic [ref=e282]:
+            - generic [ref=e283]: 行动
+            - generic [ref=e284]:
+              - generic [ref=e285]: Acting
+              - paragraph [ref=e286]: 选择合适的工具执行操作。比如 read_file、edit、bash。
+          - generic [ref=e287]:
+            - generic [ref=e288]: 观察
+            - generic [ref=e289]:
+              - generic [ref=e290]: Observation
+              - paragraph [ref=e291]: 拿到结果，判断还需要继续吗？任务完成了吗？
+        - generic [ref=e292]:
+          - heading "加搜索框的例子" [level=4] [ref=e293]
+          - generic [ref=e294]:
+            - generic [ref=e295]: R1 思考：用户列表页长什么样 → read_file
+            - generic [ref=e296]: R2 思考：加 Input.Search 组件 → edit
+            - generic [ref=e297]: R3 思考：写测试 → edit
+            - generic [ref=e298]: R4 思考：lint 报类型错误 → edit
+            - generic [ref=e299]: R5 思考：全部通过 → 完成
+      - complementary [ref=e300]:
+        - paragraph [ref=e301]:
+          - text: Agent 的工作方式有个名字叫
+          - strong [ref=e302]: ReAct
+          - text: ——Reasoning 加 Acting，思考加行动。就是一个"边想边做"的循环。
+        - paragraph [ref=e303]:
+          - text: 每一步都是三拍：
+          - strong [ref=e304]: 思考
+          - text: 当前状况，
+          - strong [ref=e305]: 行动
+          - text: 选工具干活，
+          - strong [ref=e306]: 观察
+          - text: 结果判断要不要继续。
+        - paragraph [ref=e307]: 右边是一个具体例子——让 AI 加一个搜索框。第一轮，它想"用户列表页长什么样"，于是去读文件。第二轮，想清楚了，开始改代码。第三轮，写测试。第四轮，发现 lint 报错，自动修复。第五轮，全部通过，告诉你做完了。
+        - paragraph [ref=e308]:
+          - text: 所以你看，
+          - strong [ref=e309]: AI 写代码不是魔法
+          - text: ，就是这个循环在反复转。你在每一步都能看到它在想什么、做了什么。这就是为什么我们说"人在环路上"——你随时可以介入。
+    - generic [ref=e310]:
+      - paragraph [ref=e311]: "> // under the hood"
+      - heading "三个关键技术点" [level=2] [ref=e312]
+      - generic [ref=e313]:
+        - generic [ref=e314]:
+          - heading "工具箱（Tools）" [level=4] [ref=e315]
+          - paragraph [ref=e316]:
+            - text: read_file 读文件
+            - text: edit 改文件
+            - text: bash 跑命令
+            - text: grep 搜索代码
+            - text: glob 按模式查找
+          - paragraph [ref=e317]: 每个工具都有描述，告诉 AI "什么时候用、怎么用"。
+        - generic [ref=e318]:
+          - heading "消息历史（记忆）" [level=4] [ref=e319]
+          - paragraph [ref=e320]: Agent 维护完整的消息记录。每一轮思考都能看到前面的所有对话和操作结果。
+          - paragraph [ref=e321]:
+            - text: 这就是为什么它能做多步操作
+            - strong [ref=e322]: 不会"忘"
+            - text: 。
+        - generic [ref=e323]:
+          - heading "循环上限" [level=4] [ref=e324]
+          - paragraph [ref=e325]: 设置了最大迭代次数，防止"死循环"。
+          - paragraph [ref=e326]:
+            - text: 如果超了还没完成，会
+            - strong [ref=e327]: 停下来让你介入
+            - text: 。
+      - complementary [ref=e328]:
+        - paragraph [ref=e329]: 这一页讲三个技术细节，不深入，有兴趣可以会后聊。
+        - paragraph [ref=e330]:
+          - text: 第一个是
+          - strong [ref=e331]: 工具箱
+          - text: 。Agent 不只是打字，它有具体的工具——读文件、改文件、跑命令、搜索代码。每个工具都有描述，告诉 AI 什么时候用、怎么用。这就像你给新同事一个工具清单，告诉他"改文件用 edit，找代码用 grep"。
+        - paragraph [ref=e332]:
+          - text: 第二个是
+          - strong [ref=e333]: 消息历史
+          - text: 。Agent 维护一个完整的记录，每一轮思考它都能看到前面发生了什么。这就是为什么它能做多步操作不会忘——你让它加搜索框，它改了文件还记得要去写测试。
+        - paragraph [ref=e334]:
+          - text: 第三个是
+          - strong [ref=e335]: 循环上限
+          - text: 。Agent 不是无限循环的，Claude Code 设了最大迭代次数。如果跑了很多轮还没完成，它会停下来让你介入。这是一个安全机制。
+    - generic [ref=e336]:
+      - generic [ref=e337]: PART 03
+      - heading "我的 AI 学习方法" [level=2] [ref=e338]
+      - paragraph [ref=e339]: 保持感知，按需深入
+      - complementary [ref=e340]:
+        - paragraph [ref=e341]: 了解了 AI 的原理，下一个问题自然就来了——这个领域变化这么快，怎么跟得上？这就是第三部分。
+        - paragraph [ref=e342]: 这部分不长，因为我的方法确实不复杂。
+    - generic [ref=e343]:
+      - paragraph [ref=e344]: "> // learning"
+      - heading "GitHub Trending + AI 辅助读源码" [level=2] [ref=e345]
+      - generic [ref=e346]:
+        - generic [ref=e347]:
+          - heading "第一步：定期刷 GitHub Trending" [level=4] [ref=e348]
+          - paragraph [ref=e349]: 每周花十几分钟扫一眼。不是追热点，是保持对"大家都在关注什么"的感知。
+          - generic [ref=e350]:
+            - generic [ref=e351]: 这个项目解决什么问题？
+            - generic [ref=e352]: 有没有新的范式或工具思路？
+            - generic [ref=e353]: 跟我现在的技术栈有关系吗？
+          - heading "第二步：AI 辅助读源码" [level=4] [ref=e354]
+          - paragraph [ref=e355]: clone 下来 → 喂给 AI → 问架构、问核心文件、问实现细节。传统方式要好几天，AI 辅助几个小时搞定。
+        - generic [ref=e356]:
+          - heading "信息源管理" [level=4] [ref=e357]
+          - generic [ref=e358]:
+            - generic [ref=e359]:
+              - generic [ref=e360]: ①
+              - generic [ref=e361]:
+                - generic [ref=e362]: 官方文档优先
+                - paragraph [ref=e363]: 遇到新工具新概念，先看官方文档再看博客。官方最准确。
+            - generic [ref=e364]:
+              - generic [ref=e365]: ②
+              - generic [ref=e366]:
+                - generic [ref=e367]: 技术社区精选
+                - paragraph [ref=e368]: Hacker News、掘金热门。了解"社区在讨论什么"。
+            - generic [ref=e369]:
+              - generic [ref=e370]: ③
+              - generic [ref=e371]:
+                - generic [ref=e372]: 不需要跟上所有东西
+                - paragraph [ref=e373]: 保持感知，按需深入。不要 FOMO。
+      - complementary [ref=e374]:
+        - paragraph [ref=e375]: 我的学习方法核心就两个。
+        - paragraph [ref=e376]:
+          - text: 第一个：
+          - strong [ref=e377]: 定期刷 GitHub Trending
+          - text: 。每周花十几分钟，看看最近最火的项目在解决什么问题。不是为了追热点，而是保持感知——知道大家在关注什么。遇到感兴趣的，clone 下来用 AI 辅助读源码。传统方式读一个项目要好几天，AI 辅助几个小时就能理解核心架构。
+        - paragraph [ref=e378]:
+          - text: 第二个：
+          - strong [ref=e379]: 信息源管理
+          - text: 。我保持几个固定渠道——官方文档优先于博客，技术社区看精选，GitHub Changelog 关注核心工具更新。
+        - paragraph [ref=e380]:
+          - text: 最后强调一个心态：
+          - strong [ref=e381]: 不需要跟上所有东西
+          - text: 。这个领域每天都有新东西，追不完的。我的策略是"保持感知，按需深入"。知道有这个东西就行，等真正需要用的时候再花时间学。AI 工具的学习曲线越来越低，不用急着每个都试。
+    - generic [ref=e382]:
+      - generic [ref=e383]: PART 04
+      - heading "团队可以尝试什么" [level=2] [ref=e384]
+      - paragraph [ref=e385]: 把 SaaS 业务能力暴露给 Agent
+      - complementary [ref=e386]:
+        - paragraph [ref=e387]: 好，接下来聊一个更有意思的话题——我们团队可以怎么用 AI 做一些不一样的事。
+        - paragraph [ref=e388]: 这不是 PPT 上的概念，而是我们可以实际去做的。
+    - generic [ref=e389]:
+      - paragraph [ref=e390]: "> // team practice"
+      - heading "把业务操作变成 CLI 命令" [level=2] [ref=e391]
+      - generic [ref=e392]: "saas payment list --status=pending # 查看待处理的付款单 saas payment detail --id=PAY001 # 查看付款详情 saas deal quote --pair=USD/CNH # 查询实时汇率 saas deal execute --pair=USD/CNH --amount=10000 # 执行交易 saas approval list --pending # 查看待审批 saas balance check --currency=USD # 查询余额"
+      - paragraph [ref=e393]: 本质：调用现有 services/ 层 API，只加一层薄壳。
+      - complementary [ref=e394]:
+        - paragraph [ref=e395]: 这个想法是这样的——我们现在所有操作都只能通过网页界面完成。但如果把常用的业务操作封装成 CLI 命令，事情就不一样了。
+        - paragraph [ref=e396]:
+          - text: 大家看屏幕上这些命令——查付款单、查汇率、执行交易、审批、查余额。这些命令本质上就是调用我们
+          - strong [ref=e397]: 现有的 API 接口
+          - text: 。我们已经有完整的 services 层，后端 API 都在，只需要包一层 CLI。
+        - paragraph [ref=e398]: 这件事技术上不难。难的是什么？下一页会讲。
+    - generic [ref=e399]:
+      - paragraph [ref=e400]: "> // agent in action"
+      - heading "Agent 直接操作业务系统" [level=2] [ref=e401]
+      - generic [ref=e402]:
+        - generic [ref=e403]:
+          - generic [ref=e408]: terminal
+          - generic [ref=e409]: "你: 查一下今天有多少笔待审批 Agent: 当前有 12 笔待审批付款 其中 3 笔超过 24 小时未处理 你: 金额最大的那笔详情 Agent: PAY20260509087 金额: USD 500,000 收款人: ABC Trading Co. 你: 这笔交易的汇率？ Agent: USD/CNH 汇率: 7.2450"
+        - generic [ref=e410]:
+          - generic [ref=e411]:
+            - heading "更进一步：自动化流程" [level=4] [ref=e412]
+            - paragraph [ref=e413]:
+              - text: "\"监控 USD/CNH 汇率，低于 7.20 自动买入 10 万美元\""
+              - text: "\"每天早上 9 点把昨天的交易汇总发给我\""
+          - generic [ref=e415]:
+            - generic [ref=e416]: "?"
+            - generic [ref=e417]:
+              - generic [ref=e418]: 需要想清楚的三个问题
+              - paragraph [ref=e419]:
+                - text: ① 哪些操作适合暴露？查询先做，交易需权限控制
+                - text: ② 权限怎么跟现有体系打通？
+                - text: ③ 每次操作都要有审计日志
+      - complementary [ref=e420]:
+        - paragraph [ref=e421]: 一旦业务操作变成了 CLI 命令，Agent 就能直接操作我们的业务系统。看左边这个终端对话——你不用打开浏览器、不用登录系统，在终端里用自然语言告诉 Agent，它帮你查。
+        - paragraph [ref=e422]:
+          - text: 更进一步，Agent 可以做
+          - strong [ref=e423]: 自动化流程
+          - text: ——比如"监控汇率，低于某个值自动买入"，或者"每天早上把交易汇总发给我"。人定规则，Agent 自动执行。
+        - paragraph [ref=e424]:
+          - text: 但这件事有三个问题要想清楚。
+          - strong [ref=e425]: 第一
+          - text: ，哪些操作适合暴露给 Agent？查询类操作风险低，可以先做；交易类需要权限控制。
+          - strong [ref=e426]: 第二
+          - text: ，权限怎么跟现有体系打通？
+          - strong [ref=e427]: 第三
+          - text: ，审计日志——Agent 的每次操作都要有记录，出了问题可以追溯。
+        - paragraph [ref=e428]: 这些是值得团队讨论的。技术上不难，关键是想清楚业务规则。
+    - generic [ref=e429]:
+      - paragraph [ref=e430]: "> // for everyone"
+      - heading "不同角色，不同切入点" [level=2] [ref=e431]
+      - paragraph [ref=e432]: 核心思路一样：AI 是执行力强的助手，你定规则，它做执行。
+      - generic [ref=e433]:
+        - generic [ref=e434]:
+          - heading "前端" [level=4] [ref=e435]
+          - paragraph [ref=e436]: 组件开发、页面还原、自动化测试。这就是今天讲的 PEV 工作流。
+        - generic [ref=e437]:
+          - heading "后端" [level=4] [ref=e438]
+          - paragraph [ref=e439]: API 封装 CLI，让 Agent 能操作业务系统。刚才说的思路。
+        - generic [ref=e440]:
+          - heading "产品" [level=4] [ref=e441]
+          - paragraph [ref=e442]: AI 做需求分析、竞品调研、PRD 草拟。文字工作已经很成熟。
+      - generic [ref=e443]:
+        - generic [ref=e444]:
+          - heading "测试" [level=4] [ref=e445]
+          - paragraph [ref=e446]: AI 生成测试用例、分析覆盖率、自动化回归。
+        - generic [ref=e447]:
+          - heading "设计" [level=4] [ref=e448]
+          - paragraph [ref=e449]: 设计稿到代码的转换、设计灵感探索。
+        - generic [ref=e450]:
+          - heading "技术领导" [level=4] [ref=e451]
+          - paragraph [ref=e452]: 评估 AI 工具引入、制定团队 AI 使用规范。
+      - complementary [ref=e453]:
+        - paragraph [ref=e454]: 刚才讲的 CLI + Agent 是后端视角。但不同角色其实有不同的切入方式。
+        - paragraph [ref=e455]:
+          - strong [ref=e456]: 前端同学
+          - text: 就是今天讲的工作流——用 Agent 做组件开发、页面还原、自动化测试。
+        - paragraph [ref=e457]:
+          - strong [ref=e458]: 后端同学
+          - text: 可以把 API 封装成 CLI，让 Agent 直接操作业务。这是刚才说的。
+        - paragraph [ref=e459]:
+          - strong [ref=e460]: 产品同学
+          - text: ，AI 在文字工作上已经很成熟了——需求分析、竞品调研、PRD 草拟，这些都可以让 AI 帮你。
+        - paragraph [ref=e461]:
+          - strong [ref=e462]: 测试同学
+          - text: 可以用 AI 生成测试用例、分析覆盖率。
+          - strong [ref=e463]: 设计同学
+          - text: 可以用 AI 做设计稿到代码的转换。
+        - paragraph [ref=e464]:
+          - strong [ref=e465]: 技术领导
+          - text: 的角色是评估哪些 AI 工具值得引入、制定团队的使用规范。这个角色很重要。
+        - paragraph [ref=e466]:
+          - text: 核心思路是一样的：
+          - strong [ref=e467]: AI 是一个执行力很强的助手，你定规则，它做执行
+          - text: 。
+    - generic [ref=e468]:
+      - paragraph [ref=e469]: "> // takeaways"
+      - heading "四件事带走" [level=2] [ref=e470]
+      - generic [ref=e471]:
+        - generic [ref=e472]:
+          - heading "01 PEV 工作流" [level=4] [ref=e473]
+          - paragraph [ref=e474]:
+            - text: Plan → Execute → Verify
+            - text: 人做决策，AI 做执行
+        - generic [ref=e475]:
+          - heading "02 Agent 原理" [level=4] [ref=e476]
+          - paragraph [ref=e477]:
+            - text: 思考 → 行动 → 观察
+            - text: AI 写代码不是魔法，是可理解的循环
+        - generic [ref=e478]:
+          - heading "03 学习方法" [level=4] [ref=e479]
+          - paragraph [ref=e480]:
+            - text: GitHub Trending 保持感知
+            - text: AI 辅助读源码深入理解
+        - generic [ref=e481]:
+          - heading "04 团队实践" [level=4] [ref=e482]
+          - paragraph [ref=e483]:
+            - text: SaaS 业务操作封装 CLI
+            - text: 让 Agent 直接操作系统
+      - paragraph [ref=e484]:
+        - strong [ref=e485]: AI 能放大你的能力，但不能替代你的判断。
+        - text: 会写约束条件、能判断方案好坏、能发现隐患——这些才是你应该持续打磨的。
+      - complementary [ref=e486]:
+        - paragraph [ref=e487]: 最后收个尾。今天聊了四件事。
+        - paragraph [ref=e488]:
+          - text: 第一，
+          - strong [ref=e489]: PEV 工作流
+          - text: ——Plan、Execute、Verify。人做决策，AI 做执行。这个框架你可以直接拿去用。
+        - paragraph [ref=e490]:
+          - text: 第二，
+          - strong [ref=e491]: Agent 原理
+          - text: ——思考、行动、观察。AI 写代码不是魔法，就是这三步在反复循环。
+        - paragraph [ref=e492]:
+          - text: 第三，
+          - strong [ref=e493]: 学习方法
+          - text: ——GitHub Trending 保持感知，AI 辅助读源码深入理解。保持感知，按需深入。
+        - paragraph [ref=e494]:
+          - text: 第四，
+          - strong [ref=e495]: 团队实践
+          - text: ——把 SaaS 业务操作封装成 CLI，让 Agent 直接操作系统。技术上不难，关键是想清楚业务规则。
+        - paragraph [ref=e496]:
+          - text: 最后我想说：AI 工具进步速度比我们想象的快，但核心逻辑没变——
+          - strong [ref=e497]: 它能放大你的能力，但不能替代你的判断
+          - text: 。会写约束条件、能判断方案好坏、能发现隐患——这些才是你应该持续打磨的。
+        - paragraph [ref=e498]: 谢谢大家！接下来是 Q&A。
+    - generic [ref=e499]:
+      - generic [ref=e500]:
+        - generic [ref=e501]: Q&A
+        - heading "Questions?" [level=2] [ref=e502]
+        - paragraph [ref=e503]: 随时打断我，或者现在开始
+      - complementary [ref=e504]:
+        - paragraph [ref=e505]: 好，以上就是今天全部内容。现在开始 Q&A，大家有什么问题都可以问。
+  - generic: S 演讲者视图 · T 切换主题 · ← → 翻页 · F 全屏 · O 总览 · R 重置计时

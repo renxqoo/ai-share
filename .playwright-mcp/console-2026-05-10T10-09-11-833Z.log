@@ -1,0 +1,16 @@
+[      65ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/.claude/skills/html-ppt/assets/fonts.css:0
+[      66ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/.claude/skills/html-ppt/assets/base.css:0
+[      66ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/.claude/skills/html-ppt/assets/themes/tokyo-night.css:0
+[      66ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/.claude/skills/html-ppt/assets/animations/animations.css:0
+[      69ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/.claude/skills/html-ppt/assets/runtime.js:0
+[     448ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/favicon.ico:0
+[  108550ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/.claude/skills/html-ppt/assets/animations/animations.css:0
+[  108550ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/.claude/skills/html-ppt/assets/fonts.css:0
+[  108551ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/.claude/skills/html-ppt/assets/base.css:0
+[  108551ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/.claude/skills/html-ppt/assets/themes/tokyo-night.css:0
+[  108558ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/.claude/skills/html-ppt/assets/runtime.js:0
+[  109758ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/.claude/skills/html-ppt/assets/fonts.css:0
+[  109758ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/.claude/skills/html-ppt/assets/base.css:0
+[  109759ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/.claude/skills/html-ppt/assets/themes/tokyo-night.css:0
+[  109759ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/.claude/skills/html-ppt/assets/animations/animations.css:0
+[  109760ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/.claude/skills/html-ppt/assets/runtime.js:0

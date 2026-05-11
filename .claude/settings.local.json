@@ -27,7 +27,12 @@
       "Bash(git commit *)",
       "Bash(git branch *)",
       "Bash(git remote *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(start \"\" \"D:/work/ai-share/examples/ai-frontend-sharing/index.html\")",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_console_messages",
+      "Bash(python -m http.server 8766)"
     ]
   },
   "enabledMcpjsonServers": [

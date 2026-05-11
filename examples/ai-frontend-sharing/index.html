@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-themes="tokyo-night,dracula,catppuccin-mocha,nord,corporate-clean">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI 在前端开发流程中的应用 · 技术分享</title>
+<link rel="stylesheet" href="../../.claude/skills/html-ppt/assets/fonts.css">
+<link rel="stylesheet" href="../../.claude/skills/html-ppt/assets/base.css">
+<link rel="stylesheet" id="theme-link" href="../../.claude/skills/html-ppt/assets/themes/tokyo-night.css">
+<link rel="stylesheet" href="../../.claude/skills/html-ppt/assets/animations/animations.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="tpl-ai-frontend-sharing">
+<div class="deck">
+
+  <!-- ============ 1. COVER ============ -->
+  <section class="slide" data-title="Cover">
+    <p class="kicker">tech-sharing / 2026</p>
+    <h1 class="h1 anim-fade-up" data-anim="fade-up">AI 是如何在前端开发流程中<br><span class="grad-text">应用的</span></h1>
+    <p class="lede mt-m">PEV 工作流 · Agent 原理 · 学习方法 · 团队实践</p>
+    <div class="speaker">
+      <div class="av"></div>
+      <div><b>XXX</b><span>团队内部分享 · 按 S 进入演讲者视图</span></div>
+    </div>
+    <div class="deck-footer">
+      <span class="mono">#AI #前端开发 #Agent</span>
+      <span class="slide-number" data-current="1" data-total="18"></span>
+    </div>
+    <aside class="notes">
+      <p>大家好，今天想跟大家聊聊 <strong>AI 在前端开发流程中的应用</strong>。</p>
+      <p>先说一句——这个话题不局限于前端。不管你是写后端、做产品、搞设计还是做测试，今天的内容都跟你有关。因为 AI 改变的不是某一个岗位的工作方式，而是<strong>整个团队协作的方式</strong>。</p>
+      <p>今天分四个部分：第一，我的 AI 辅助开发工作流；第二，AI Agent 背后的运行原理；第三，我的学习方法；第四，我们团队可以尝试什么。中间随时可以打断我提问。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 2. AGENDA ============ -->
+  <section class="slide" data-title="Agenda">
+    <p class="kicker">agenda</p>
+    <h2 class="h2">今天的路线图</h2>
+    <div class="stack mt-l">
+      <div class="agenda-row"><span class="num">01</span><span class="t">我的 AI 辅助开发工作流 — PEV 框架</span></div>
+      <div class="agenda-row"><span class="num">02</span><span class="t">AI Agent 的运行原理 — 不是魔法是循环</span></div>
+      <div class="agenda-row"><span class="num">03</span><span class="t">我的 AI 学习方法 — 保持感知，按需深入</span></div>
+      <div class="agenda-row"><span class="num">04</span><span class="t">团队可以尝试什么 — CLI + Agent 融合</span></div>
+    </div>
+    <aside class="notes">
+      <p>先过一下路线图。</p>
+      <p>第一部分是我的日常工作流——我是怎么把 AI 嵌入到开发里的，用一个叫 <strong>PEV</strong> 的框架。这部分内容最实操，你可以直接拿去用。</p>
+      <p>第二部分讲 Agent 原理——你可能每天都在用 Claude Code、Cursor 这些工具，但它们背后到底是怎么工作的？这一部分<strong>面向所有同学，不用技术背景也能听懂</strong>。</p>
+      <p>第三部分是我的学习方法，很短，但分享一个我觉得很有效的组合。</p>
+      <p>第四部分聊一个更大胆的想法——怎么让 Agent 直接操作我们的业务系统。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 3. SECTION: PEV ============ -->
+  <section class="slide section-divider" data-title="Part 1 Divider">
+    <div class="part-label">PART 01</div>
+    <h2 class="h2">我的 AI 辅助开发工作流</h2>
+    <p class="lede">一个核心原则：<strong class="accent">人做决策，AI 做执行</strong></p>
+    <aside class="notes">
+      <p>好，进入第一部分。我先介绍一个我用了很久的框架，叫 <strong>PEV</strong>——Plan、Execute、Verify，计划、执行、验证。</p>
+      <p>这个框架的核心原则就一句话：<strong>人做决策，AI 做执行</strong>。听起来简单，但实际操作中很容易模糊边界——什么时候让 AI 自由发挥？什么时候必须亲自上手？PEV 就是用来回答这个问题的。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 4. PEV FRAMEWORK ============ -->
+  <section class="slide" data-title="PEV Framework">
+    <p class="kicker">// framework</p>
+    <h2 class="h2">PEV：<span class="accent">Plan → Execute → Verify</span></h2>
+    <div class="grid g3 mt-l">
+      <div class="card card-accent">
+        <h4 class="green">Plan · 计划</h4>
+        <p class="dim">准备上下文 → AI 出方案 → 人工 Review 方案</p>
+        <p class="dim mt-s"><strong>禁止 AI 写代码</strong>，只输出需求分析和实现方案</p>
+      </div>
+      <div class="card card-accent">
+        <h4 class="cyan">Execute · 执行</h4>
+        <p class="dim">AI 写代码 → AI 写测试 → 自动修复循环</p>
+        <p class="dim mt-s">约束给得越细，<strong>返工越少</strong></p>
+      </div>
+      <div class="card card-accent">
+        <h4 class="orange">Verify · 验证</h4>
+        <p class="dim">Code Review + 功能自测 + 体验检查</p>
+        <p class="dim mt-s"><strong>人工把关，不能省</strong></p>
+      </div>
+    </div>
+    <aside class="notes">
+      <p>PEV 分三个阶段。<strong>Plan 阶段</strong>，我告诉 AI 需求是什么、约束是什么，让它输出方案。这里有个关键操作——<strong>禁止 AI 写代码</strong>，只让它出方案。</p>
+      <p>为什么要禁止？因为你得先确认方案是对的，再让它动手。方案不对，代码写得再快也是白费。</p>
+      <p><strong>Execute 阶段</strong>，方案确认后，才让 AI 写代码、写测试。这时候给的约束会更具体——代码风格、单文件不超过 300 行、不能有 mock 数据。约束越细，输出越能直接用。</p>
+      <p><strong>Verify 阶段</strong>，代码写完了，但我的工作没完。我会逐项做 Code Review、功能自测、体验检查。这个阶段是人的主场，AI 替代不了。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 5. PLAN PHASE ============ -->
+  <section class="slide" data-title="PLAN Phase">
+    <p class="kicker">// plan phase</p>
+    <h2 class="h2">PLAN：先想清楚，再动手</h2>
+    <div class="grid g2 mt-l">
+      <div>
+        <div class="feature-row"><span class="num blue">①</span><div><b>告诉 Agent 三样东西</b><p class="dim">需求描述（自己总结）+ PRD 原文 + 约束条件</p></div></div>
+        <div class="feature-row"><span class="num green">②</span><div><b>禁止 AI 写代码</b><p class="dim">只输出需求分析和实现方案，回答四个问题：做什么？改哪些文件？影响谁？有风险吗？</p></div></div>
+        <div class="feature-row"><span class="num orange">③</span><div><b>人工确认方案</b><p class="dim">AI 可能误读 PRD、提出不符合架构的方案。人的判断不可替代。</p></div></div>
+      </div>
+      <div class="card card-accent">
+        <h4>Spec-Driven Development</h4>
+        <p class="dim">确认后的方案写成 Spec 文档，提交到代码仓库。</p>
+        <p class="dim mt-s">好处：① 跨会话复用 ② 团队协作 ③ 可追溯</p>
+        <p class="dim mt-s">具体做法：项目根目录维护 <span class="mono">CLAUDE.md</span></p>
+      </div>
+    </div>
+    <aside class="notes">
+      <p>Plan 阶段我怎么做？第一步，告诉 Agent <strong>三样东西</strong>：我自己理解的需求描述、PRD 原文、约束条件。注意需求描述一定要自己先消化一遍再告诉 AI，不要直接扔 PRD 过去。</p>
+      <p>第二步，明确告诉 AI：<strong>先不要写代码，只输出方案</strong>。方案里要回答四个问题——做什么、改哪些文件、影响哪些模块、有没有风险。</p>
+      <p>第三步，我仔细看完方案，确认无误才放行。这一步不能省。AI 真的会误读 PRD，真的会提不靠谱的方案。</p>
+      <p>右边这个卡片讲的是一个重要的实践——<strong>Spec-Driven Development</strong>。确认后的方案不要只留在对话里，要写成文档提交到仓库。这样你下次开终端 AI 还能读到，其他同学接手也看得见。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 6. EXECUTE PHASE ============ -->
+  <section class="slide" data-title="EXECUTE Phase">
+    <p class="kicker">// execute phase</p>
+    <h2 class="h2">EXECUTE：给定约束，<span class="accent">让 AI 写代码</span></h2>
+    <div class="grid g2 mt-l">
+      <div>
+        <h4>约束条件越细，输出越可用</h4>
+        <div class="stack mt-m">
+          <div class="tag">遵循项目代码风格</div>
+          <div class="tag">不能有 mock 数据</div>
+          <div class="tag">单文件不超过 300 行</div>
+          <div class="tag">不引入不必要的抽象</div>
+        </div>
+      </div>
+      <div class="card card-accent">
+        <h4>写完代码，立刻写测试</h4>
+        <p class="dim">每个功能都要有单元测试，每个测试都要覆盖边界情况，每个测试都必须通过。</p>
+        <p class="dim mt-s">强校验防线：<span class="mono">ESLint + TypeScript + Prettier + Vitest</span></p>
+        <p class="dim mt-s">不符合规范直接报错，AI 自动修复直到通过。</p>
+      </div>
+    </div>
+    <aside class="notes">
+      <p>方案确认后，进入执行阶段。这时候给 AI 的约束会更具体。左边列了几个典型的约束——代码风格、不能有 mock 数据、单文件不超过 300 行、不要写兼容代码。</p>
+      <p><strong>约束给得越细，AI 输出的代码越能直接用，返工越少</strong>。这个经验非常重要。你如果不给约束，AI 就按它自己的习惯写，可能跟项目风格完全不搭。</p>
+      <p>右边强调一个点：代码写完，<strong>立刻让 AI 写测试</strong>。不要等，不要想着"后面再补"。每个功能写完马上写测试，覆盖边界情况，跑通为止。</p>
+      <p>前端项目有 ESLint + TypeScript + Prettier + Vitest 这套强校验防线，代码不符合规范直接报错，AI 会自动修复直到通过。这个循环是完全自动的，不需要你干预。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 7. VERIFY PHASE ============ -->
+  <section class="slide" data-title="VERIFY Phase">
+    <p class="kicker">// verify phase</p>
+    <h2 class="h2">VERIFY：<span class="accent">人工把关</span>，不能少</h2>
+    <div class="grid g2 mt-l">
+      <div class="card card-accent">
+        <h4>Code Review</h4>
+        <p class="dim">✓ 代码风格和架构规范<br>
+        ✓ 是否引入重复逻辑（AI 容易不管已有实现）<br>
+        ✓ 安全隐患（硬编码密钥、缺少输入校验）<br>
+        ✓ 类型定义是否严谨<br>
+        ✓ 潜在的副作用</p>
+      </div>
+      <div class="card card-accent">
+        <h4>功能自测</h4>
+        <p class="dim">✓ 整个流程走一遍<br>
+        ✓ 交互是否流畅，有没有卡顿<br>
+        ✓ loading 状态展示是否合理<br>
+        ✓ 错误提示是否用户友好<br>
+        ✓ 各屏幕尺寸下布局是否正常</p>
+      </div>
+    </div>
+    <aside class="notes">
+      <p>执行完之后，进入 Verify 阶段。这是人最核心的工作。</p>
+      <p>左边是 Code Review 的检查清单。我特别标了一个——<strong>是否引入重复逻辑</strong>。这是 AI 最容易犯的错：它不知道你项目里已经有这个功能了，会重新写一份。所以 Review 的时候一定要看有没有"重复造轮子"。</p>
+      <p>右边是功能自测。不要只测"功能能不能用"，还要看<strong>交互体验</strong>——loading 状态有没有、错误提示用户看不看得懂、不同屏幕尺寸下会不会崩。</p>
+      <p>这些是 AI 做不了的。AI 能跑测试、能过 lint，但它不知道"这个 loading 转 5 秒用户会烦"。所以 Verify 阶段，人的判断不可替代。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 8. TRIPLE DEBT ============ -->
+  <section class="slide" data-title="Triple Debt">
+    <p class="kicker">// verify · hidden risks</p>
+    <h2 class="h2">隐性风险：<span class="accent">三重债务模型</span></h2>
+    <p class="lede mt-s">Martin Fowler &amp; Storey, 2026 — AI 辅助开发带来的隐性成本</p>
+    <div class="grid g3 mt-l">
+      <div class="card card-bad">
+        <h4 class="red">技术债务</h4>
+        <p class="dim">AI 生成的 PR 比人类写的多 <strong>1.7 倍</strong>重大问题——控制流错误、安全漏洞。Code Review 可以覆盖。</p>
+      </div>
+      <div class="card card-warn">
+        <h4 class="orange">认知债务</h4>
+        <p class="dim">代码不是你写的，你对它理解不够深。久而久之团队不敢改代码——系统变成<strong>黑盒</strong>。</p>
+      </div>
+      <div class="card card-warn">
+        <h4 class="orange">意图债务</h4>
+        <p class="dim">代码能表达"做了什么"，但表达不了"为什么这么做"。设计意图在流失。</p>
+      </div>
+    </div>
+    <aside class="notes">
+      <p>Verify 阶段除了检查常规问题，还要注意一些<strong>隐性风险</strong>。2026 年 Martin Fowler 和 Storey 提出了一个模型叫<strong>三重债务模型</strong>，专门描述 AI 辅助开发带来的隐性成本。</p>
+      <p>第一种是<strong>技术债务</strong>，这个最好理解——AI 写的代码能跑但不够干净。行业数据显示 AI 生成的 PR 比人写的多 1.7 倍重大问题。这个我们在 Code Review 里已经在查了。</p>
+      <p>第二种是<strong>认知债务</strong>，这个更隐蔽。代码不是你一行行写的，你对它的理解就不够深。久而久之团队会变得不敢改代码——怕改了这里，那里出问题。系统变成了一个黑盒。</p>
+      <p>第三种是<strong>意图债务</strong>——代码能表达"做了什么"，但表达不了"为什么这么做"。所以 Spec 持久化特别重要，它在保留设计意图。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 9. AI PITFALLS ============ -->
+  <section class="slide" data-title="AI Pitfalls">
+    <p class="kicker">// honest talk</p>
+    <h2 class="h2">也要诚实面对：<span class="accent">AI 不总是靠谱</span></h2>
+    <div class="grid g2 mt-l">
+      <div class="feature-row"><span class="num red">①</span><div><b>自信的错误</b><p class="dim">非常自信地给出一个看起来合理但实际有问题的方案。比如把该用 useMemo 的计算放在渲染循环里。</p></div></div>
+      <div class="feature-row"><span class="num orange">②</span><div><b>重复造轮子</b><p class="dim">不知道项目里已有工具函数，重新写一个功能相同但实现不同的版本。</p></div></div>
+      <div class="feature-row"><span class="num orange">③</span><div><b>忽视上下文</b><p class="dim">改了一个文件，没意识到这个改动会影响另外三个文件。跨模块影响需要人把控。</p></div></div>
+      <div class="feature-row"><span class="num red">④</span><div><b>"幻觉"问题</b><p class="dim">引用不存在的 API，或使用已废弃的方法。它自己不知道自己"不知道"。</p></div></div>
+    </div>
+    <aside class="notes">
+      <p>说完了工作流，我想特别聊一下<strong> AI 翻车的场景</strong>。不是泼冷水，而是让大家对 AI 的能力边界有一个真实的预期。</p>
+      <p>第一种翻车叫<strong>"自信的错误"</strong>——AI 会非常自信地给出一个看起来完美但实际有隐患的方案。比如把一个计算密集的操作放在渲染循环里，表面上跑得通，但性能问题很大。你不仔细看根本发现不了。</p>
+      <p>第二种是<strong>重复造轮子</strong>——AI 不知道你项目里已经有一个做同样事的工具函数，它会重新写一份。结果是项目里出现两份重复代码。</p>
+      <p>第三种是<strong>忽视上下文</strong>——AI 改了一个文件，但没意识到这个改动会影响另外三个文件。</p>
+      <p>第四种是<strong>"幻觉"</strong>——AI 有时候会引用一个根本不存在的 API，或者使用已废弃的方法。</p>
+      <p>所以 PEV 里 Verify 阶段为什么这么重？就是因为这些翻车场景是真实存在的。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 10. FIX PHASE ============ -->
+  <section class="slide" data-title="FIX Phase">
+    <p class="kicker">// fix · TDD for bugs</p>
+    <h2 class="h2">FIX：TDD 驱动修 Bug</h2>
+    <div class="grid g2 mt-l" style="align-items:start">
+      <div>
+        <div class="rule-row">
+          <span class="num green">①</span>
+          <div><b>先写一个失败的测试（复现 Bug）</b><p class="dim">用测试精确定位问题，不是凭感觉猜。</p></div>
+        </div>
+        <div class="rule-row">
+          <span class="num cyan">②</span>
+          <div><b>让 AI 修代码</b><p class="dim">AI 看到失败测试就知道该修哪里。</p></div>
+        </div>
+        <div class="rule-row">
+          <span class="num orange">③</span>
+          <div><b>测试通过 = 修复确认</b><p class="dim">跑测试，过了就是过了。不用再猜"修好了没"。</p></div>
+        </div>
+      </div>
+      <div class="code-block">发现 Bug
+  → 写一个<strong>失败的测试</strong>（复现）
+  → 让 AI 修代码
+  → 测试通过
+  → <span class="cmd">确认修复 ✓</span></div>
+    </div>
+    <aside class="notes">
+      <p>最后说一下修 Bug 的方法。如果自测发现 Bug，我的做法是：<strong>先让 AI 写一个能复现这个 Bug 的测试，再修代码</strong>。</p>
+      <p>为什么要先写测试？三个好处。第一，用测试精确定位问题，而不是凭感觉猜"应该是这里的问题"。第二，AI 看到失败的测试就知道该修哪里，不用你再解释半天。第三，改完之后跑一下测试就知道了，过了就是过了，不用再猜"到底修好没"。</p>
+      <p>这就是 TDD 的核心思路——先有测试，再改代码——只不过用在了 debug 场景。整个 PEV 工作流里，<strong>人始终在环路里做决策，AI 帮你跑得快</strong>。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 11. SECTION: AGENT ============ -->
+  <section class="slide section-divider" data-title="Part 2 Divider">
+    <div class="part-label">PART 02</div>
+    <h2 class="h2">AI Agent 的运行原理</h2>
+    <p class="lede">面向所有同学，不用技术背景也能听懂</p>
+    <aside class="notes">
+      <p>好，以上就是我的 AI 辅助开发工作流。了解了怎么用 AI，你可能会好奇——<strong>它背后到底是怎么工作的</strong>？这就进入第二部分。</p>
+      <p>这一部分我保证不用任何高深的技术术语，不管你是什么岗位，都能听懂。我们从一个日常场景开始。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 12. AGENT = LLM + TOOLS + LOOP ============ -->
+  <section class="slide" data-title="Agent = LLM + Tools + Loop">
+    <p class="kicker">// agent 101</p>
+    <h2 class="h2">一句话理解：<span class="grad-text">Agent = 大模型 + 工具 + 循环</span></h2>
+    <div class="grid g3 mt-l">
+      <div class="card card-accent">
+        <h4>大模型（思考）</h4>
+        <p class="dim">理解你的意图，分析当前状况，决定下一步做什么。</p>
+      </div>
+      <div class="card card-accent">
+        <h4>工具（行动）</h4>
+        <p class="dim">读文件、改文件、跑命令、搜索代码。不只是打字。</p>
+      </div>
+      <div class="card card-accent">
+        <h4>循环（观察）</h4>
+        <p class="dim">拿到结果后继续思考，直到任务完成或需要你介入。</p>
+      </div>
+    </div>
+    <p class="lede mt-m tc">普通聊天机器人只能<strong>回复文字</strong>。Agent 不同——它能<strong>做事</strong>。</p>
+    <aside class="notes">
+      <p>你在终端跟 Claude Code 说"帮我加个搜索框"，然后看到它自己去读文件、改文件、写测试、跑 lint……你有没有想过，它到底是怎么做到这一串操作的？</p>
+      <p>答案就三个词：<strong>大模型 + 工具 + 循环</strong>。大模型负责思考——理解你的意图，分析当前状况。工具负责行动——读文件、改文件、跑命令。循环负责观察——拿到结果后继续思考，直到任务完成。</p>
+      <p>普通聊天机器人只能回复文字。Agent 不一样——它能做事。这个区别很关键。你问普通 LLM"北京天气怎么样"，它靠训练数据回答，可能是过期的。你问 Agent，它会调天气 API 去查，拿到的是实时数据。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 13. ReAct ============ -->
+  <section class="slide" data-title="ReAct Loop">
+    <p class="kicker">// react · reason + act</p>
+    <h2 class="h2">ReAct：<span class="accent">思考 → 行动 → 观察</span></h2>
+    <div class="grid g2 mt-l">
+      <div>
+        <div class="rule-row">
+          <span class="num blue">思考</span>
+          <div><b>Reasoning</b><p class="dim">分析现状，决定下一步做什么。比如"需要先看文件结构"。</p></div>
+        </div>
+        <div class="rule-row">
+          <span class="num green">行动</span>
+          <div><b>Acting</b><p class="dim">选择合适的工具执行操作。比如 read_file、edit、bash。</p></div>
+        </div>
+        <div class="rule-row">
+          <span class="num orange">观察</span>
+          <div><b>Observation</b><p class="dim">拿到结果，判断还需要继续吗？任务完成了吗？</p></div>
+        </div>
+      </div>
+      <div class="card" style="padding:24px">
+        <h4 class="mono" style="color:var(--accent)">加搜索框的例子</h4>
+        <div class="stack mt-m" style="font-size:14px;line-height:1.7;color:var(--text-2)">
+          <div><span class="blue">R1</span> 思考：用户列表页长什么样 → <span class="green">read_file</span></div>
+          <div><span class="blue">R2</span> 思考：加 Input.Search 组件 → <span class="green">edit</span></div>
+          <div><span class="blue">R3</span> 思考：写测试 → <span class="green">edit</span></div>
+          <div><span class="blue">R4</span> 思考：lint 报类型错误 → <span class="green">edit</span></div>
+          <div><span class="blue">R5</span> 思考：全部通过 → <span class="cmd">完成</span></div>
+        </div>
+      </div>
+    </div>
+    <aside class="notes">
+      <p>Agent 的工作方式有个名字叫 <strong>ReAct</strong>——Reasoning 加 Acting，思考加行动。就是一个"边想边做"的循环。</p>
+      <p>每一步都是三拍：<strong>思考</strong>当前状况，<strong>行动</strong>选工具干活，<strong>观察</strong>结果判断要不要继续。</p>
+      <p>右边是一个具体例子——让 AI 加一个搜索框。第一轮，它想"用户列表页长什么样"，于是去读文件。第二轮，想清楚了，开始改代码。第三轮，写测试。第四轮，发现 lint 报错，自动修复。第五轮，全部通过，告诉你做完了。</p>
+      <p>所以你看，<strong>AI 写代码不是魔法</strong>，就是这个循环在反复转。你在每一步都能看到它在想什么、做了什么。这就是为什么我们说"人在环路上"——你随时可以介入。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 14. KEY TECH POINTS ============ -->
+  <section class="slide" data-title="Key Tech Points">
+    <p class="kicker">// under the hood</p>
+    <h2 class="h2">三个关键技术点</h2>
+    <div class="grid g3 mt-l">
+      <div class="card card-accent">
+        <h4 class="blue">工具箱（Tools）</h4>
+        <p class="dim">
+          <span class="mono">read_file</span> 读文件<br>
+          <span class="mono">edit</span> 改文件<br>
+          <span class="mono">bash</span> 跑命令<br>
+          <span class="mono">grep</span> 搜索代码<br>
+          <span class="mono">glob</span> 按模式查找
+        </p>
+        <p class="dim mt-s">每个工具都有描述，告诉 AI "什么时候用、怎么用"。</p>
+      </div>
+      <div class="card card-accent">
+        <h4 class="green">消息历史（记忆）</h4>
+        <p class="dim">Agent 维护完整的消息记录。每一轮思考都能看到前面的所有对话和操作结果。</p>
+        <p class="dim mt-s">这就是为什么它能做多步操作<strong>不会"忘"</strong>。</p>
+      </div>
+      <div class="card card-accent">
+        <h4 class="orange">循环上限</h4>
+        <p class="dim">设置了最大迭代次数，防止"死循环"。</p>
+        <p class="dim mt-s">如果超了还没完成，会<strong>停下来让你介入</strong>。</p>
+      </div>
+    </div>
+    <aside class="notes">
+      <p>这一页讲三个技术细节，不深入，有兴趣可以会后聊。</p>
+      <p>第一个是<strong>工具箱</strong>。Agent 不只是打字，它有具体的工具——读文件、改文件、跑命令、搜索代码。每个工具都有描述，告诉 AI 什么时候用、怎么用。这就像你给新同事一个工具清单，告诉他"改文件用 edit，找代码用 grep"。</p>
+      <p>第二个是<strong>消息历史</strong>。Agent 维护一个完整的记录，每一轮思考它都能看到前面发生了什么。这就是为什么它能做多步操作不会忘——你让它加搜索框，它改了文件还记得要去写测试。</p>
+      <p>第三个是<strong>循环上限</strong>。Agent 不是无限循环的，Claude Code 设了最大迭代次数。如果跑了很多轮还没完成，它会停下来让你介入。这是一个安全机制。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 15. SECTION: LEARNING ============ -->
+  <section class="slide section-divider" data-title="Part 3 Divider">
+    <div class="part-label">PART 03</div>
+    <h2 class="h2">我的 AI 学习方法</h2>
+    <p class="lede">保持感知，按需深入</p>
+    <aside class="notes">
+      <p>了解了 AI 的原理，下一个问题自然就来了——这个领域变化这么快，怎么跟得上？这就是第三部分。</p>
+      <p>这部分不长，因为我的方法确实不复杂。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 16. LEARNING METHODS ============ -->
+  <section class="slide" data-title="Learning Methods">
+    <p class="kicker">// learning</p>
+    <h2 class="h2">GitHub Trending + <span class="accent">AI 辅助读源码</span></h2>
+    <div class="grid g2 mt-l" style="align-items:start">
+      <div>
+        <h4>第一步：定期刷 GitHub Trending</h4>
+        <p class="dim mt-s">每周花十几分钟扫一眼。不是追热点，是保持对"大家都在关注什么"的感知。</p>
+        <div class="stack mt-m">
+          <div class="tag">这个项目解决什么问题？</div>
+          <div class="tag">有没有新的范式或工具思路？</div>
+          <div class="tag">跟我现在的技术栈有关系吗？</div>
+        </div>
+        <h4 class="mt-l">第二步：AI 辅助读源码</h4>
+        <p class="dim mt-s">clone 下来 → 喂给 AI → 问架构、问核心文件、问实现细节。传统方式要好几天，AI 辅助几个小时搞定。</p>
+      </div>
+      <div>
+        <h4>信息源管理</h4>
+        <div class="stack mt-m">
+          <div class="rule-row">
+            <span class="num purple">①</span>
+            <div><b>官方文档优先</b><p class="dim">遇到新工具新概念，先看官方文档再看博客。官方最准确。</p></div>
+          </div>
+          <div class="rule-row">
+            <span class="num blue">②</span>
+            <div><b>技术社区精选</b><p class="dim">Hacker News、掘金热门。了解"社区在讨论什么"。</p></div>
+          </div>
+          <div class="rule-row">
+            <span class="num orange">③</span>
+            <div><b>不需要跟上所有东西</b><p class="dim">保持感知，按需深入。不要 FOMO。</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <aside class="notes">
+      <p>我的学习方法核心就两个。</p>
+      <p>第一个：<strong>定期刷 GitHub Trending</strong>。每周花十几分钟，看看最近最火的项目在解决什么问题。不是为了追热点，而是保持感知——知道大家在关注什么。遇到感兴趣的，clone 下来用 AI 辅助读源码。传统方式读一个项目要好几天，AI 辅助几个小时就能理解核心架构。</p>
+      <p>第二个：<strong>信息源管理</strong>。我保持几个固定渠道——官方文档优先于博客，技术社区看精选，GitHub Changelog 关注核心工具更新。</p>
+      <p>最后强调一个心态：<strong>不需要跟上所有东西</strong>。这个领域每天都有新东西，追不完的。我的策略是"保持感知，按需深入"。知道有这个东西就行，等真正需要用的时候再花时间学。AI 工具的学习曲线越来越低，不用急着每个都试。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 17. SECTION: TEAM ============ -->
+  <section class="slide section-divider" data-title="Part 4 Divider">
+    <div class="part-label">PART 04</div>
+    <h2 class="h2">团队可以尝试什么</h2>
+    <p class="lede">把 SaaS 业务能力暴露给 Agent</p>
+    <aside class="notes">
+      <p>好，接下来聊一个更有意思的话题——我们团队可以怎么用 AI 做一些不一样的事。</p>
+      <p>这不是 PPT 上的概念，而是我们可以实际去做的。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 18. CLI + AGENT ============ -->
+  <section class="slide" data-title="CLI + Agent">
+    <p class="kicker">// team practice</p>
+    <h2 class="h2">把业务操作变成 <span class="accent">CLI 命令</span></h2>
+    <div class="code-block mt-m">
+<span class="cmd">saas</span> payment list <span class="flag">--status=pending</span>           <span class="comment"># 查看待处理的付款单</span>
+<span class="cmd">saas</span> payment detail <span class="flag">--id=PAY001</span>            <span class="comment"># 查看付款详情</span>
+<span class="cmd">saas</span> deal quote <span class="flag">--pair=USD/CNH</span>             <span class="comment"># 查询实时汇率</span>
+<span class="cmd">saas</span> deal execute <span class="flag">--pair=USD/CNH --amount=10000</span>  <span class="comment"># 执行交易</span>
+<span class="cmd">saas</span> approval list <span class="flag">--pending</span>               <span class="comment"># 查看待审批</span>
+<span class="cmd">saas</span> balance check <span class="flag">--currency=USD</span>         <span class="comment"># 查询余额</span></div>
+    <p class="lede mt-m">本质：调用现有 <span class="mono">services/</span> 层 API，只加一层薄壳。</p>
+    <aside class="notes">
+      <p>这个想法是这样的——我们现在所有操作都只能通过网页界面完成。但如果把常用的业务操作封装成 CLI 命令，事情就不一样了。</p>
+      <p>大家看屏幕上这些命令——查付款单、查汇率、执行交易、审批、查余额。这些命令本质上就是调用我们<strong>现有的 API 接口</strong>。我们已经有完整的 services 层，后端 API 都在，只需要包一层 CLI。</p>
+      <p>这件事技术上不难。难的是什么？下一页会讲。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 19. AGENT OPERATES ============ -->
+  <section class="slide" data-title="Agent Operates">
+    <p class="kicker">// agent in action</p>
+    <h2 class="h2">Agent 直接操作<span class="accent">业务系统</span></h2>
+    <div class="grid g2 mt-l" style="align-items:start">
+      <div class="terminal">
+        <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>terminal</span></div>
+<pre><span class="kw">你:</span> 查一下今天有多少笔待审批
+<span class="fn">Agent:</span> 当前有 <span class="str">12 笔</span>待审批付款
+       其中 3 笔超过 24 小时未处理
+
+<span class="kw">你:</span> 金额最大的那笔详情
+<span class="fn">Agent:</span> PAY20260509087
+       金额: <span class="str">USD 500,000</span>
+       收款人: ABC Trading Co.
+
+<span class="kw">你:</span> 这笔交易的汇率？
+<span class="fn">Agent:</span> USD/CNH 汇率: <span class="str">7.2450</span></pre>
+      </div>
+      <div>
+        <div class="card card-accent">
+          <h4>更进一步：自动化流程</h4>
+          <p class="dim">"监控 USD/CNH 汇率，低于 7.20 自动买入 10 万美元"<br><br>"每天早上 9 点把昨天的交易汇总发给我"</p>
+        </div>
+        <div class="stack mt-m">
+          <div class="rule-row">
+            <span class="num orange">?</span>
+            <div><b>需要想清楚的三个问题</b><p class="dim">① 哪些操作适合暴露？查询先做，交易需权限控制<br>② 权限怎么跟现有体系打通？<br>③ 每次操作都要有审计日志</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <aside class="notes">
+      <p>一旦业务操作变成了 CLI 命令，Agent 就能直接操作我们的业务系统。看左边这个终端对话——你不用打开浏览器、不用登录系统，在终端里用自然语言告诉 Agent，它帮你查。</p>
+      <p>更进一步，Agent 可以做<strong>自动化流程</strong>——比如"监控汇率，低于某个值自动买入"，或者"每天早上把交易汇总发给我"。人定规则，Agent 自动执行。</p>
+      <p>但这件事有三个问题要想清楚。<strong>第一</strong>，哪些操作适合暴露给 Agent？查询类操作风险低，可以先做；交易类需要权限控制。<strong>第二</strong>，权限怎么跟现有体系打通？<strong>第三</strong>，审计日志——Agent 的每次操作都要有记录，出了问题可以追溯。</p>
+      <p>这些是值得团队讨论的。技术上不难，关键是想清楚业务规则。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 20. ROLE PERSPECTIVES ============ -->
+  <section class="slide" data-title="Role Perspectives">
+    <p class="kicker">// for everyone</p>
+    <h2 class="h2">不同角色，<span class="accent">不同切入点</span></h2>
+    <p class="lede mt-s">核心思路一样：AI 是执行力强的助手，你定规则，它做执行。</p>
+    <div class="grid g3 mt-l">
+      <div class="card card-accent">
+        <h4>前端</h4>
+        <p class="dim">组件开发、页面还原、自动化测试。这就是今天讲的 PEV 工作流。</p>
+      </div>
+      <div class="card card-accent">
+        <h4>后端</h4>
+        <p class="dim">API 封装 CLI，让 Agent 能操作业务系统。刚才说的思路。</p>
+      </div>
+      <div class="card card-accent">
+        <h4>产品</h4>
+        <p class="dim">AI 做需求分析、竞品调研、PRD 草拟。文字工作已经很成熟。</p>
+      </div>
+    </div>
+    <div class="grid g3 mt-m">
+      <div class="card card-accent">
+        <h4>测试</h4>
+        <p class="dim">AI 生成测试用例、分析覆盖率、自动化回归。</p>
+      </div>
+      <div class="card card-accent">
+        <h4>设计</h4>
+        <p class="dim">设计稿到代码的转换、设计灵感探索。</p>
+      </div>
+      <div class="card card-accent">
+        <h4>技术领导</h4>
+        <p class="dim">评估 AI 工具引入、制定团队 AI 使用规范。</p>
+      </div>
+    </div>
+    <aside class="notes">
+      <p>刚才讲的 CLI + Agent 是后端视角。但不同角色其实有不同的切入方式。</p>
+      <p><strong>前端同学</strong>就是今天讲的工作流——用 Agent 做组件开发、页面还原、自动化测试。</p>
+      <p><strong>后端同学</strong>可以把 API 封装成 CLI，让 Agent 直接操作业务。这是刚才说的。</p>
+      <p><strong>产品同学</strong>，AI 在文字工作上已经很成熟了——需求分析、竞品调研、PRD 草拟，这些都可以让 AI 帮你。</p>
+      <p><strong>测试同学</strong>可以用 AI 生成测试用例、分析覆盖率。<strong>设计同学</strong>可以用 AI 做设计稿到代码的转换。</p>
+      <p><strong>技术领导</strong>的角色是评估哪些 AI 工具值得引入、制定团队的使用规范。这个角色很重要。</p>
+      <p>核心思路是一样的：<strong>AI 是一个执行力很强的助手，你定规则，它做执行</strong>。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 21. CLOSING ============ -->
+  <section class="slide" data-title="Closing">
+    <p class="kicker">// takeaways</p>
+    <h2 class="h2">四件事带走</h2>
+    <div class="grid g2 mt-l">
+      <div class="card card-accent">
+        <h4><span class="green">01</span> PEV 工作流</h4>
+        <p class="dim">Plan → Execute → Verify<br>人做决策，AI 做执行</p>
+      </div>
+      <div class="card card-accent">
+        <h4><span class="blue">02</span> Agent 原理</h4>
+        <p class="dim">思考 → 行动 → 观察<br>AI 写代码不是魔法，是可理解的循环</p>
+      </div>
+      <div class="card card-accent">
+        <h4><span class="orange">03</span> 学习方法</h4>
+        <p class="dim">GitHub Trending 保持感知<br>AI 辅助读源码深入理解</p>
+      </div>
+      <div class="card card-accent">
+        <h4><span class="purple">04</span> 团队实践</h4>
+        <p class="dim">SaaS 业务操作封装 CLI<br>让 Agent 直接操作系统</p>
+      </div>
+    </div>
+    <p class="lede mt-l tc"><strong>AI 能放大你的能力，但不能替代你的判断。</strong><br>会写约束条件、能判断方案好坏、能发现隐患——这些才是你应该持续打磨的。</p>
+    <aside class="notes">
+      <p>最后收个尾。今天聊了四件事。</p>
+      <p>第一，<strong>PEV 工作流</strong>——Plan、Execute、Verify。人做决策，AI 做执行。这个框架你可以直接拿去用。</p>
+      <p>第二，<strong>Agent 原理</strong>——思考、行动、观察。AI 写代码不是魔法，就是这三步在反复循环。</p>
+      <p>第三，<strong>学习方法</strong>——GitHub Trending 保持感知，AI 辅助读源码深入理解。保持感知，按需深入。</p>
+      <p>第四，<strong>团队实践</strong>——把 SaaS 业务操作封装成 CLI，让 Agent 直接操作系统。技术上不难，关键是想清楚业务规则。</p>
+      <p>最后我想说：AI 工具进步速度比我们想象的快，但核心逻辑没变——<strong>它能放大你的能力，但不能替代你的判断</strong>。会写约束条件、能判断方案好坏、能发现隐患——这些才是你应该持续打磨的。</p>
+      <p>谢谢大家！接下来是 Q&A。</p>
+    </aside>
+  </section>
+
+  <!-- ============ 22. Q&A ============ -->
+  <section class="slide center" data-title="Q&A">
+    <div>
+      <div class="mono" style="font-size:110px;color:var(--accent);font-weight:800;letter-spacing:-.04em">Q&amp;A</div>
+      <h2 class="h2">Questions?</h2>
+      <p class="lede" style="margin:14px auto">随时打断我，或者现在开始</p>
+    </div>
+    <aside class="notes">
+      <p>好，以上就是今天全部内容。现在开始 Q&A，大家有什么问题都可以问。</p>
+    </aside>
+  </section>
+
+</div>
+
+<div style="position:fixed;bottom:12px;left:12px;font-size:11px;color:#484f5866;z-index:100;pointer-events:none">
+  S 演讲者视图 · T 切换主题 · ← → 翻页 · F 全屏 · O 总览 · R 重置计时
+</div>
+
+<script src="../../.claude/skills/html-ppt/assets/runtime.js"></script>
+</body>
+</html>

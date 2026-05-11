@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 是如何在前端开发流程中应用的</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            claude: {
+              primary: "#cc785c",
+              primaryActive: "#a9583e",
+              primaryDisabled: "#e6dfd8",
+              ink: "#141413",
+              body: "#3d3d3a",
+              bodyStrong: "#252523",
+              muted: "#6c6a64",
+              mutedSoft: "#8e8b82",
+              hairline: "#e6dfd8",
+              hairlineSoft: "#ebe6df",
+              canvas: "#faf9f5",
+              soft: "#f5f0e8",
+              card: "#efe9de",
+              creamStrong: "#e8e0d2",
+              dark: "#181715",
+              darkElevated: "#252320",
+              darkSoft: "#1f1e1b",
+              onPrimary: "#ffffff",
+              onDark: "#faf9f5",
+              onDarkSoft: "#a09d96",
+              teal: "#5db8a6",
+              amber: "#e8a55a",
+              success: "#5db872"
+            }
+          },
+          fontFamily: {
+            display: ["Cormorant Garamond", "Georgia", "serif"],
+            body: ["Inter", "system-ui", "sans-serif"],
+            mono: ["JetBrains Mono", "ui-monospace", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    :root {
+      --slide-width: 1600;
+      --slide-height: 900;
+      --color-primary: #cc785c;
+      --color-primary-active: #a9583e;
+      --color-ink: #141413;
+      --color-body: #3d3d3a;
+      --color-muted: #6c6a64;
+      --color-muted-soft: #8e8b82;
+      --color-hairline: #e6dfd8;
+      --color-canvas: #faf9f5;
+      --color-soft: #f5f0e8;
+      --color-card: #efe9de;
+      --color-cream-strong: #e8e0d2;
+      --color-dark: #181715;
+      --color-dark-elevated: #252320;
+      --color-dark-soft: #1f1e1b;
+      --color-on-dark: #faf9f5;
+      --color-on-dark-soft: #a09d96;
+      --color-teal: #5db8a6;
+      --color-amber: #e8a55a;
+      --color-success: #5db872;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Inter, system-ui, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(204, 120, 92, 0.12), transparent 26%),
+        radial-gradient(circle at bottom right, rgba(93, 184, 166, 0.10), transparent 22%),
+        var(--color-canvas);
+      color: var(--color-ink);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(20, 20, 19, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(20, 20, 19, 0.018) 1px, transparent 1px);
+      background-size: 26px 26px;
+      opacity: 0.55;
+    }
+
+    .progress-bar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 0;
+      height: 4px;
+      z-index: 100;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-amber));
+      transition: width 0.45s ease;
+    }
+
+    .slide-counter {
+      position: fixed;
+      right: 26px;
+      top: 22px;
+      z-index: 90;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(20, 20, 19, 0.08);
+      background: rgba(250, 249, 245, 0.82);
+      backdrop-filter: blur(18px);
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+    }
+
+    .deck-hint {
+      position: fixed;
+      left: 24px;
+      bottom: 20px;
+      z-index: 90;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(20, 20, 19, 0.08);
+      background: rgba(250, 249, 245, 0.82);
+      backdrop-filter: blur(18px);
+      color: var(--color-muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+    }
+
+    .page-rail {
+      position: fixed;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 90;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .page-dot {
+      position: relative;
+      width: 14px;
+      height: 14px;
+      border: 1px solid rgba(20, 20, 19, 0.14);
+      border-radius: 999px;
+      background: rgba(20, 20, 19, 0.10);
+      cursor: pointer;
+      transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+    }
+
+    .page-dot.active,
+    .page-dot:hover {
+      transform: scale(1.16);
+      background: var(--color-primary);
+      border-color: transparent;
+    }
+
+    .page-dot::after {
+      content: attr(data-title);
+      position: absolute;
+      right: 22px;
+      top: 50%;
+      transform: translateY(-50%);
+      white-space: nowrap;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(20, 20, 19, 0.88);
+      color: #fff;
+      font-size: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .page-dot:hover::after {
+      opacity: 1;
+    }
+
+    .nav-arrow {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 54px;
+      height: 54px;
+      z-index: 90;
+      border: 1px solid rgba(20, 20, 19, 0.08);
+      border-radius: 999px;
+      background: rgba(250, 249, 245, 0.82);
+      backdrop-filter: blur(18px);
+      color: var(--color-ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+    }
+
+    .nav-arrow:hover {
+      transform: translateY(-50%) scale(1.05);
+      background: rgba(250, 249, 245, 0.95);
+    }
+
+    .nav-arrow:disabled {
+      opacity: 0.36;
+      cursor: not-allowed;
+    }
+
+    .nav-arrow.prev {
+      left: 18px;
+    }
+
+    .nav-arrow.next {
+      right: 72px;
+    }
+
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .slide {
+      position: relative;
+      flex: 0 0 100vw;
+      width: 100vw;
+      height: 100vh;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .slide-shell {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .slide-frame {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: calc(var(--slide-width) * 1px);
+      height: calc(var(--slide-height) * 1px);
+      transform: translate(-50%, -50%) scale(1);
+      transform-origin: center center;
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: 0 36px 120px rgba(20, 20, 19, 0.12);
+      isolation: isolate;
+    }
+
+    .theme-canvas {
+      background:
+        radial-gradient(circle at 0 0, rgba(204, 120, 92, 0.18), transparent 22%),
+        radial-gradient(circle at 100% 20%, rgba(93, 184, 166, 0.10), transparent 24%),
+        var(--color-canvas);
+      color: var(--color-ink);
+    }
+
+    .theme-soft {
+      background:
+        radial-gradient(circle at 12% 18%, rgba(204, 120, 92, 0.16), transparent 24%),
+        radial-gradient(circle at 82% 80%, rgba(232, 165, 90, 0.14), transparent 24%),
+        linear-gradient(180deg, var(--color-soft), var(--color-canvas));
+      color: var(--color-ink);
+    }
+
+    .theme-dark {
+      background:
+        radial-gradient(circle at top right, rgba(204, 120, 92, 0.20), transparent 24%),
+        radial-gradient(circle at bottom left, rgba(93, 184, 166, 0.12), transparent 24%),
+        var(--color-dark);
+      color: var(--color-on-dark);
+    }
+
+    .theme-coral {
+      background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 24%),
+        radial-gradient(circle at bottom left, rgba(20, 20, 19, 0.16), transparent 28%),
+        linear-gradient(135deg, #d18267 0%, #c56e52 55%, #b95f43 100%);
+      color: #fff;
+    }
+
+    .frame-grid::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(20, 20, 19, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(20, 20, 19, 0.05) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.45), transparent 92%);
+    }
+
+    .theme-dark.frame-grid::before,
+    .theme-coral.frame-grid::before {
+      background-image:
+        linear-gradient(rgba(250, 249, 245, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(250, 249, 245, 0.06) 1px, transparent 1px);
+    }
+
+    .mesh-orb {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(20px);
+      opacity: 0.3;
+      pointer-events: none;
+      animation: floatY 8s ease-in-out infinite;
+    }
+
+    .mesh-orb.one {
+      width: 220px;
+      height: 220px;
+      left: -70px;
+      top: 90px;
+      background: rgba(204, 120, 92, 0.28);
+    }
+
+    .mesh-orb.two {
+      width: 260px;
+      height: 260px;
+      right: 22px;
+      bottom: 26px;
+      background: rgba(93, 184, 166, 0.18);
+      animation-delay: -3s;
+    }
+
+    .mesh-orb.three {
+      width: 150px;
+      height: 150px;
+      right: 280px;
+      top: 92px;
+      background: rgba(232, 165, 90, 0.20);
+      animation-delay: -5s;
+    }
+
+    .content-pad {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      padding: 72px 84px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      align-self: flex-start;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(20, 20, 19, 0.08);
+      background: rgba(250, 249, 245, 0.72);
+      color: var(--color-muted);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .theme-dark .eyebrow,
+    .theme-coral .eyebrow {
+      border-color: rgba(250, 249, 245, 0.12);
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(250, 249, 245, 0.82);
+    }
+
+    .brand-star {
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-star svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .warm-card,
+    .soft-card,
+    .dark-card,
+    .coral-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+    }
+
+    .warm-card {
+      background: rgba(239, 233, 222, 0.82);
+      border: 1px solid rgba(20, 20, 19, 0.06);
+      box-shadow: 0 18px 48px rgba(20, 20, 19, 0.08);
+    }
+
+    .soft-card {
+      background: rgba(250, 249, 245, 0.82);
+      border: 1px solid rgba(20, 20, 19, 0.06);
+      box-shadow: 0 18px 48px rgba(20, 20, 19, 0.06);
+    }
+
+    .dark-card {
+      background: rgba(24, 23, 21, 0.94);
+      border: 1px solid rgba(250, 249, 245, 0.08);
+      color: var(--color-on-dark);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+    }
+
+    .coral-card {
+      background: rgba(204, 120, 92, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      box-shadow: 0 20px 56px rgba(20, 20, 19, 0.12);
+    }
+
+    .metric-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: rgba(204, 120, 92, 0.12);
+      color: var(--color-primary);
+    }
+
+    .theme-dark .metric-chip {
+      background: rgba(204, 120, 92, 0.16);
+      color: #ffc4b2;
+    }
+
+    .grid-connector {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.28;
+    }
+
+    .grid-connector svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .quote-line {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 74px;
+      line-height: 0.96;
+      letter-spacing: -0.04em;
+    }
+
+    .title-display {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 72px;
+      line-height: 0.96;
+      letter-spacing: -0.04em;
+      font-weight: 500;
+    }
+
+    .title-display-lg {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 92px;
+      line-height: 0.9;
+      letter-spacing: -0.05em;
+      font-weight: 500;
+    }
+
+    .code-panel,
+    .terminal-panel {
+      border-radius: 26px;
+      background: rgba(24, 23, 21, 0.96);
+      border: 1px solid rgba(250, 249, 245, 0.08);
+      color: var(--color-on-dark);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+      overflow: hidden;
+    }
+
+    .panel-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(250, 249, 245, 0.08);
+      color: var(--color-on-dark-soft);
+      font-size: 13px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .panel-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .panel-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .panel-dots span:nth-child(1) {
+      background: #ff8f74;
+    }
+
+    .panel-dots span:nth-child(2) {
+      background: #f6c36b;
+    }
+
+    .panel-dots span:nth-child(3) {
+      background: #5db8a6;
+    }
+
+    .panel-code {
+      padding: 22px 24px;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 15px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .panel-code.compact {
+      font-size: 13px;
+      line-height: 1.36;
+      padding: 18px 20px;
+    }
+
+    .terminal-body {
+      padding: 26px 30px;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 23px;
+      line-height: 1.75;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .code-c {
+      color: #8f8b84;
+    }
+
+    .code-k {
+      color: #ff9f7f;
+    }
+
+    .code-s {
+      color: #b8e986;
+    }
+
+    .code-v {
+      color: #8dd3ff;
+    }
+
+    .code-f {
+      color: #d3b3ff;
+    }
+
+    .mermaid-wrap {
+      border-radius: 28px;
+      background: rgba(250, 249, 245, 0.88);
+      border: 1px solid rgba(20, 20, 19, 0.06);
+      padding: 24px 28px;
+      box-shadow: 0 18px 48px rgba(20, 20, 19, 0.08);
+    }
+
+    .mermaid-box-md {
+      min-height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mermaid-box-lg {
+      min-height: 430px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mermaid {
+      width: 100%;
+      text-align: center;
+    }
+
+    .mermaid svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .stage-card {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 24px;
+      align-items: center;
+      padding: 24px 30px;
+      border-radius: 26px;
+      border: 1px solid rgba(250, 249, 245, 0.10);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .stage-arrow {
+      width: 2px;
+      height: 30px;
+      margin: 0 auto;
+      background: linear-gradient(180deg, rgba(204, 120, 92, 0.32), rgba(204, 120, 92, 1));
+      position: relative;
+    }
+
+    .stage-arrow::after {
+      content: "";
+      position: absolute;
+      bottom: -2px;
+      left: -5px;
+      width: 12px;
+      height: 12px;
+      border-right: 2px solid var(--color-primary);
+      border-bottom: 2px solid var(--color-primary);
+      transform: rotate(45deg);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: transform 0.78s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.78s ease;
+      transition-delay: var(--delay, 0s);
+    }
+
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.96);
+      transition: transform 0.78s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.78s ease;
+      transition-delay: var(--delay, 0s);
+    }
+
+    .slide.active .reveal,
+    .slide.active .reveal-scale {
+      opacity: 1;
+      transform: none;
+    }
+
+    .shimmer-line {
+      position: relative;
+      height: 6px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: linear-gradient(90deg, rgba(204, 120, 92, 0.14), rgba(204, 120, 92, 0.96));
+    }
+
+    .shimmer-line::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: 30%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+      animation: shimmer 2.8s linear infinite;
+    }
+
+    @keyframes floatY {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-18px);
+      }
+    }
+
+    @keyframes shimmer {
+      from {
+        transform: translateX(-180%);
+      }
+      to {
+        transform: translateX(420%);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .page-rail {
+        right: 12px;
+      }
+
+      .slide-counter {
+        right: 14px;
+        top: 14px;
+      }
+
+      .nav-arrow {
+        width: 46px;
+        height: 46px;
+      }
+
+      .nav-arrow.next {
+        right: 58px;
+      }
+
+      .deck-hint {
+        left: 12px;
+        bottom: 12px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page-rail {
+        display: none;
+      }
+
+      .nav-arrow.next {
+        right: 12px;
+      }
+
+      .slide-counter {
+        font-size: 11px;
+        letter-spacing: 0.12em;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .deck,
+      .reveal,
+      .reveal-scale,
+      .progress-bar,
+      .nav-arrow,
+      .page-dot,
+      .mesh-orb,
+      .shimmer-line::after {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-bar" id="progressBar"></div>
+  <div class="slide-counter" id="slideCounter">01 / 18</div>
+  <div class="deck-hint">← → 翻页 · 空格继续 · 触控左右滑动</div>
+
+  <button class="nav-arrow prev" id="prevBtn" aria-label="上一页">
+    <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5">
+      <path d="M15 5L8 12L15 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </button>
+  <button class="nav-arrow next" id="nextBtn" aria-label="下一页">
+    <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5">
+      <path d="M9 5L16 12L9 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </button>
+
+  <div class="page-rail" id="pageRail"></div>
+
+  <main class="deck" id="deck">
+    <section class="slide active" data-title="封面">
+      <div class="slide-shell">
+        <div class="slide-frame theme-canvas frame-grid">
+          <div class="mesh-orb one"></div>
+          <div class="mesh-orb two"></div>
+          <div class="mesh-orb three"></div>
+          <div class="content-pad">
+            <div class="grid h-full grid-cols-[1.12fr_0.88fr] gap-10">
+              <div class="flex flex-col justify-between">
+                <div class="space-y-8">
+                  <div class="eyebrow reveal" style="--delay:0.02s;">
+                    <span class="brand-star">
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M12 1V23M1 12H23M4 4L20 20M20 4L4 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                      </svg>
+                    </span>
+                    AI Frontend Sharing
+                  </div>
+                  <div class="space-y-6 reveal" style="--delay:0.1s;">
+                    <h1 class="title-display-lg max-w-[760px] text-claude-ink">
+                      AI 是如何在前端开发流程中应用的
+                    </h1>
+                    <p class="max-w-[650px] text-[28px] leading-[1.45] text-claude-body">
+                      这不是泛泛聊 AI，而是聊它怎样真正进入需求理解、编码执行、质量验收和团队协作。
+                    </p>
+                  </div>
+                </div>
+
+                <div class="flex items-end justify-between reveal" style="--delay:0.22s;">
+                  <div class="space-y-3 text-[20px] leading-[1.5] text-claude-muted">
+                    <div>分享人：XXX</div>
+                    <div>时间：2026 / 05 / 12</div>
+                  </div>
+                  <div class="w-[260px]">
+                    <div class="shimmer-line mb-4"></div>
+                    <div class="text-right text-[15px] uppercase tracking-[0.2em] text-claude-muted">
+                      Plan · Execute · Verify
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-end">
+                <div class="dark-card reveal-scale h-[620px] w-[560px] p-8" style="--delay:0.18s;">
+                  <div class="panel-topbar !px-0 !pt-0 !pb-5 !border-b-white/10">
+                    <div class="panel-dots">
+                      <span></span><span></span><span></span>
+                    </div>
+                    <span>Real Workflow</span>
+                  </div>
+                  <div class="mt-4 flex h-[calc(100%-56px)] flex-col justify-between">
+                    <div class="space-y-5">
+                      <div class="metric-chip">真实开发流程</div>
+                      <div class="warm-card p-6 text-claude-ink">
+                        <div class="text-[16px] uppercase tracking-[0.16em] text-claude-primary">Plan</div>
+                        <div class="mt-3 text-[28px] leading-[1.35]">先对齐需求、范围和约束，再让 AI 进入执行。</div>
+                      </div>
+                      <div class="warm-card p-6 text-claude-ink">
+                        <div class="text-[16px] uppercase tracking-[0.16em] text-claude-primary">Execute</div>
+                        <div class="mt-3 text-[28px] leading-[1.35]">把生成、改动、查资料这些高重复动作交给 AI。</div>
+                      </div>
+                      <div class="warm-card p-6 text-claude-ink">
+                        <div class="text-[16px] uppercase tracking-[0.16em] text-claude-primary">Verify</div>
+                        <div class="mt-3 text-[28px] leading-[1.35]">最终由人守住交付质量、可维护性和业务风险。</div>
+                      </div>
+                    </div>
+                    <div class="rounded-[24px] border border-white/10 bg-white/5 px-6 py-5 text-[20px] leading-[1.5] text-claude-onDarkSoft">
+                      分享主线：先讲为什么不能直接开写，再讲我怎么用 AI，最后讲 Agent 与团队实践。
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="目录">
+      <div class="slide-shell">
+        <div class="slide-frame theme-soft frame-grid">
+          <div class="mesh-orb one"></div>
+          <div class="mesh-orb two"></div>
+          <div class="content-pad justify-center">
+            <div class="mx-auto flex max-w-[1360px] flex-col items-center text-center">
+              <div class="eyebrow reveal" style="--delay:0.04s;">Agenda</div>
+              <h2 class="title-display mt-8 reveal" style="--delay:0.12s;">今天主要讲四部分</h2>
+              <p class="mt-5 max-w-[860px] text-[28px] leading-[1.45] text-claude-body reveal" style="--delay:0.2s;">
+                先建立整体结构，再逐步展开方法、原理、学习路径和团队落地方向。
+              </p>
+
+              <div class="relative mt-14 grid w-full grid-cols-4 gap-6">
+                <div class="grid-connector reveal" style="--delay:0.24s;">
+                  <svg viewBox="0 0 1200 260" fill="none">
+                    <path d="M180 130H360M480 130H660M780 130H960" stroke="#cc785c" stroke-opacity="0.35" stroke-width="3" stroke-dasharray="12 14" stroke-linecap="round"></path>
+                  </svg>
+                </div>
+                <div class="warm-card reveal-scale p-8 text-left" style="--delay:0.26s;">
+                  <div class="text-[18px] uppercase tracking-[0.18em] text-claude-primary">01</div>
+                  <div class="mt-5 font-display text-[44px] leading-[1.02]">我的工作流</div>
+                  <p class="mt-4 text-[22px] leading-[1.5] text-claude-body">为什么不能直接开写，以及我常用的 PEV 方法。</p>
+                </div>
+                <div class="warm-card reveal-scale p-8 text-left" style="--delay:0.32s;">
+                  <div class="text-[18px] uppercase tracking-[0.18em] text-claude-primary">02</div>
+                  <div class="mt-5 font-display text-[44px] leading-[1.02]">Agent 原理</div>
+                  <p class="mt-4 text-[22px] leading-[1.5] text-claude-body">LLM、工具和循环是怎么让它看起来会“自己干活”的。</p>
+                </div>
+                <div class="warm-card reveal-scale p-8 text-left" style="--delay:0.38s;">
+                  <div class="text-[18px] uppercase tracking-[0.18em] text-claude-primary">03</div>
+                  <div class="mt-5 font-display text-[44px] leading-[1.02]">学习方法</div>
+                  <p class="mt-4 text-[22px] leading-[1.5] text-claude-body">怎么降低追热点压力，用 AI 帮自己更快入门新东西。</p>
+                </div>
+                <div class="warm-card reveal-scale p-8 text-left" style="--delay:0.44s;">
+                  <div class="text-[18px] uppercase tracking-[0.18em] text-claude-primary">04</div>
+                  <div class="mt-5 font-display text-[44px] leading-[1.02]">团队实践</div>
+                  <p class="mt-4 text-[22px] leading-[1.5] text-claude-body">怎么把 Agent 的能力，从代码辅助扩展到业务操作链路。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="为什么不能直接开写">
+      <div class="slide-shell">
+        <div class="slide-frame theme-dark frame-grid">
+          <div class="mesh-orb one"></div>
+          <div class="mesh-orb two"></div>
+          <div class="content-pad">
+            <div class="eyebrow reveal" style="--delay:0.04s;">Why Not</div>
+            <h2 class="title-display max-w-[980px] reveal" style="--delay:0.12s;">为什么不能让 AI 一上来就写代码？</h2>
+            <div class="grid flex-1 grid-cols-2 gap-6">
+              <div class="dark-card reveal-scale border border-white/10 p-8" style="--delay:0.18s;">
+                <div class="metric-chip">01 结构失控</div>
+                <div class="mt-5 text-[34px] leading-[1.25]">一上来就写，代码结构很快失控。</div>
+                <p class="mt-4 text-[20px] leading-[1.55] text-claude-onDarkSoft">它能补出功能，却不一定知道该落在哪一层、复用哪一套约定。</p>
+              </div>
+              <div class="dark-card reveal-scale border border-white/10 p-8" style="--delay:0.24s;">
+                <div class="metric-chip">02 返工成本高</div>
+                <div class="mt-5 text-[34px] leading-[1.25]">需要反复纠偏，返工会把节省的时间吃回去。</div>
+                <p class="mt-4 text-[20px] leading-[1.55] text-claude-onDarkSoft">需求没对齐时，生成越快，偏航也越快。</p>
+              </div>
+              <div class="dark-card reveal-scale border border-white/10 p-8" style="--delay:0.3s;">
+                <div class="metric-chip">03 质量不稳</div>
+                <div class="mt-5 text-[34px] leading-[1.25]">功能能跑，但代码质量、边界和安全性可能都不够。</div>
+                <p class="mt-4 text-[20px] leading-[1.55] text-claude-onDarkSoft">“看起来对”不等于“适合长期维护”。</p>
+              </div>
+              <div class="dark-card reveal-scale border border-white/10 p-8" style="--delay:0.36s;">
+                <div class="metric-chip">04 维护变难</div>
+                <div class="mt-5 text-[34px] leading-[1.25]">最后还是要人工重构，后续维护成本更高。</div>
+                <p class="mt-4 text-[20px] leading-[1.55] text-claude-onDarkSoft">真正麻烦的不是写不出来，而是写出来以后越来越难收拾。</p>
+              </div>
+            </div>
+            <div class="coral-card reveal px-10 py-6 text-[30px] leading-[1.35]" style="--delay:0.42s;">
+              最大的问题不是写不出来，而是写出来以后越来越难收拾。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="PEV 工作流">
+      <div class="slide-shell">
+        <div class="slide-frame theme-soft frame-grid">
+          <div class="mesh-orb one"></div>
+          <div class="mesh-orb three"></div>
+          <div class="content-pad justify-center">
+            <div class="mx-auto flex max-w-[1320px] flex-col items-center text-center">
+              <div class="eyebrow reveal" style="--delay:0.04s;">PEV Workflow</div>
+              <h2 class="title-display mt-8 reveal" style="--delay:0.12s;">我现在常用的一套 AI 工作流：PEV</h2>
+              <div class="mermaid-wrap mermaid-box-md mt-12 w-full reveal-scale" style="--delay:0.2s;">
+                <div class="mermaid">
+flowchart LR
+    A["Plan<br/>先想清楚"] --> B["Execute<br/>让 AI 执行"]
+    B --> C["Verify<br/>由人验收"]
+                </div>
+              </div>
+              <div class="mt-10 grid w-full grid-cols-2 gap-6">
+                <div class="warm-card reveal p-7 text-left" style="--delay:0.28s;">
+                  <div class="text-[16px] uppercase tracking-[0.16em] text-claude-primary">方法一句话</div>
+                  <div class="mt-4 text-[34px] leading-[1.35] text-claude-bodyStrong">先想清楚，再让它做，最后认真验。</div>
+                </div>
+                <div class="dark-card reveal p-7 text-left" style="--delay:0.34s;">
+                  <div class="text-[16px] uppercase tracking-[0.16em] text-claude-primary">角色分工</div>
+                  <div class="mt-4 text-[34px] leading-[1.35]">人做决策，AI 做执行。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Plan">
+      <div class="slide-shell">
+        <div class="slide-frame theme-canvas frame-grid">
+          <div class="mesh-orb one"></div>
+          <div class="mesh-orb two"></div>
+          <div class="content-pad">
+            <div class="eyebrow reveal" style="--delay:0.04s;">Plan First</div>
+            <h2 class="title-display max-w-[920px] reveal" style="--delay:0.12s;">PLAN：先想清楚，再动手写代码</h2>
+            <div class="grid flex-1 grid-cols-2 gap-8">
+              <div class="warm-card reveal-scale p-8" style="--delay:0.2s;">
+                <div class="metric-chip">我会先给 AI 这三样东西</div>
+                <div class="mt-6 space-y-5">
+                  <div class="rounded-[22px] bg-white/60 px-6 py-5">
+                    <div class="text-[18px] uppercase tracking-[0.14em] text-claude-primary">01</div>
+                    <div class="mt-3 text-[30px] leading-[1.35] text-claude-bodyStrong">需求描述</div>
+                  </div>
+                  <div class="rounded-[22px] bg-white/60 px-6 py-5">
+                    <div class="text-[18px] uppercase tracking-[0.14em] text-claude-primary">02</div>
+                    <div class="mt-3 text-[30px] leading-[1.35] text-claude-bodyStrong">PRD 原文</div>
+                  </div>
+                  <div class="rounded-[22px] bg-white/60 px-6 py-5">
+                    <div class="text-[18px] uppercase tracking-[0.14em] text-claude-primary">03</div>
+                    <div class="mt-3 text-[30px] leading-[1.35] text-claude-bodyStrong">约束条件</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="dark-card reveal-scale p-8" style="--delay:0.26s;">
+                <div class="metric-chip">AI 输出计划文档</div>
+                <div class="mt-6 grid grid-cols-2 gap-4">
+                  <div class="rounded-[22px] bg-white/6 px-5 py-5 text-[24px] leading-[1.4]">任务拆解</div>
+                  <div class="rounded-[22px] bg-white/6 px-5 py-5 text-[24px] leading-[1.4]">影响范围</div>
+                  <div class="rounded-[22px] bg-white/6 px-5 py-5 text-[24px] leading-[1.4]">关键文件</div>
+                  <div class="rounded-[22px] bg-white/6 px-5 py-5 text-[24px] leading-[1.4]">验收标准</div>
+                  <div class="rounded-[22px] bg-white/6 px-5 py-5 text-[24px] leading-[1.4]">风险判断</div>
+                  <div class="rounded-[22px] bg-white/6 px-5 py-5 text-[24px] leading-[1.4]">实施顺序</div>
+                </div>
+                <div class="mt-6 rounded-[24px] border border-white/10 bg-white/5 px-6 py-5 text-[21px] leading-[1.5] text-claude-onDarkSoft">
+                  Plan 阶段的核心任务不是“赶紧开工”，而是“先对齐理解”。
+                </div>
+              </div>
+            </div>
+            <div class="coral-card reveal px-10 py-6 text-[28px] leading-[1.4]" style="--delay:0.34s;">
+              先让 AI 想方案，不要先让 AI 动手。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="方案先过人">
+      <div class="slide-shell">
+        <div class="slide-frame theme-dark frame-grid">
+          <div class="mesh-orb one"></div>
+          <div class="mesh-orb two"></div>
+          <div class="content-pad">
+            <div class="eyebrow reveal" style="--delay:0.04s;">Human Review</div>
+            <h2 class="title-display max-w-[980px] reveal" style="--delay:0.12s;">方案先过人，再放行执行</h2>
+            <div class="mt-2 flex flex-1 flex-col justify-center">
+              <div class="stage-card reveal-scale" style="--delay:0.18s;">
+                <div>
+                  <div class="metric-chip">审查</div>
+                  <div class="mt-4 text-[38px] leading-[1.18]">先看三件事</div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 text-[24px] leading-[1.45] text-claude-onDarkSoft">
+                  <div class="rounded-[20px] bg-white/5 px-5 py-5">步骤对不对</div>
+                  <div class="rounded-[20px] bg-white/5 px-5 py-5">范围全不全</div>
+                  <div class="rounded-[20px] bg-white/5 px-5 py-5">风险大不大</div>
+                </div>
+              </div>
+              <div class="stage-arrow my-4"></div>
+              <div class="stage-card reveal-scale" style="--delay:0.26s;">
+                <div>
+                  <div class="metric-chip">调整</div>
+                  <div class="mt-4 text-[38px] leading-[1.18]">再做三件事</div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 text-[24px] leading-[1.45] text-claude-onDarkSoft">
+                  <div class="rounded-[20px] bg-white/5 px-5 py-5">提疑问</div>
+                  <div class="rounded-[20px] bg-white/5 px-5 py-5">调方案</div>
+                  <div class="rounded-[20px] bg-white/5 px-5 py-5">补边界</div>
+                </div>
+              </div>
+              <div class="stage-arrow my-4"></div>
+              <div class="stage-card reveal-scale" style="--delay:0.34s;">
+                <div>
+                  <div class="metric-chip">放行</div>
+                  <div class="mt-4 text-[38px] leading-[1.18]">最后才执行</div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 text-[24px] leading-[1.45] text-claude-onDarkSoft">
+                  <div class="rounded-[20px] bg-white/5 px-5 py-5">开始实现</div>
+                  <div class="rounded-[20px] bg-white/5 px-5 py-5">补测试</div>
+                  <div class="rounded-[20px] bg-white/5 px-5 py-5">跑校验</div>
+                </div>
+              </div>
+            </div>
+            <div class="coral-card reveal px-10 py-6 text-[28px] leading-[1.4]" style="--delay:0.42s;">
+              不是 AI 想完就做，而是人看完再做。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Verify">
+      <div class="slide-shell">
+        <div class="slide-frame theme-canvas frame-grid">
+          <div class="mesh-orb one"></div>
+          <div class="mesh-orb three"></div>
+          <div class="content-pad">
+            <div class="eyebrow reveal" style="--delay:0.04s;">Verify</div>
+            <h2 class="title-display max-w-[940px] reveal" style="--delay:0.12s;">VERIFY：真正决定质量的地方</h2>
+            <div class="grid flex-1 grid-cols-2 gap-8">
+              <div class="warm-card reveal-scale p-8" style="--delay:0.2s;">
+                <div class="metric-chip">Code Review 看什么</div>
+                <div class="mt-6 space-y-4">
+                  <div class="rounded-[20px] bg-white/60 px-6 py-5 text-[27px]">风格和架构</div>
+                  <div class="rounded-[20px] bg-white/60 px-6 py-5 text-[27px]">重复逻辑</div>
+                  <div class="rounded-[20px] bg-white/60 px-6 py-5 text-[27px]">安全问题</div>
+                  <div class="rounded-[20px] bg-white/60 px-6 py-5 text-[27px]">类型严谨性</div>
+                </div>
+              </div>
+              <div class="dark-card reveal-scale p-8" style="--delay:0.28s;">
+                <div class="metric-chip">功能自测看什么</div>
+                <div class="mt-6 space-y-4">
+                  <div class="rounded-[20px] bg-white/6 px-6 py-5 text-[27px]">流程完整</div>
+                  <div class="rounded-[20px] bg-white/6 px-6 py-5 text-[27px]">交互顺畅</div>
+                  <div class="rounded-[20px] bg-white/6 px-6 py-5 text-[27px]">错误提示</div>
+                  <div class="rounded-[20px] bg-white/6 px-6 py-5 text-[27px]">响应式表现</div>
+                </div>
+              </div>
+            </div>
+            <div class="coral-card reveal px-10 py-6 text-[28px] leading-[1.4]" style="--delay:0.36s;">
+              AI 提高的是产出速度，人守住的是交付质量。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="修 Bug 闭环">
+      <div class="slide-shell">
+        <div class="slide-frame theme-soft frame-grid">
+          <div class="mesh-orb two"></div>
+          <div class="mesh-orb three"></div>
+          <div class="content-pad justify-center">
+            <div class="mx-auto flex max-w-[1320px] flex-col items-center text-center">
+              <div class="eyebrow reveal" style="--delay:0.04s;">Bug Loop</div>
+              <h2 class="title-display mt-8 reveal" style="--delay:0.12s;">发现 Bug 后，先写红测，再修复</h2>
+              <div class="mermaid-wrap mermaid-box-md mt-12 w-full reveal-scale" style="--delay:0.2s;">
+                <div class="mermaid">
+flowchart LR
+    A["发现 Bug"] --> B["写失败测试"]
+    B --> C["修改代码"]
+    C --> D["测试通过"]
+    D --> E["回到 Verify"]
+                </div>
+              </div>
+              <div class="mt-10 grid w-full grid-cols-2 gap-6">
+                <div class="warm-card reveal p-7 text-left" style="--delay:0.28s;">
+                  <div class="text-[16px] uppercase tracking-[0.16em] text-claude-primary">原则一</div>
+                  <div class="mt-4 text-[32px] leading-[1.35] text-claude-bodyStrong">先复现，再修复。</div>
+                </div>
+                <div class="dark-card reveal p-7 text-left" style="--delay:0.34s;">
+                  <div class="text-[16px] uppercase tracking-[0.16em] text-claude-primary">原则二</div>
+                  <div class="mt-4 text-[32px] leading-[1.35]">修 Bug 不靠感觉，靠可重复验证的闭环。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="AI Agent 原理">
+      <div class="slide-shell">
+        <div class="slide-frame theme-dark frame-grid">
+          <div class="mesh-orb one"></div>
+          <div class="mesh-orb two"></div>
+          <div class="content-pad justify-center">
+            <div class="mx-auto flex max-w-[1340px] flex-col items-center text-center">
+              <div class="eyebrow reveal" style="--delay:0.04s;">Agent Formula</div>
+              <h2 class="title-display reveal mt-8" style="--delay:0.12s;">AI Agent 实现原理</h2>
+              <p class="mt-6 text-[34px] leading-[1.4] text-claude-onDarkSoft reveal" style="--delay:0.18s;">
+                为什么 AI 能帮你干活？
+              </p>
+
+              <div class="mt-14 grid w-full grid-cols-[1fr_auto_1fr_auto_1fr_auto_1.2fr] items-center gap-4 reveal-scale" style="--delay:0.24s;">
+                <div class="dark-card border border-white/10 px-8 py-8">
+                  <div class="text-[18px] uppercase tracking-[0.16em] text-claude-primary">LLM</div>
+                  <div class="mt-4 font-display text-[54px] leading-none">大模型</div>
+                </div>
+                <div class="text-[66px] text-[#ffc4b2]">+</div>
+                <div class="dark-card border border-white/10 px-8 py-8">
+                  <div class="text-[18px] uppercase tracking-[0.16em] text-claude-primary">Tools</div>
+                  <div class="mt-4 font-display text-[54px] leading-none">工具</div>
+                </div>
+                <div class="text-[66px] text-[#ffc4b2]">+</div>
+                <div class="dark-card border border-white/10 px-8 py-8">
+                  <div class="text-[18px] uppercase tracking-[0.16em] text-claude-primary">Loop</div>
+                  <div class="mt-4 font-display text-[54px] leading-none">循环</div>
+                </div>
+                <div class="text-[66px] text-[#ffc4b2]">=</div>
+                <div class="coral-card px-8 py-8">
+                  <div class="text-[18px] uppercase tracking-[0.16em] text-white/80">Agent</div>
+                  <div class="mt-4 font-display text-[56px] leading-none">可执行代理</div>
+                </div>
+              </div>
+
+              <div class="mt-12 max-w-[1160px] rounded-[28px] border border-white/10 bg-white/6 px-10 py-7 text-[25px] leading-[1.5] text-claude-onDarkSoft reveal" style="--delay:0.34s;">
+                它看起来像在“自己干活”，本质上是因为它会结合上下文反复判断，并在需要时调用工具。
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Agent 循环">
+      <div class="slide-shell">
+        <div class="slide-frame theme-canvas frame-grid">
+          <div class="mesh-orb one"></div>
+          <div class="mesh-orb two"></div>
+          <div class="content-pad">
+            <div class="eyebrow reveal" style="--delay:0.04s;">Agent Loop</div>
+            <h2 class="title-display max-w-[820px] reveal" style="--delay:0.12s;">Agent 循环</h2>
+            <div class="mermaid-wrap mermaid-box-lg flex-1 reveal-scale" style="--delay:0.2s;">
+              <div class="mermaid">
+flowchart TD
+    A["接收任务<br/>用户说一句话"] --> B["LLM 思考<br/>这件事要怎么做"]
+    B --> C{"LLM 决定"}
+    C -- "自己能回答" --> D["直接输出结果"]
+    C -- "需要工具" --> E["决定调用哪个工具<br/>传什么参数"]
+    E --> F["系统执行工具<br/>阅读文档 / 访问浏览器 / 写文件"]
+    F --> G["把工具结果返回给 LLM"]
+    G --> B
+              </div>
+            </div>
+            <div class="coral-card reveal px-10 py-6 text-[28px] leading-[1.4]" style="--delay:0.32s;">
+              Agent 的本质不是一次生成答案，而是“判断 → 调用工具 → 看结果 → 再判断”的循环。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Agent 执行机制">
+      <div class="slide-shell">
+        <div class="slide-frame theme-dark frame-grid">
+          <div class="mesh-orb one"></div>
+          <div class="mesh-orb three"></div>
+          <div class="content-pad">
+            <div class="eyebrow reveal" style="--delay:0.04s;">Execution Mechanism</div>
+            <h2 class="title-display max-w-[980px] reveal" style="--delay:0.12s;">Agent 的执行机制</h2>
+            <div class="grid flex-1 grid-cols-[0.98fr_1.02fr] gap-8">
+              <div class="code-panel reveal-scale" style="--delay:0.2s;">
+                <div class="panel-topbar">
+                  <div class="panel-dots"><span></span><span></span><span></span></div>
+                  <span>Pseudo Code</span>
+                </div>
+                <div class="panel-code compact"><span class="code-k">while</span> (!taskComplete) {
+  <span class="code-c">// 基于当前上下文和可用工具判断下一步</span>
+  <span class="code-k">const</span> <span class="code-v">response</span> = <span class="code-f">LLM</span>(messages, tools);
+
+  <span class="code-k">if</span> (response.toolCalls) {
+    <span class="code-c">// 系统执行工具调用</span>
+    <span class="code-k">const</span> <span class="code-v">results</span> = <span class="code-f">executeTools</span>(response.toolCalls);
+
+    <span class="code-c">// 工具结果进入下一轮上下文</span>
+    messages.push(...results);
+  } <span class="code-k">else</span> {
+    <span class="code-c">// 不需要工具时输出最终结果</span>
+    <span class="code-k">return</span> response.content;
+  }
+}</div>
+              </div>
+
+              <div class="flex flex-col gap-4">
+                <div class="dark-card reveal p-6 border border-white/10" style="--delay:0.24s;">
+                  <div class="metric-chip">第 1 轮</div>
+                  <div class="mt-4 text-[25px] leading-[1.5]">
+                    用户：帮我查一下杭州今天的天气<br />
+                    LLM 判断：这是实时信息，不能直接编<br />
+                    动作：调用天气工具
+                  </div>
+                </div>
+                <div class="dark-card reveal p-6 border border-white/10" style="--delay:0.3s;">
+                  <div class="metric-chip">第 2 轮</div>
+                  <div class="mt-4 text-[25px] leading-[1.5]">
+                    工具返回：杭州，晴，25°C，东北风 2 级<br />
+                    LLM 判断：信息已经够了<br />
+                    动作：整理结果，准备回复
+                  </div>
+                </div>
+                <div class="dark-card reveal p-6 border border-white/10" style="--delay:0.36s;">
+                  <div class="metric-chip">第 3 轮</div>
+                  <div class="mt-4 text-[25px] leading-[1.5]">
+                    输出最终答案<br />
+                    循环结束
+                  </div>
+                </div>
+                <div class="coral-card reveal px-8 py-5 text-[22px] leading-[1.45]" style="--delay:0.42s;">
+                  Agent 不是一次想完答案，而是带着最新上下文反复判断和执行。
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="messages 和 tools">
+      <div class="slide-shell">
+        <div class="slide-frame theme-dark frame-grid">
+          <div class="mesh-orb one"></div>
+          <div class="mesh-orb two"></div>
+          <div class="content-pad">
+            <div class="eyebrow reveal" style="--delay:0.04s;">Context & Tools</div>
+            <h2 class="title-display max-w-[920px] reveal" style="--delay:0.12s;">messages 和 tools 是什么？</h2>
+            <div class="grid flex-1 grid-cols-2 gap-6">
+              <div class="code-panel reveal-scale" style="--delay:0.2s;">
+                <div class="panel-topbar">
+                  <div class="panel-dots"><span></span><span></span><span></span></div>
+                  <span>messages</span>
+                </div>
+                <div class="panel-code compact">[
+  {
+    <span class="code-s">"role"</span>: <span class="code-s">"system"</span>,
+    <span class="code-s">"content"</span>: <span class="code-s">"你是个人 AI 助手，需要理解用户的问题，并结合上下文和工具能力帮助用户解决问题。"</span>
+  },
+  {
+    <span class="code-s">"role"</span>: <span class="code-s">"user"</span>,
+    <span class="code-s">"content"</span>: <span class="code-s">"帮我查一下杭州今天的天气"</span>
+  },
+  {
+    <span class="code-s">"role"</span>: <span class="code-s">"assistant"</span>,
+    <span class="code-s">"tool_calls"</span>: [
+      {
+        <span class="code-s">"id"</span>: <span class="code-s">"call_1"</span>,
+        <span class="code-s">"function"</span>: {
+          <span class="code-s">"name"</span>: <span class="code-s">"get_weather"</span>,
+          <span class="code-s">"arguments"</span>: <span class="code-s">"{\"city\":\"杭州\"}"</span>
+        }
+      }
+    ]
+  },
+  {
+    <span class="code-s">"role"</span>: <span class="code-s">"tool"</span>,
+    <span class="code-s">"content"</span>: <span class="code-s">"杭州，晴，25°C，东北风 2 级"</span>
+  }
+]</div>
+              </div>
+
+              <div class="code-panel reveal-scale" style="--delay:0.26s;">
+                <div class="panel-topbar">
+                  <div class="panel-dots"><span></span><span></span><span></span></div>
+                  <span>tools</span>
+                </div>
+                <div class="panel-code compact">[
+  {
+    <span class="code-s">"type"</span>: <span class="code-s">"function"</span>,
+    <span class="code-s">"function"</span>: {
+      <span class="code-s">"name"</span>: <span class="code-s">"get_weather"</span>,
+      <span class="code-s">"description"</span>: <span class="code-s">"查询指定城市的天气信息"</span>,
+      <span class="code-s">"parameters"</span>: {
+        <span class="code-s">"type"</span>: <span class="code-s">"object"</span>,
+        <span class="code-s">"properties"</span>: {
+          <span class="code-s">"city"</span>: {
+            <span class="code-s">"type"</span>: <span class="code-s">"string"</span>,
+            <span class="code-s">"description"</span>: <span class="code-s">"城市名称，例如：杭州"</span>
+          }
+        },
+        <span class="code-s">"required"</span>: [<span class="code-s">"city"</span>]
+      }
+    }
+  }
+]</div>
+              </div>
+            </div>
+            <div class="coral-card reveal px-10 py-6 text-[28px] leading-[1.4]" style="--delay:0.34s;">
+              messages 决定它“看到了什么”，tools 决定它“能做什么”。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="一句话理解 Agent">
+      <div class="slide-shell">
+        <div class="slide-frame theme-coral">
+          <div class="mesh-orb one"></div>
+          <div class="mesh-orb two"></div>
+          <div class="content-pad justify-center">
+            <div class="mx-auto flex max-w-[1320px] flex-col items-center text-center">
+              <div class="eyebrow reveal" style="--delay:0.04s;">One Sentence</div>
+              <div class="quote-line mt-14 max-w-[1180px] reveal" style="--delay:0.14s;">
+                Agent 不是魔法，它只是把“会回答”变成了“会行动”。
+              </div>
+              <div class="mt-16 grid w-full grid-cols-3 gap-6">
+                <div class="rounded-[28px] border border-white/12 bg-white/10 px-8 py-8 text-left reveal" style="--delay:0.24s;">
+                  <div class="text-[16px] uppercase tracking-[0.16em] text-white/70">Loop</div>
+                  <div class="mt-4 text-[28px] leading-[1.45]">带着上下文反复调用模型。</div>
+                </div>
+                <div class="rounded-[28px] border border-white/12 bg-white/10 px-8 py-8 text-left reveal" style="--delay:0.3s;">
+                  <div class="text-[16px] uppercase tracking-[0.16em] text-white/70">Decision</div>
+                  <div class="mt-4 text-[28px] leading-[1.45]">模型决定要不要使用工具。</div>
+                </div>
+                <div class="rounded-[28px] border border-white/12 bg-white/10 px-8 py-8 text-left reveal" style="--delay:0.36s;">
+                  <div class="text-[16px] uppercase tracking-[0.16em] text-white/70">Context</div>
+                  <div class="mt-4 text-[28px] leading-[1.45]">工具结果回来后，再继续下一轮。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="学习 AI">
+      <div class="slide-shell">
+        <div class="slide-frame theme-soft frame-grid">
+          <div class="mesh-orb one"></div>
+          <div class="mesh-orb three"></div>
+          <div class="content-pad justify-center">
+            <div class="mx-auto flex max-w-[1320px] flex-col items-center text-center">
+              <div class="eyebrow reveal" style="--delay:0.04s;">Learning Method</div>
+              <h2 class="title-display mt-8 reveal" style="--delay:0.12s;">我是怎么学习 AI 的</h2>
+              <p class="mt-5 max-w-[840px] text-[30px] leading-[1.45] text-claude-body reveal" style="--delay:0.18s;">
+                先关注新东西，再用 AI 帮我快速入门。
+              </p>
+              <div class="mt-14 grid w-full grid-cols-3 gap-7">
+                <div class="warm-card reveal-scale p-8 text-left" style="--delay:0.24s;">
+                  <div class="text-[18px] uppercase tracking-[0.18em] text-claude-primary">01</div>
+                  <div class="mt-5 font-display text-[42px] leading-[1.02]">GitHub Trending</div>
+                  <p class="mt-4 text-[22px] leading-[1.5] text-claude-body">先看 GitHub 上最火的项目是什么。</p>
+                  <div class="mt-6 rounded-[18px] bg-white/70 px-5 py-4 font-mono text-[17px] text-claude-muted">github.com/trending</div>
+                </div>
+                <div class="dark-card reveal-scale p-8 text-left" style="--delay:0.3s;">
+                  <div class="text-[18px] uppercase tracking-[0.18em] text-claude-primary">02</div>
+                  <div class="mt-5 font-display text-[42px] leading-[1.02]">用 AI 帮我读源码</div>
+                  <p class="mt-4 text-[22px] leading-[1.5] text-claude-onDarkSoft">看不懂、看不完的时候，用 AI 先帮我搭建理解地图。</p>
+                </div>
+                <div class="warm-card reveal-scale p-8 text-left" style="--delay:0.36s;">
+                  <div class="text-[18px] uppercase tracking-[0.18em] text-claude-primary">03</div>
+                  <div class="mt-5 font-display text-[42px] leading-[1.02]">固定关注大厂开源</div>
+                  <p class="mt-4 text-[22px] leading-[1.5] text-claude-body">持续看大厂 GitHub 最近开源了什么新项目。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="业务方向">
+      <div class="slide-shell">
+        <div class="slide-frame theme-dark frame-grid">
+          <div class="mesh-orb one"></div>
+          <div class="mesh-orb two"></div>
+          <div class="content-pad justify-center">
+            <div class="mx-auto flex max-w-[1280px] flex-col items-center text-center">
+              <div class="eyebrow reveal" style="--delay:0.04s;">Business Direction</div>
+              <h2 class="title-display mt-8 max-w-[1120px] reveal" style="--delay:0.12s;">我们能不能给 Agent 一套更好用的操作方式？</h2>
+              <div class="warm-card mt-14 w-full px-12 py-12 text-claude-ink reveal-scale" style="--delay:0.22s;">
+                <div class="text-[18px] uppercase tracking-[0.18em] text-claude-primary">核心问题</div>
+                <div class="mt-6 text-[40px] leading-[1.35]">
+                  既然 AI Agent 已经能处理信息和任务，
+                  那我们公司的项目，能不能也提供一种更适合 Agent 操作的方式？
+                </div>
+              </div>
+              <div class="mt-10 grid w-full grid-cols-2 gap-6">
+                <div class="rounded-[26px] border border-white/10 bg-white/6 px-8 py-7 text-left text-[24px] leading-[1.5] text-claude-onDarkSoft reveal" style="--delay:0.3s;">
+                  这就是后面这一部分想展开的方向。
+                </div>
+                <div class="rounded-[26px] border border-white/10 bg-white/6 px-8 py-7 text-left text-[24px] leading-[1.5] text-claude-onDarkSoft reveal" style="--delay:0.36s;">
+                  不是重做系统，而是换一种更适合 Agent 操作的方式。
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="CLI 命令">
+      <div class="slide-shell">
+        <div class="slide-frame theme-canvas frame-grid">
+          <div class="mesh-orb one"></div>
+          <div class="mesh-orb three"></div>
+          <div class="content-pad">
+            <div class="eyebrow reveal" style="--delay:0.04s;">CLI Layer</div>
+            <h2 class="title-display max-w-[980px] reveal" style="--delay:0.12s;">思路：把业务操作变成 CLI 命令</h2>
+            <div class="terminal-panel reveal-scale flex-1" style="--delay:0.22s;">
+              <div class="panel-topbar">
+                <div class="panel-dots"><span></span><span></span><span></span></div>
+                <span>Business CLI</span>
+              </div>
+              <div class="terminal-body">$ saas payment list --status=pending
+$ saas payment detail --id=PAY20260509001
+$ saas deal quote --pair=USD/CNH
+$ saas approval list --pending
+$ saas balance check --currency=USD</div>
+            </div>
+            <div class="coral-card reveal px-10 py-6 text-[28px] leading-[1.4]" style="--delay:0.34s;">
+              CLI 不是重做一套系统，而是给现有系统再加一层适合 Agent 调用的壳。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Agent 接手业务">
+      <div class="slide-shell">
+        <div class="slide-frame theme-dark frame-grid">
+          <div class="mesh-orb one"></div>
+          <div class="mesh-orb two"></div>
+          <div class="content-pad">
+            <div class="eyebrow reveal" style="--delay:0.04s;">Business Agent Flow</div>
+            <h2 class="title-display max-w-[980px] reveal" style="--delay:0.12s;">Agent 怎么接手这些业务动作？</h2>
+            <div class="flex flex-1 flex-col gap-4">
+              <div class="dark-card reveal border border-white/10 p-6" style="--delay:0.2s;">
+                <div class="metric-chip">Round 1</div>
+                <div class="mt-4 text-[24px] leading-[1.55]">
+                  你：查一下今天有多少笔待审批的付款<br />
+                  Agent：执行 <span class="font-mono text-[#ffc4b2]">saas approval list --pending</span><br />
+                  当前有 12 笔待审批付款，其中 3 笔超过 24 小时未处理
+                </div>
+              </div>
+              <div class="dark-card reveal border border-white/10 p-6" style="--delay:0.28s;">
+                <div class="metric-chip">Round 2</div>
+                <div class="mt-4 text-[24px] leading-[1.55]">
+                  你：把金额最大的那笔详情给我看<br />
+                  Agent：执行 <span class="font-mono text-[#ffc4b2]">saas payment detail --id=PAY20260509087</span><br />
+                  金额：USD 500,000，状态：待审批
+                </div>
+              </div>
+              <div class="dark-card reveal border border-white/10 p-6" style="--delay:0.36s;">
+                <div class="metric-chip">Round 3</div>
+                <div class="mt-4 text-[24px] leading-[1.55]">
+                  你：这笔交易的汇率是多少？<br />
+                  Agent：执行 <span class="font-mono text-[#ffc4b2]">saas deal quote --pair=USD/CNH</span><br />
+                  当前 USD/CNH 汇率：7.2450
+                </div>
+              </div>
+            </div>
+            <div class="coral-card reveal px-10 py-6 text-center text-[28px] leading-[1.4]" style="--delay:0.44s;">
+              自然语言 → Agent → CLI → API → 结果返回
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Q&A">
+      <div class="slide-shell">
+        <div class="slide-frame theme-coral">
+          <div class="mesh-orb one"></div>
+          <div class="mesh-orb two"></div>
+          <div class="content-pad items-center justify-center text-center">
+            <div class="eyebrow reveal" style="--delay:0.04s;">Closing</div>
+            <h2 class="title-display-lg mt-12 reveal" style="--delay:0.14s;">Q&amp;A</h2>
+            <p class="mt-8 text-[56px] leading-[1.2] reveal" style="--delay:0.24s;">谢谢</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: "loose",
+      theme: "base",
+      flowchart: {
+        htmlLabels: true,
+        curve: "basis"
+      },
+      themeVariables: {
+        background: "#faf9f5",
+        primaryColor: "#efe9de",
+        primaryTextColor: "#141413",
+        primaryBorderColor: "#cc785c",
+        secondaryColor: "#f5f0e8",
+        tertiaryColor: "#faf9f5",
+        lineColor: "#a9583e",
+        clusterBkg: "#f5f0e8",
+        clusterBorder: "#cc785c",
+        fontFamily: "Inter, system-ui, sans-serif",
+        fontSize: "20px",
+        mainBkg: "#efe9de",
+        secondBkg: "#faf9f5",
+        tertiaryBkg: "#f5f0e8",
+        edgeLabelBackground: "#faf9f5"
+      }
+    });
+
+    const deck = document.getElementById("deck");
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const rail = document.getElementById("pageRail");
+    const progressBar = document.getElementById("progressBar");
+    const slideCounter = document.getElementById("slideCounter");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    let currentIndex = 0;
+    let wheelLocked = false;
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    function buildRail() {
+      slides.forEach((slide, index) => {
+        const dot = document.createElement("button");
+        dot.type = "button";
+        dot.className = "page-dot";
+        dot.dataset.title = slide.dataset.title || `第 ${index + 1} 页`;
+        dot.setAttribute("aria-label", `跳转到第 ${index + 1} 页`);
+        dot.addEventListener("click", () => goToSlide(index));
+        rail.appendChild(dot);
+      });
+    }
+
+    function scaleFrames() {
+      document.querySelectorAll(".slide-shell").forEach((shell) => {
+        const frame = shell.querySelector(".slide-frame");
+        const rect = shell.getBoundingClientRect();
+        const scale = Math.min((rect.width - 8) / 1600, (rect.height - 8) / 900);
+        frame.style.transform = `translate(-50%, -50%) scale(${scale})`;
+      });
+    }
+
+    function updateUI() {
+      deck.style.transform = `translateX(-${currentIndex * 100}vw)`;
+      slides.forEach((slide, index) => {
+        slide.classList.toggle("active", index === currentIndex);
+      });
+      Array.from(rail.children).forEach((dot, index) => {
+        dot.classList.toggle("active", index === currentIndex);
+      });
+      progressBar.style.width = `${((currentIndex + 1) / slides.length) * 100}%`;
+      slideCounter.textContent = `${String(currentIndex + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === slides.length - 1;
+      document.title = `${slides[currentIndex].dataset.title} · AI 是如何在前端开发流程中应用的`;
+    }
+
+    function goToSlide(index) {
+      const nextIndex = Math.max(0, Math.min(index, slides.length - 1));
+      if (nextIndex === currentIndex) return;
+      currentIndex = nextIndex;
+      updateUI();
+    }
+
+    function goNext() {
+      if (currentIndex < slides.length - 1) {
+        goToSlide(currentIndex + 1);
+      }
+    }
+
+    function goPrev() {
+      if (currentIndex > 0) {
+        goToSlide(currentIndex - 1);
+      }
+    }
+
+    prevBtn.addEventListener("click", goPrev);
+    nextBtn.addEventListener("click", goNext);
+
+    window.addEventListener("keydown", (event) => {
+      if (["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName)) return;
+
+      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+        event.preventDefault();
+        goNext();
+      }
+      if (event.key === "ArrowLeft" || event.key === "PageUp") {
+        event.preventDefault();
+        goPrev();
+      }
+      if (event.key === "Home") {
+        event.preventDefault();
+        goToSlide(0);
+      }
+      if (event.key === "End") {
+        event.preventDefault();
+        goToSlide(slides.length - 1);
+      }
+    });
+
+    window.addEventListener("wheel", (event) => {
+      if (wheelLocked) return;
+      const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+      if (Math.abs(delta) < 20) return;
+      wheelLocked = true;
+      if (delta > 0) goNext();
+      if (delta < 0) goPrev();
+      setTimeout(() => {
+        wheelLocked = false;
+      }, 760);
+    }, { passive: true });
+
+    window.addEventListener("touchstart", (event) => {
+      touchStartX = event.changedTouches[0].screenX;
+    }, { passive: true });
+
+    window.addEventListener("touchend", (event) => {
+      touchEndX = event.changedTouches[0].screenX;
+      const diff = touchEndX - touchStartX;
+      if (Math.abs(diff) < 60) return;
+      if (diff < 0) goNext();
+      if (diff > 0) goPrev();
+    }, { passive: true });
+
+    window.addEventListener("resize", scaleFrames);
+
+    async function init() {
+      buildRail();
+      await mermaid.run({
+        querySelector: ".mermaid"
+      });
+      scaleFrames();
+      updateUI();
+    }
+
+    init();
+  </script>
+</body>
+</html>

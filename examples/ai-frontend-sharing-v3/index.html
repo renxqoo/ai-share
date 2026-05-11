@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>AI 前端分享 · 演示网页</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind = window.tailwind || {};
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: "#FF5B01",
+            "brand-hover": "#FF6C1B",
+            ink: "#201D1B",
+            soft: "#A4A9B3",
+            line: "#E5E6EB",
+            paper: "#FFFFFF",
+            coal: "#121211",
+            mist: "#F9F9F9",
+            warn: "#F3A53B"
+          },
+          boxShadow: {
+            panel: "0 0 0 1px rgba(32,29,27,0.08)",
+            glow: "0 0 0 1px rgba(255,91,1,0.22)"
+          },
+          fontFamily: {
+            sans: ["Roboto", "Noto Sans SC", "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+            mono: ["JetBrains Mono", "Consolas", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --stage-width: 1600;
+      --stage-height: 900;
+      --brand: #FF5B01;
+      --ink: #201D1B;
+      --soft: #A4A9B3;
+      --line: #E5E6EB;
+      --coal: #121211;
+      --paper: #FFFFFF;
+      --mist: #F9F9F9;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #fbfbfa;
+      color: var(--ink);
+      font-family: "Roboto", "Noto Sans SC", "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    body {
+      position: relative;
+    }
+
+    .ambient-grid,
+    .ambient-orbit,
+    .ambient-pulse {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .ambient-grid {
+      background-image:
+        linear-gradient(rgba(32, 29, 27, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(32, 29, 27, 0.045) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.95), transparent 88%);
+      animation: gridDrift 22s linear infinite;
+    }
+
+    .ambient-orbit::before,
+    .ambient-orbit::after,
+    .ambient-pulse::before,
+    .ambient-pulse::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(2px);
+    }
+
+    .ambient-orbit::before {
+      width: 32vw;
+      height: 32vw;
+      min-width: 340px;
+      min-height: 340px;
+      top: -10vw;
+      right: -6vw;
+      border: 1px solid rgba(255, 91, 1, 0.22);
+      animation: orbitFloat 18s ease-in-out infinite;
+    }
+
+    .ambient-orbit::after {
+      width: 18vw;
+      height: 18vw;
+      min-width: 180px;
+      min-height: 180px;
+      left: 6vw;
+      bottom: 6vh;
+      border: 1px dashed rgba(255, 91, 1, 0.18);
+      animation: orbitFloat 13s ease-in-out infinite reverse;
+    }
+
+    .ambient-pulse::before {
+      width: 420px;
+      height: 420px;
+      left: -120px;
+      top: 30%;
+      background: radial-gradient(circle, rgba(255, 91, 1, 0.11), transparent 72%);
+      animation: pulseGlow 9s ease-in-out infinite;
+    }
+
+    .ambient-pulse::after {
+      width: 360px;
+      height: 360px;
+      right: 2%;
+      bottom: -50px;
+      background: radial-gradient(circle, rgba(255, 91, 1, 0.09), transparent 74%);
+      animation: pulseGlow 7s ease-in-out infinite reverse;
+    }
+
+    #app {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #stage-shell {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+    }
+
+    #stage {
+      width: calc(var(--stage-width) * 1px);
+      height: calc(var(--stage-height) * 1px);
+      transform-origin: center center;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 54px 62px 50px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.95)),
+        radial-gradient(circle at top right, rgba(255, 91, 1, 0.06), transparent 32%);
+      border: 1px solid rgba(32, 29, 27, 0.06);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(50px) scale(0.985);
+      transition:
+        opacity 420ms var(--ease),
+        transform 520ms var(--ease),
+        visibility 0s linear 520ms;
+      overflow: hidden;
+      border-radius: 22px;
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, transparent 0%, rgba(255, 91, 1, 0.03) 45%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0) scale(1);
+      transition:
+        opacity 420ms var(--ease),
+        transform 520ms var(--ease),
+        visibility 0s linear 0s;
+      z-index: 2;
+    }
+
+    .slide.left {
+      transform: translateX(-60px) scale(0.982);
+    }
+
+    .slide.right {
+      transform: translateX(60px) scale(0.982);
+    }
+
+    .slide-content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 24px;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(26px);
+      transition:
+        opacity 500ms var(--ease),
+        transform 700ms var(--ease);
+      transition-delay: var(--delay, 0ms);
+    }
+
+    .slide.active .reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .micro-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--soft);
+      font-size: 16px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+
+    .micro-label::before {
+      content: "";
+      width: 52px;
+      height: 2px;
+      background: var(--brand);
+      display: block;
+    }
+
+    .page-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 15px;
+      color: var(--soft);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    .headline {
+      font-size: 66px;
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+      font-weight: 800;
+      max-width: 1220px;
+    }
+
+    .headline-xl {
+      font-size: 78px;
+    }
+
+    .title {
+      font-size: 50px;
+      line-height: 1.12;
+      letter-spacing: -0.035em;
+      font-weight: 800;
+      max-width: 1260px;
+    }
+
+    .subtitle {
+      font-size: 24px;
+      line-height: 1.6;
+      color: var(--soft);
+      max-width: 1120px;
+    }
+
+    .quote {
+      font-size: 42px;
+      line-height: 1.32;
+      letter-spacing: -0.03em;
+      font-weight: 700;
+      max-width: 1180px;
+    }
+
+    .tiny-note {
+      font-size: 17px;
+      line-height: 1.55;
+      color: var(--soft);
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(32, 29, 27, 0.08);
+      border-top: 3px solid var(--brand);
+      border-radius: 20px;
+      padding: 24px 24px 22px;
+      position: relative;
+    }
+
+    .panel-dark {
+      background: #121211;
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .panel-dark .tiny-note,
+    .panel-dark .panel-copy,
+    .panel-dark .list-line,
+    .panel-dark .code-copy {
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .panel-index {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: rgba(255, 91, 1, 0.08);
+      color: var(--brand);
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .panel-title {
+      font-size: 28px;
+      line-height: 1.24;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .panel-copy {
+      font-size: 19px;
+      line-height: 1.58;
+      color: #4a4f57;
+    }
+
+    .kpi {
+      padding: 18px 18px 16px;
+      border-radius: 18px;
+      background: rgba(249, 249, 249, 0.88);
+      border: 1px solid rgba(32, 29, 27, 0.07);
+    }
+
+    .kpi-value {
+      font-size: 38px;
+      line-height: 1;
+      font-weight: 800;
+      color: var(--brand);
+      margin-bottom: 8px;
+    }
+
+    .kpi-label {
+      font-size: 17px;
+      color: #525860;
+      line-height: 1.5;
+    }
+
+    .list-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      font-size: 20px;
+      line-height: 1.55;
+      color: #42474e;
+    }
+
+    .list-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--brand);
+      margin-top: 11px;
+      flex: 0 0 auto;
+    }
+
+    .band {
+      border: 1px solid rgba(32, 29, 27, 0.08);
+      border-left: 6px solid var(--brand);
+      border-radius: 22px;
+      padding: 22px 26px;
+      background: rgba(255, 255, 255, 0.96);
+    }
+
+    .band-title {
+      font-size: 28px;
+      line-height: 1.2;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .step-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 9px 15px;
+      margin: 4px 8px 0 0;
+      border-radius: 999px;
+      background: rgba(255, 91, 1, 0.08);
+      border: 1px solid rgba(255, 91, 1, 0.15);
+      font-size: 17px;
+      font-weight: 500;
+      color: #3f3d3c;
+    }
+
+    .flow-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      min-height: 240px;
+    }
+
+    .flow-box {
+      width: 320px;
+      min-height: 166px;
+      padding: 24px 24px 22px;
+      border-radius: 22px;
+      border: 1px solid rgba(32, 29, 27, 0.08);
+      background: rgba(255, 255, 255, 0.95);
+      display: grid;
+      gap: 10px;
+      align-content: center;
+      position: relative;
+    }
+
+    .flow-box::after {
+      content: "";
+      position: absolute;
+      inset: auto 18px 16px;
+      height: 2px;
+      background: linear-gradient(90deg, rgba(255, 91, 1, 0.18), rgba(255, 91, 1, 0.7), rgba(255, 91, 1, 0.18));
+    }
+
+    .flow-title {
+      font-size: 31px;
+      line-height: 1.12;
+      font-weight: 800;
+    }
+
+    .flow-sub {
+      font-size: 19px;
+      line-height: 1.5;
+      color: #545a62;
+    }
+
+    .arrow-link {
+      position: relative;
+      width: 92px;
+      height: 10px;
+      flex: 0 0 auto;
+      background: linear-gradient(90deg, rgba(255, 91, 1, 0.3), rgba(255, 91, 1, 0.88));
+      border-radius: 999px;
+      animation: arrowRun 2.4s ease-in-out infinite;
+    }
+
+    .arrow-link::after {
+      content: "";
+      position: absolute;
+      right: -6px;
+      top: 50%;
+      width: 18px;
+      height: 18px;
+      border-top: 4px solid var(--brand);
+      border-right: 4px solid var(--brand);
+      transform: translateY(-50%) rotate(45deg);
+    }
+
+    .code-card {
+      border-radius: 22px;
+      padding: 24px 26px;
+      background: #111111;
+      color: #f7f7f7;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      font-family: "Consolas", "JetBrains Mono", monospace;
+      font-size: 19px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+    }
+
+    .code-copy {
+      color: #d7d7d7;
+    }
+
+    .code-key {
+      color: #ffb692;
+    }
+
+    .code-fn {
+      color: #80d6ff;
+    }
+
+    .code-str {
+      color: #b6f5a3;
+    }
+
+    .message-box {
+      border-radius: 20px;
+      border: 1px solid rgba(32, 29, 27, 0.08);
+      background: rgba(255, 255, 255, 0.96);
+      padding: 20px 24px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .message-box h4 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    .message-line {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 12px;
+      font-size: 18px;
+      line-height: 1.55;
+    }
+
+    .message-role {
+      font-family: "Consolas", "JetBrains Mono", monospace;
+      color: var(--brand);
+      font-weight: 700;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(32, 29, 27, 0.08);
+      background: rgba(255, 255, 255, 0.88);
+      font-size: 17px;
+      font-weight: 500;
+      color: #434950;
+    }
+
+    .badge::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--brand);
+      animation: softBlink 1.8s ease-in-out infinite;
+    }
+
+    .terminal {
+      border-radius: 22px;
+      overflow: hidden;
+      background: #0f0f10;
+      color: #f4f4f4;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+    }
+
+    .terminal-bar {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 18px;
+      background: #19191b;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .terminal-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: #666;
+    }
+
+    .terminal-dot:nth-child(1) {
+      background: #ff6d5d;
+    }
+
+    .terminal-dot:nth-child(2) {
+      background: #ffbe46;
+    }
+
+    .terminal-dot:nth-child(3) {
+      background: #59d480;
+    }
+
+    .terminal-body {
+      padding: 24px 26px;
+      font-family: "Consolas", "JetBrains Mono", monospace;
+      font-size: 21px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    .terminal-prompt {
+      color: #ff9d72;
+    }
+
+    .terminal-answer {
+      color: #d9f0ff;
+    }
+
+    .cover-rail {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-top: 22px;
+    }
+
+    .cover-tag {
+      border-radius: 999px;
+      padding: 12px 18px;
+      border: 1px solid rgba(32, 29, 27, 0.09);
+      background: rgba(255, 255, 255, 0.9);
+      font-size: 18px;
+      color: #50555d;
+    }
+
+    .footer-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      color: var(--soft);
+      font-size: 16px;
+    }
+
+    .footer-quote {
+      color: var(--ink);
+      font-size: 21px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .page-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 999px;
+      background: #121211;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .section-cover {
+      background:
+        linear-gradient(135deg, rgba(18, 18, 17, 0.98), rgba(18, 18, 17, 0.95)),
+        radial-gradient(circle at top right, rgba(255, 91, 1, 0.22), transparent 38%);
+      color: #ffffff;
+    }
+
+    .section-cover .subtitle,
+    .section-cover .tiny-note,
+    .section-cover .page-meta {
+      color: rgba(255, 255, 255, 0.72);
+    }
+
+    .section-cover .micro-label {
+      color: rgba(255, 255, 255, 0.72);
+    }
+
+    .section-cover .micro-label::before {
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .summary-card {
+      border-radius: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 22px 24px;
+    }
+
+    .summary-card h4 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      line-height: 1.24;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .summary-card p {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.55;
+      color: rgba(255, 255, 255, 0.76);
+    }
+
+    .divider-line {
+      height: 1px;
+      width: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 91, 1, 0.7), transparent);
+      margin: 6px 0;
+    }
+
+    .control-bar {
+      position: fixed;
+      right: 24px;
+      bottom: 22px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(18, 18, 17, 0.94);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+    }
+
+    .control-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      transition: transform 0.3s var(--ease), background-color 0.3s var(--ease);
+    }
+
+    .control-btn:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 91, 1, 0.88);
+    }
+
+    .control-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      transform: none;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .control-text {
+      min-width: 118px;
+      text-align: center;
+      font-size: 14px;
+      line-height: 1.4;
+      color: rgba(255, 255, 255, 0.76);
+    }
+
+    .top-progress {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 4px;
+      z-index: 30;
+      background: rgba(32, 29, 27, 0.06);
+    }
+
+    .top-progress > span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #ff5b01, #ff8f50);
+      transition: width 360ms var(--ease);
+    }
+
+    .side-hotspot {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      width: 12vw;
+      z-index: 5;
+      background: transparent;
+      border: 0;
+      padding: 0;
+      appearance: none;
+      cursor: pointer;
+    }
+
+    .side-hotspot.left {
+      left: 0;
+    }
+
+    .side-hotspot.right {
+      right: 0;
+    }
+
+    .hint-box {
+      position: fixed;
+      left: 24px;
+      bottom: 22px;
+      z-index: 20;
+      padding: 12px 16px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(32, 29, 27, 0.08);
+      color: #58606a;
+      font-size: 14px;
+      line-height: 1.5;
+      backdrop-filter: blur(10px);
+    }
+
+    .accent-line {
+      width: 110px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--brand);
+      margin: 6px 0 10px;
+    }
+
+    .qna-mark {
+      font-size: 170px;
+      line-height: 0.9;
+      letter-spacing: -0.08em;
+      font-weight: 900;
+      color: var(--brand);
+    }
+
+    .reduced-motion *,
+    .reduced-motion *::before,
+    .reduced-motion *::after {
+      animation: none !important;
+      transition-duration: 1ms !important;
+      transition-delay: 0ms !important;
+    }
+
+    @keyframes gridDrift {
+      0% {
+        transform: translate3d(0, 0, 0);
+      }
+      50% {
+        transform: translate3d(-12px, -10px, 0);
+      }
+      100% {
+        transform: translate3d(0, 0, 0);
+      }
+    }
+
+    @keyframes orbitFloat {
+      0%, 100% {
+        transform: translate3d(0, 0, 0) rotate(0deg);
+      }
+      50% {
+        transform: translate3d(18px, -12px, 0) rotate(4deg);
+      }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 0.85;
+      }
+      50% {
+        transform: scale(1.08);
+        opacity: 0.45;
+      }
+    }
+
+    @keyframes arrowRun {
+      0%, 100% {
+        transform: scaleX(1);
+        opacity: 0.92;
+      }
+      50% {
+        transform: scaleX(1.07);
+        opacity: 1;
+      }
+    }
+
+    @keyframes softBlink {
+      0%, 100% {
+        opacity: 0.45;
+      }
+      50% {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-grid"></div>
+  <div class="ambient-orbit"></div>
+  <div class="ambient-pulse"></div>
+
+  <div id="app">
+    <div class="top-progress" aria-hidden="true"><span id="progressBar"></span></div>
+    <button class="side-hotspot left" id="prevHotspot" aria-label="上一页"></button>
+    <button class="side-hotspot right" id="nextHotspot" aria-label="下一页"></button>
+
+    <div id="stage-shell">
+      <main id="stage" aria-live="polite">
+        <section class="slide active" data-slide-title="封面">
+          <div class="slide-content">
+            <div class="page-meta reveal" style="--delay:40ms">
+              <span class="micro-label">AI Frontend Sharing</span>
+              <span>01 / 18</span>
+            </div>
+            <div class="flex flex-col justify-center gap-8">
+              <div class="reveal" style="--delay:120ms">
+                <div class="accent-line"></div>
+                <h1 class="headline headline-xl">AI 是如何在前端开发流程中应用的</h1>
+              </div>
+              <p class="subtitle reveal" style="--delay:200ms">从个人工作流，到 Agent 原理，再到团队实践。不是把判断交给 AI，而是把执行效率放大。</p>
+              <div class="cover-rail reveal" style="--delay:280ms">
+                <span class="cover-tag">分享人：XXX</span>
+                <span class="cover-tag">面向：产品 / 前端 / 后端 / 测试 / 设计 / 技术负责人</span>
+              </div>
+            </div>
+            <div class="footer-bar reveal" style="--delay:360ms">
+              <div class="footer-quote">浅色底、流程线、橙色重点，先把主线建立起来。</div>
+              <div class="page-chip">一页一重点</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide right" data-slide-title="全篇主线">
+          <div class="slide-content">
+            <div class="page-meta"><span class="micro-label">Agenda</span><span>02 / 18</span></div>
+            <div class="grid grid-rows-[auto_auto_1fr] gap-10">
+              <h2 class="title reveal" style="--delay:80ms">这场分享的主线</h2>
+              <p class="quote reveal" style="--delay:150ms">AI 不是替你做判断，而是把执行这件事放大了。</p>
+              <div class="grid grid-cols-4 gap-5 reveal" style="--delay:240ms">
+                <article class="panel">
+                  <div class="panel-index">01</div>
+                  <div class="panel-title">工作流</div>
+                  <div class="panel-copy">怎么把 AI 放进开发流程，而不是只把它当问答机器人。</div>
+                </article>
+                <article class="panel">
+                  <div class="panel-index">02</div>
+                  <div class="panel-title">Agent 原理</div>
+                  <div class="panel-copy">为什么它看起来像会自己干活，本质上其实是循环决策。</div>
+                </article>
+                <article class="panel">
+                  <div class="panel-index">03</div>
+                  <div class="panel-title">学习方法</div>
+                  <div class="panel-copy">如何持续跟进变化，又不被信息洪流淹没。</div>
+                </article>
+                <article class="panel">
+                  <div class="panel-index">04</div>
+                  <div class="panel-title">团队实践</div>
+                  <div class="panel-copy">怎么把 Agent 变成团队级的执行力，而不是个人玩具。</div>
+                </article>
+              </div>
+            </div>
+            <div class="footer-bar reveal" style="--delay:320ms">
+              <span class="tiny-note">从怎么用，到为什么能这样用，再到团队怎么放大价值。</span>
+              <div class="page-chip">主线先行</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide right" data-slide-title="AI 常见翻车模式">
+          <div class="slide-content">
+            <div class="page-meta"><span class="micro-label">Risk</span><span>03 / 18</span></div>
+            <div class="grid grid-rows-[auto_1fr] gap-8">
+              <h2 class="title reveal" style="--delay:80ms">为什么不能一上来就让 AI 直接写？</h2>
+              <div class="grid grid-cols-2 gap-5">
+                <article class="panel reveal" style="--delay:140ms">
+                  <div class="panel-index">1</div>
+                  <div class="panel-title">自信地写错</div>
+                  <div class="panel-copy">最危险的不是不会，而是很像会。看起来像正确答案，细节却偏了。</div>
+                </article>
+                <article class="panel reveal" style="--delay:200ms">
+                  <div class="panel-index">2</div>
+                  <div class="panel-title">重复造轮子</div>
+                  <div class="panel-copy">不理解现有代码资产时，最容易把已经存在的能力再写一遍。</div>
+                </article>
+                <article class="panel reveal" style="--delay:260ms">
+                  <div class="panel-index">3</div>
+                  <div class="panel-title">漏看上下文</div>
+                  <div class="panel-copy">改一个文件，影响三个模块。没把上下文带够，输出就会变脆。</div>
+                </article>
+                <article class="panel reveal" style="--delay:320ms">
+                  <div class="panel-index">4</div>
+                  <div class="panel-title">能跑，但难维护</div>
+                  <div class="panel-copy">局部可运行不等于系统可维护。架构、约束、边界都可能被悄悄破坏。</div>
+                </article>
+              </div>
+            </div>
+            <div class="footer-bar reveal" style="--delay:380ms">
+              <div class="footer-quote">很多时候，问题不是 AI 完全不会做，而是它很容易做得“像对的一样”。</div>
+              <div class="page-chip">先控风险</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide right" data-slide-title="PEV 工作流">
+          <div class="slide-content">
+            <div class="page-meta"><span class="micro-label">Workflow</span><span>04 / 18</span></div>
+            <div class="grid grid-rows-[auto_1fr_auto] gap-8">
+              <h2 class="title reveal" style="--delay:80ms">PEV 工作流</h2>
+              <div class="flow-row reveal" style="--delay:170ms">
+                <div class="flow-box">
+                  <div class="flow-title">Plan</div>
+                  <div class="flow-sub">先把需求、上下文、约束说清楚。</div>
+                </div>
+                <div class="arrow-link" aria-hidden="true"></div>
+                <div class="flow-box">
+                  <div class="flow-title">Execute</div>
+                  <div class="flow-sub">让 AI 执行，但只在明确边界内执行。</div>
+                </div>
+                <div class="arrow-link" aria-hidden="true"></div>
+                <div class="flow-box">
+                  <div class="flow-title">Verify</div>
+                  <div class="flow-sub">最后由人来做质量把关和风险确认。</div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between gap-6 reveal" style="--delay:260ms">
+                <p class="quote !text-[32px] !max-w-[960px]">先想清楚，再让它做，最后认真验。人做决策，AI 做执行。</p>
+                <div class="grid grid-cols-2 gap-4 min-w-[390px]">
+                  <div class="kpi">
+                    <div class="kpi-value">1</div>
+                    <div class="kpi-label">一页只讲一个动作链路</div>
+                  </div>
+                  <div class="kpi">
+                    <div class="kpi-value">3</div>
+                    <div class="kpi-label">三个阶段，职责边界非常清晰</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="footer-bar">
+              <span class="tiny-note">这不是拖慢 AI，而是让速度和质量同时成立。</span>
+              <div class="page-chip">Plan → Execute → Verify</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide right" data-slide-title="PLAN">
+          <div class="slide-content">
+            <div class="page-meta"><span class="micro-label">Plan</span><span>05 / 18</span></div>
+            <div class="grid grid-cols-[0.95fr_1.05fr] gap-7">
+              <div class="grid content-start gap-5">
+                <h2 class="title reveal" style="--delay:80ms">PLAN：先出计划，不先写代码</h2>
+                <article class="panel reveal" style="--delay:150ms">
+                  <div class="panel-title">先给 Agent 三样东西</div>
+                  <div class="mt-4 grid gap-3">
+                    <div class="list-line"><span class="list-dot"></span><span>需求描述：你已经整理过的目标和口径</span></div>
+                    <div class="list-line"><span class="list-dot"></span><span>PRD 原文：补足细节、边界、业务语义</span></div>
+                    <div class="list-line"><span class="list-dot"></span><span>约束条件：目录、规范、依赖、风险、时限</span></div>
+                  </div>
+                </article>
+              </div>
+              <div class="grid grid-cols-2 gap-5 content-start reveal" style="--delay:230ms">
+                <article class="panel">
+                  <div class="panel-title">任务拆解</div>
+                  <div class="panel-copy">先拆成可执行块，再决定谁做什么。</div>
+                </article>
+                <article class="panel">
+                  <div class="panel-title">关键文件</div>
+                  <div class="panel-copy">明确入口、依赖点、影响范围，不盲改。</div>
+                </article>
+                <article class="panel">
+                  <div class="panel-title">架构权衡</div>
+                  <div class="panel-copy">把“这样做的代价”先说出来，而不是事后补锅。</div>
+                </article>
+                <article class="panel">
+                  <div class="panel-title">实施步骤</div>
+                  <div class="panel-copy">先后顺序清楚，验证点清楚，才能放行。</div>
+                </article>
+              </div>
+            </div>
+            <div class="footer-bar reveal" style="--delay:310ms">
+              <div class="footer-quote">先看清方向，再让 AI 动手。</div>
+              <div class="page-chip">Spec First</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide right" data-slide-title="放行执行">
+          <div class="slide-content">
+            <div class="page-meta"><span class="micro-label">Release</span><span>06 / 18</span></div>
+            <div class="grid grid-rows-[auto_1fr] gap-8">
+              <h2 class="title reveal" style="--delay:80ms">确认方案后，再放行执行</h2>
+              <div class="grid grid-rows-3 gap-5">
+                <article class="band reveal" style="--delay:150ms">
+                  <div class="band-title">先审查计划</div>
+                  <div>
+                    <span class="step-chip">步骤是否合理</span>
+                    <span class="step-chip">场景是否遗漏</span>
+                    <span class="step-chip">范围是否清楚</span>
+                  </div>
+                </article>
+                <article class="band reveal" style="--delay:220ms">
+                  <div class="band-title">再给反馈（如果需要）</div>
+                  <div>
+                    <span class="step-chip">提出疑问</span>
+                    <span class="step-chip">调整方案</span>
+                    <span class="step-chip">补充需求</span>
+                  </div>
+                </article>
+                <article class="band reveal" style="--delay:290ms">
+                  <div class="band-title">最后放行执行</div>
+                  <div>
+                    <span class="step-chip">AI 开始写代码</span>
+                    <span class="step-chip">按规则执行</span>
+                    <span class="step-chip">补测试并跑校验</span>
+                  </div>
+                </article>
+              </div>
+            </div>
+            <div class="footer-bar reveal" style="--delay:360ms">
+              <div class="footer-quote">先把方案看对、想全、调顺，再放行执行。</div>
+              <div class="page-chip">审查先于执行</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide right" data-slide-title="质量把关">
+          <div class="slide-content">
+            <div class="page-meta"><span class="micro-label">Verify</span><span>07 / 18</span></div>
+            <div class="grid grid-rows-[auto_1fr] gap-8">
+              <h2 class="title reveal" style="--delay:80ms">人做最后的质量把关</h2>
+              <div class="grid grid-cols-2 gap-5">
+                <article class="panel reveal" style="--delay:160ms">
+                  <div class="panel-title">Code Review</div>
+                  <div class="grid gap-3 mt-5">
+                    <div class="list-line"><span class="list-dot"></span><span>风格和架构是否一致</span></div>
+                    <div class="list-line"><span class="list-dot"></span><span>有没有重复逻辑和隐藏耦合</span></div>
+                    <div class="list-line"><span class="list-dot"></span><span>是否引入安全隐患</span></div>
+                    <div class="list-line"><span class="list-dot"></span><span>类型和边界是否足够严谨</span></div>
+                  </div>
+                </article>
+                <article class="panel reveal" style="--delay:240ms">
+                  <div class="panel-title">功能自测</div>
+                  <div class="grid gap-3 mt-5">
+                    <div class="list-line"><span class="list-dot"></span><span>流程完整，按钮和状态都能走通</span></div>
+                    <div class="list-line"><span class="list-dot"></span><span>交互流畅，没有明显卡顿和跳变</span></div>
+                    <div class="list-line"><span class="list-dot"></span><span>错误提示清楚，用户能知道下一步</span></div>
+                    <div class="list-line"><span class="list-dot"></span><span>响应式布局不变形，不裁切</span></div>
+                  </div>
+                </article>
+              </div>
+            </div>
+            <div class="footer-bar reveal" style="--delay:320ms">
+              <div class="footer-quote">AI 加快的是产出速度，人负责最后的质量把关。</div>
+              <div class="page-chip">Review + Self Test</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide right" data-slide-title="修 Bug 的闭环">
+          <div class="slide-content">
+            <div class="page-meta"><span class="micro-label">Bug Loop</span><span>08 / 18</span></div>
+            <div class="grid grid-rows-[auto_1fr_auto] gap-8">
+              <h2 class="title reveal" style="--delay:80ms">发现 Bug 后，不是直接修，而是先写红测</h2>
+              <div class="flow-row reveal" style="--delay:160ms">
+                <div class="flow-box !w-[250px] !min-h-[150px]">
+                  <div class="flow-title !text-[28px]">发现 Bug</div>
+                </div>
+                <div class="arrow-link"></div>
+                <div class="flow-box !w-[250px] !min-h-[150px]">
+                  <div class="flow-title !text-[28px]">写失败测试</div>
+                </div>
+                <div class="arrow-link"></div>
+                <div class="flow-box !w-[250px] !min-h-[150px]">
+                  <div class="flow-title !text-[28px]">修代码</div>
+                </div>
+                <div class="arrow-link"></div>
+                <div class="flow-box !w-[250px] !min-h-[150px]">
+                  <div class="flow-title !text-[28px]">测试通过</div>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-5 reveal" style="--delay:240ms">
+                <article class="panel">
+                  <div class="panel-title">先复现，再修复</div>
+                  <div class="panel-copy">没有红测，Bug 只是“看起来好了”；有红测，Bug 才真正被关进闭环。</div>
+                </article>
+                <article class="panel">
+                  <div class="panel-title">修 Bug 不靠感觉</div>
+                  <div class="panel-copy">靠可重复验证的路径，把“偶尔好使”变成“稳定正确”。</div>
+                </article>
+              </div>
+            </div>
+            <div class="footer-bar">
+              <span class="tiny-note">最后回到 Verify，形成可验证、可追溯、可维护的修复流程。</span>
+              <div class="page-chip">Red Test First</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide section-cover right" data-slide-title="第二部分封页">
+          <div class="slide-content">
+            <div class="page-meta"><span class="micro-label">Part 02</span><span>09 / 18</span></div>
+            <div class="flex flex-col justify-center gap-8">
+              <div class="reveal" style="--delay:80ms">
+                <div class="accent-line !bg-white"></div>
+                <h2 class="headline">第二部分：AI Agent 的运行原理</h2>
+              </div>
+              <p class="subtitle reveal" style="--delay:180ms">为什么它看起来像会自己干活？这一部分统一用“查天气”这个例子讲清楚。</p>
+              <div class="flex gap-4 reveal" style="--delay:260ms">
+                <span class="badge">有上下文</span>
+                <span class="badge">会调工具</span>
+                <span class="badge">会循环判断</span>
+              </div>
+            </div>
+            <div class="footer-bar reveal" style="--delay:320ms">
+              <span class="tiny-note">理解原理后，使用边界、信任边界、产品形态都会更清楚。</span>
+              <div class="page-chip">From Magic to Mechanism</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide right" data-slide-title="一轮轮工作">
+          <div class="slide-content">
+            <div class="page-meta"><span class="micro-label">Loop</span><span>10 / 18</span></div>
+            <div class="grid grid-rows-[auto_1fr_auto] gap-7">
+              <h2 class="title reveal" style="--delay:80ms">Agent 是怎么一轮轮工作的？</h2>
+              <div class="grid grid-cols-[0.9fr_1.1fr] gap-5">
+                <div class="code-card reveal" style="--delay:160ms"><span class="code-copy">while (!taskComplete) {
+  const </span><span class="code-key">response</span><span class="code-copy"> = </span><span class="code-fn">LLM</span><span class="code-copy">(messages, tools);
+
+  if (response.toolCalls) {
+    const results = </span><span class="code-fn">executeTools</span><span class="code-copy">(response.toolCalls);
+    messages.push(...results);
+  } else {
+    return response.content;
+  }
+}</span></div>
+                <div class="panel reveal" style="--delay:240ms">
+                  <div class="panel-title">循环流程图</div>
+                  <div class="grid gap-4 mt-5">
+                    <div class="flow-row !justify-start !min-h-0 !gap-4">
+                      <div class="flow-box !w-[220px] !min-h-[110px]">
+                        <div class="flow-title !text-[25px]">读上下文</div>
+                      </div>
+                      <div class="arrow-link !w-[60px]"></div>
+                      <div class="flow-box !w-[220px] !min-h-[110px]">
+                        <div class="flow-title !text-[25px]">LLM 判断</div>
+                      </div>
+                    </div>
+                    <div class="flow-row !justify-start !min-h-0 !gap-4">
+                      <div class="flow-box !w-[220px] !min-h-[110px]">
+                        <div class="flow-title !text-[25px]">要不要调工具？</div>
+                      </div>
+                      <div class="arrow-link !w-[60px]"></div>
+                      <div class="flow-box !w-[220px] !min-h-[110px]">
+                        <div class="flow-title !text-[25px]">执行 / 返回</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="footer-bar reveal" style="--delay:320ms">
+                <div class="footer-quote">Agent 不是一次性把答案想完，而是带着最新上下文一轮轮继续判断和执行。</div>
+                <div class="page-chip">Looping Agent</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide right" data-slide-title="messages 变长">
+          <div class="slide-content">
+            <div class="page-meta"><span class="micro-label">Messages</span><span>11 / 18</span></div>
+            <div class="grid grid-rows-[auto_1fr_auto] gap-7">
+              <h2 class="title reveal" style="--delay:80ms">messages 为什么会越来越长？</h2>
+              <div class="grid grid-cols-3 gap-5">
+                <article class="message-box reveal" style="--delay:160ms">
+                  <h4>第一次传给 LLM</h4>
+                  <div class="message-line"><span class="message-role">system</span><span>你是一个 agent，需要优先使用工具获取实时信息。</span></div>
+                  <div class="message-line"><span class="message-role">user</span><span>帮我查一下杭州今天的天气。</span></div>
+                </article>
+                <article class="message-box reveal" style="--delay:230ms">
+                  <h4>LLM 返回</h4>
+                  <div class="message-line"><span class="message-role">tool call</span><span>name: <strong>getWeather</strong></span></div>
+                  <div class="message-line"><span class="message-role">arguments</span><span>{ city: "杭州" }</span></div>
+                </article>
+                <article class="message-box reveal" style="--delay:300ms">
+                  <h4>第二次传给 LLM</h4>
+                  <div class="message-line"><span class="message-role">assistant</span><span>调用工具 getWeather({ city: "杭州" })</span></div>
+                  <div class="message-line"><span class="message-role">tool</span><span>杭州，晴，25°C，东北风 2 级。</span></div>
+                  <div class="message-line"><span class="message-role">next</span><span>模型带着完整上下文进入下一轮判断。</span></div>
+                </article>
+              </div>
+              <div class="footer-bar reveal" style="--delay:360ms">
+                <div class="footer-quote">下一轮不是重新开始，而是把上一轮的 tool call 和工具结果一起带回去。</div>
+                <div class="page-chip">Context Accumulates</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide right" data-slide-title="tools">
+          <div class="slide-content">
+            <div class="page-meta"><span class="micro-label">Tools</span><span>12 / 18</span></div>
+            <div class="grid grid-rows-[auto_1fr_auto] gap-7">
+              <h2 class="title reveal" style="--delay:80ms">LLM 为什么不只是会回答，还能调用工具？</h2>
+              <div class="grid grid-cols-[1.05fr_0.95fr] gap-5">
+                <div class="code-card reveal" style="--delay:160ms"><span class="code-copy">const </span><span class="code-key">tools</span><span class="code-copy"> = {
+  getWeather: {
+    description: </span><span class="code-str">"查询指定城市的实时天气"</span><span class="code-copy">,
+    execute: ({ city }) =&gt; </span><span class="code-str">`${city}，晴，25°C，东北风 2 级`</span><span class="code-copy">
+  }
+};
+
+const call = { name: </span><span class="code-str">"getWeather"</span><span class="code-copy">, args: { city: </span><span class="code-str">"杭州"</span><span class="code-copy"> } };
+const result = tools[call.name].execute(call.args);</span></div>
+                <div class="panel reveal" style="--delay:240ms">
+                  <div class="panel-title">把 tools 理解成一张菜单</div>
+                  <div class="grid gap-4 mt-5">
+                    <div class="list-line"><span class="list-dot"></span><span><strong>tools</strong>：菜单上有哪些服务可以点</span></div>
+                    <div class="list-line"><span class="list-dot"></span><span><strong>name</strong>：点的是哪一项服务</span></div>
+                    <div class="list-line"><span class="list-dot"></span><span><strong>args</strong>：这次具体要什么</span></div>
+                    <div class="list-line"><span class="list-dot"></span><span><strong>execute()</strong>：后台真正把事情做完</span></div>
+                    <div class="list-line"><span class="list-dot"></span><span><strong>result</strong>：最终返回给模型的结果</span></div>
+                  </div>
+                  <div class="divider-line"></div>
+                  <div class="quote !text-[28px] !max-w-none">LLM 更像是在下单，不是在亲自做事。</div>
+                </div>
+              </div>
+              <div class="footer-bar reveal" style="--delay:320ms">
+                <div class="footer-quote">LLM 负责决定“调用什么”，外层程序负责真正“把事情做完”。</div>
+                <div class="page-chip">Decision vs Execution</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide right" data-slide-title="一句话理解 Agent">
+          <div class="slide-content">
+            <div class="page-meta"><span class="micro-label">Summary</span><span>13 / 18</span></div>
+            <div class="grid grid-rows-[1fr_auto] gap-10">
+              <div class="flex flex-col justify-center gap-10">
+                <h2 class="quote reveal !text-[58px]" style="--delay:120ms">Agent 不是魔法，它只是把“会回答”变成了“会行动”。</h2>
+                <div class="grid grid-cols-3 gap-5 reveal" style="--delay:220ms">
+                  <article class="panel">
+                    <div class="panel-title">每一轮都重读上下文</div>
+                    <div class="panel-copy">它不是失忆式工作，而是持续把当前状态带入下一轮。</div>
+                  </article>
+                  <article class="panel">
+                    <div class="panel-title">LLM 决定是否调工具</div>
+                    <div class="panel-copy">先判断，再选择能力，不是无脑生成一大段文字。</div>
+                  </article>
+                  <article class="panel">
+                    <div class="panel-title">结果再回到上下文</div>
+                    <div class="panel-copy">工具结果成为下一轮依据，所以它看起来像“会推进任务”。</div>
+                  </article>
+                </div>
+              </div>
+              <div class="footer-bar reveal" style="--delay:320ms">
+                <span class="tiny-note">把这个机制理解透，很多“智能感”就会从神秘变成工程实现。</span>
+                <div class="page-chip">Answer → Act</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide right" data-slide-title="持续跟进 AI">
+          <div class="slide-content">
+            <div class="page-meta"><span class="micro-label">Learning</span><span>14 / 18</span></div>
+            <div class="grid grid-rows-[auto_1fr_auto] gap-8">
+              <h2 class="title reveal" style="--delay:80ms">怎么持续跟进 AI 变化</h2>
+              <p class="quote !text-[34px] reveal" style="--delay:150ms">不是追所有变化，而是建立感知，然后在需要的时候快速深入。</p>
+              <div class="grid grid-cols-3 gap-5 reveal" style="--delay:230ms">
+                <article class="panel">
+                  <div class="panel-index">1</div>
+                  <div class="panel-title">GitHub Trending 保持感知</div>
+                  <div class="panel-copy">知道大家在解决什么问题，而不是知道每一个名词。</div>
+                </article>
+                <article class="panel">
+                  <div class="panel-index">2</div>
+                  <div class="panel-title">AI 辅助读源码</div>
+                  <div class="panel-copy">把“读懂一个项目”从几天压缩到几个小时，快速抓主骨架。</div>
+                </article>
+                <article class="panel">
+                  <div class="panel-index">3</div>
+                  <div class="panel-title">固定关注高质量信息源</div>
+                  <div class="panel-copy">官方文档优先，社区讨论精选，不被噪音带着跑。</div>
+                </article>
+              </div>
+            </div>
+            <div class="footer-bar reveal" style="--delay:310ms">
+              <div class="footer-quote">核心不是追热点，而是保持方向感。</div>
+              <div class="page-chip">Sense, Then Dive</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide right" data-slide-title="从代码助手到业务助手">
+          <div class="slide-content">
+            <div class="page-meta"><span class="micro-label">Business</span><span>15 / 18</span></div>
+            <div class="grid grid-rows-[auto_1fr_auto] gap-8">
+              <h2 class="title reveal" style="--delay:80ms">从代码助手，到业务助手</h2>
+              <p class="quote !text-[34px] reveal" style="--delay:150ms">AI 能不能不只是代码助手，还能变成业务助手？</p>
+              <div class="flow-row reveal" style="--delay:230ms">
+                <div class="flow-box !w-[360px]">
+                  <div class="flow-title">后端 API</div>
+                  <div class="flow-sub">已有系统能力、权限和业务逻辑都在这里。</div>
+                </div>
+                <div class="arrow-link !w-[120px]"></div>
+                <div class="flow-box !w-[300px]">
+                  <div class="flow-title">CLI 命令</div>
+                  <div class="flow-sub">换成更适合 Agent 调用的暴露方式。</div>
+                </div>
+                <div class="arrow-link !w-[120px]"></div>
+                <div class="flow-box !w-[300px]">
+                  <div class="flow-title">Agent</div>
+                  <div class="flow-sub">用自然语言组织执行链路和自动化规则。</div>
+                </div>
+              </div>
+            </div>
+            <div class="footer-bar reveal" style="--delay:320ms">
+              <div class="footer-quote">把已有系统能力，换一种更适合 Agent 调用的暴露方式。</div>
+              <div class="page-chip">API → CLI → Agent</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide right" data-slide-title="低风险场景开始">
+          <div class="slide-content">
+            <div class="page-meta"><span class="micro-label">Landing</span><span>16 / 18</span></div>
+            <div class="grid grid-rows-[auto_1fr_auto] gap-8">
+              <h2 class="title reveal" style="--delay:80ms">建议从低风险场景开始</h2>
+              <div class="grid grid-cols-[0.96fr_1.04fr] gap-5">
+                <div class="terminal reveal" style="--delay:170ms">
+                  <div class="terminal-bar">
+                    <span class="terminal-dot"></span>
+                    <span class="terminal-dot"></span>
+                    <span class="terminal-dot"></span>
+                  </div>
+                  <div class="terminal-body"><span class="terminal-prompt">用户 &gt;</span> 查一下今天有多少笔待审批的付款
+<span class="terminal-answer">Agent &gt;</span> 当前有 12 笔待审批，其中 3 笔超 24 小时未处理
+
+<span class="terminal-prompt">用户 &gt;</span> 把金额最大的那笔详情给我看
+<span class="terminal-answer">Agent &gt;</span> PAY20260509087，USD 500,000
+
+<span class="terminal-prompt">用户 &gt;</span> 这笔交易的汇率是多少
+<span class="terminal-answer">Agent &gt;</span> USD/CNH = 7.2450</div>
+                </div>
+                <div class="grid gap-4 reveal" style="--delay:250ms">
+                  <article class="panel">
+                    <div class="panel-title">建议下一步</div>
+                    <div class="grid gap-3 mt-4">
+                      <div class="list-line"><span class="list-dot"></span><span>先做查询类 CLI，低风险、可观测、见效快</span></div>
+                      <div class="list-line"><span class="list-dot"></span><span>打通权限体系，确保 Agent 只能做被允许的事</span></div>
+                      <div class="list-line"><span class="list-dot"></span><span>留好审计日志，所有动作都可追踪</span></div>
+                      <div class="list-line"><span class="list-dot"></span><span>再逐步扩展到复杂操作，而不是一步到位</span></div>
+                    </div>
+                  </article>
+                  <article class="panel">
+                    <div class="panel-title">为什么先从低风险开始</div>
+                    <div class="panel-copy">因为你需要先建立信任、监控和回滚机制，再把执行范围慢慢放大。</div>
+                  </article>
+                </div>
+              </div>
+            </div>
+            <div class="footer-bar reveal" style="--delay:330ms">
+              <div class="footer-quote">先让 Agent 做“查”和“看”，再逐步让它做“改”和“执行”。</div>
+              <div class="page-chip">Low Risk First</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide section-cover right" data-slide-title="结束语">
+          <div class="slide-content">
+            <div class="page-meta"><span class="micro-label">Closing</span><span>17 / 18</span></div>
+            <div class="grid grid-rows-[auto_auto_1fr] gap-10">
+              <div class="reveal" style="--delay:90ms">
+                <div class="accent-line !bg-white"></div>
+                <h2 class="headline">最后想留给大家的一句话</h2>
+              </div>
+              <p class="quote !text-[48px] !text-white reveal" style="--delay:180ms">AI 能放大你的能力，但不能替代你的判断。</p>
+              <div class="summary-grid reveal" style="--delay:260ms">
+                <article class="summary-card">
+                  <h4>工具会越来越强</h4>
+                  <p>模型会更快、更便宜、更会调用工具，但这不自动等于结果正确。</p>
+                </article>
+                <article class="summary-card">
+                  <h4>速度会越来越快</h4>
+                  <p>写代码、出方案、做调研都在提速，真正稀缺的是判断和把关。</p>
+                </article>
+                <article class="summary-card">
+                  <h4>质量取决于规则</h4>
+                  <p>谁来定义边界、谁来设约束、谁来验收，依然是团队能力核心。</p>
+                </article>
+                <article class="summary-card">
+                  <h4>人要变成放大器</h4>
+                  <p>把经验、审美、风险意识结构化，才能让 AI 真正成为乘法器。</p>
+                </article>
+              </div>
+            </div>
+            <div class="footer-bar reveal" style="--delay:340ms">
+              <span class="tiny-note">真正值得持续打磨的，是你的判断、规则意识和质量把关能力。</span>
+              <div class="page-chip">Judgment Matters</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide right" data-slide-title="Q&A">
+          <div class="slide-content">
+            <div class="page-meta"><span class="micro-label">Q&A</span><span>18 / 18</span></div>
+            <div class="flex flex-col items-center justify-center text-center gap-8">
+              <div class="qna-mark reveal" style="--delay:90ms">Q&A</div>
+              <h2 class="headline !text-[70px] !max-w-none reveal" style="--delay:180ms">中间任何部分，如果你想继续展开，我们可以直接往下聊。</h2>
+              <p class="subtitle !max-w-[980px] reveal" style="--delay:250ms">欢迎继续追问工作流细节、Agent 原理、页面实现思路，或者直接讨论你们团队可以从哪里开始试。</p>
+            </div>
+            <div class="footer-bar reveal" style="--delay:320ms">
+              <span class="tiny-note">左右方向键、空格、按钮、触控左右滑动都可以翻页。</span>
+              <div class="page-chip">Thanks</div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="hint-box">
+      <div><strong>操作方式：</strong>左右方向键 / 空格 / 左右点击 / 触控滑动</div>
+      <div><strong>适配策略：</strong>固定 16:9 舞台按视口整体缩放，保证单屏完整展示</div>
+    </div>
+
+    <div class="control-bar" role="group" aria-label="翻页控制">
+      <button class="control-btn" id="prevBtn" aria-label="上一页">←</button>
+      <div class="control-text" id="counter">1 / 18<br>封面</div>
+      <button class="control-btn" id="nextBtn" aria-label="下一页">→</button>
+    </div>
+  </div>
+
+  <script>
+    const stage = document.getElementById("stage");
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const prevHotspot = document.getElementById("prevHotspot");
+    const nextHotspot = document.getElementById("nextHotspot");
+    const counter = document.getElementById("counter");
+    const progressBar = document.getElementById("progressBar");
+    const total = slides.length;
+    let current = 0;
+    let touchStartX = 0;
+    let wheelLocked = false;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.body.classList.add("reduced-motion");
+    }
+
+    function fitStage() {
+      const stageWidth = 1600;
+      const stageHeight = 900;
+      const scale = Math.min(window.innerWidth / stageWidth, window.innerHeight / stageHeight);
+      stage.style.transform = `scale(${scale})`;
+    }
+
+    function renderSlides(nextIndex, direction = 1) {
+      current = Math.max(0, Math.min(total - 1, nextIndex));
+      slides.forEach((slide, index) => {
+        slide.classList.remove("active", "left", "right");
+        if (index < current) {
+          slide.classList.add("left");
+        } else if (index > current) {
+          slide.classList.add("right");
+        }
+      });
+      slides[current].classList.add("active");
+      counter.innerHTML = `${current + 1} / ${total}<br>${slides[current].dataset.slideTitle}`;
+      progressBar.style.width = `${((current + 1) / total) * 100}%`;
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === total - 1;
+      prevHotspot.disabled = current === 0;
+      nextHotspot.disabled = current === total - 1;
+
+      slides[current].animate(
+        [
+          { transform: `translateX(${direction > 0 ? 30 : -30}px) scale(0.992)`, opacity: 0.72 },
+          { transform: "translateX(0) scale(1)", opacity: 1 }
+        ],
+        {
+          duration: document.body.classList.contains("reduced-motion") ? 1 : 420,
+          easing: "cubic-bezier(0.16,1,0.3,1)"
+        }
+      );
+    }
+
+    function nextSlide() {
+      if (current < total - 1) {
+        renderSlides(current + 1, 1);
+      }
+    }
+
+    function prevSlide() {
+      if (current > 0) {
+        renderSlides(current - 1, -1);
+      }
+    }
+
+    function onWheel(event) {
+      if (wheelLocked || Math.abs(event.deltaY) < 25) {
+        return;
+      }
+      wheelLocked = true;
+      if (event.deltaY > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+      window.setTimeout(() => {
+        wheelLocked = false;
+      }, 520);
+    }
+
+    prevBtn.addEventListener("click", prevSlide);
+    nextBtn.addEventListener("click", nextSlide);
+    prevHotspot.addEventListener("click", prevSlide);
+    nextHotspot.addEventListener("click", nextSlide);
+    window.addEventListener("resize", fitStage);
+    window.addEventListener("wheel", onWheel, { passive: true });
+
+    window.addEventListener("keydown", (event) => {
+      if (["ArrowRight", "PageDown", " ", "Enter"].includes(event.key)) {
+        event.preventDefault();
+        nextSlide();
+      }
+      if (["ArrowLeft", "PageUp", "Backspace"].includes(event.key)) {
+        event.preventDefault();
+        prevSlide();
+      }
+      if (event.key.toLowerCase() === "f") {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen?.();
+        } else {
+          document.exitFullscreen?.();
+        }
+      }
+    });
+
+    window.addEventListener("touchstart", (event) => {
+      touchStartX = event.changedTouches[0].clientX;
+    }, { passive: true });
+
+    window.addEventListener("touchend", (event) => {
+      const deltaX = event.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(deltaX) < 45) {
+        return;
+      }
+      if (deltaX < 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+    }, { passive: true });
+
+    fitStage();
+    renderSlides(0, 1);
+  </script>
+</body>
+</html>

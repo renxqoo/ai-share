@@ -1,0 +1,379 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - heading "AI 是如何在 前端开发流程中应用的" [level=1] [ref=e6]:
+        - text: AI 是如何在
+        - text: 前端开发流程中应用的
+      - paragraph [ref=e8]: 分享人：XXX
+      - paragraph [ref=e9]: 2026 / 05 / 12
+    - generic:
+      - generic:
+        - heading "今天主要讲四部分" [level=2]
+        - generic:
+          - generic:
+            - generic: "01"
+            - generic: 我的工作流
+            - generic: PEV 方法与实践
+          - generic:
+            - generic: "02"
+            - generic: Agent 原理
+            - generic: LLM + Tools + Loop
+          - generic:
+            - generic: "03"
+            - generic: 学习方法
+            - generic: 如何跟上 AI 节奏
+          - generic:
+            - generic: "04"
+            - generic: 团队实践
+            - generic: Agent + CLI 落地
+    - generic:
+      - generic:
+        - heading "为什么不能让 AI 一上来就写代码？" [level=2]
+        - generic:
+          - generic:
+            - generic: "1"
+            - generic:
+              - generic: 代码结构很快失控
+              - text: 一上来就写，缺少整体规划
+          - generic:
+            - generic: "2"
+            - generic:
+              - generic: 返工成本高
+              - text: 需要反复纠偏，来回修改
+          - generic:
+            - generic: "3"
+            - generic:
+              - generic: 代码质量差
+              - text: 功能能跑，但架构混乱
+          - generic:
+            - generic: "4"
+            - generic:
+              - generic: 维护成本高
+              - text: 最后还得人工重构
+        - generic:
+          - paragraph: 最大的问题不是写不出来，而是写出来以后越来越难收拾。
+    - generic:
+      - generic:
+        - heading "我现在常用的一套 AI 工作流：PEV" [level=2]
+        - generic:
+          - generic:
+            - document:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - text: Plan
+                              - text: 先想清楚
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - text: Execute
+                              - text: 让 AI 执行
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - text: Verify
+                              - text: 由人验收
+        - paragraph: 先想清楚，再让它做，最后认真验。
+        - paragraph: 人做决策，AI 做执行。
+    - generic:
+      - generic:
+        - heading "PLAN：先想清楚，再动手写代码" [level=2]
+        - generic:
+          - generic:
+            - heading "我会先给 AI 这三样东西" [level=3]
+            - list:
+              - listitem: 需求描述
+              - listitem: PRD 原文
+              - listitem: 约束条件
+          - generic:
+            - heading "AI 输出计划文档" [level=3]
+            - list:
+              - listitem: 任务拆解
+              - listitem: 影响范围
+              - listitem: 关键文件
+              - listitem: 验收标准
+              - listitem: 风险判断
+        - paragraph: 先让 AI 想方案，不要先让 AI 动手。
+    - generic:
+      - generic:
+        - heading "方案先过人，再放行执行" [level=2]
+        - generic:
+          - generic:
+            - heading "先看三件事" [level=3]
+            - generic:
+              - generic: 步骤对不对
+              - generic: 范围全不全
+              - generic: 风险大不大
+          - generic:
+            - generic: ↓
+          - generic:
+            - heading "再做三件事" [level=3]
+            - generic:
+              - generic: 提疑问
+              - generic: 调方案
+              - generic: 补边界
+          - generic:
+            - generic: ↓
+          - generic:
+            - heading "最后才执行" [level=3]
+            - generic:
+              - generic: 开始实现
+              - generic: 补测试
+              - generic: 跑校验
+        - paragraph: 不是 AI 想完就做，而是人看完再做。
+    - generic:
+      - generic:
+        - heading "VERIFY：真正决定质量的地方" [level=2]
+        - generic:
+          - generic:
+            - heading "Code Review 看什么" [level=3]
+            - list:
+              - listitem:
+                - generic: ✓
+                - text: 风格和架构
+              - listitem:
+                - generic: ✓
+                - text: 重复逻辑
+              - listitem:
+                - generic: ✓
+                - text: 安全问题
+              - listitem:
+                - generic: ✓
+                - text: 类型严谨性
+          - generic:
+            - heading "功能自测看什么" [level=3]
+            - list:
+              - listitem:
+                - generic: ●
+                - text: 流程完整
+              - listitem:
+                - generic: ●
+                - text: 交互顺畅
+              - listitem:
+                - generic: ●
+                - text: 错误提示
+              - listitem:
+                - generic: ●
+                - text: 响应式表现
+        - paragraph: AI 提高的是产出速度，人守住的是交付质量。
+    - generic:
+      - generic:
+        - heading "发现 Bug 后，先写红测，再修复" [level=2]
+        - generic:
+          - generic:
+            - document:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: 发现 Bug
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: 写失败测试
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: 修改代码
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: 测试通过
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: 回到 Verify
+        - paragraph: 先复现，再修复
+        - paragraph: 修 Bug 不靠感觉，靠可重复验证的闭环
+    - generic:
+      - generic:
+        - heading "AI Agent 实现原理" [level=2]
+        - paragraph: 为什么 AI 能帮你干活？
+        - generic:
+          - generic:
+            - text: LLM
+            - generic: 大模型
+          - generic: +
+          - generic:
+            - text: TOOLS
+            - generic: 工具
+          - generic: +
+          - generic:
+            - text: LOOP
+            - generic: 循环执行
+          - generic: =
+          - generic: AI Agent
+        - paragraph: 它看起来像在"自己干活"，本质上是因为它会结合上下文反复判断，并在需要时调用工具。
+    - generic:
+      - generic:
+        - heading "Agent 循环" [level=2]
+        - generic:
+          - generic:
+            - document:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: 自己能回答
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: 需要工具
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - text: 接收任务
+                              - text: 用户说一句话
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - text: LLM 思考
+                              - text: 这件事要怎么做
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: LLM 决定
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: 直接输出结果
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - text: 决定调用哪个工具
+                              - text: 传什么参数
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - text: 系统执行工具
+                              - text: 阅读文档 / 访问浏览器 / 写文件
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: 把工具结果返回给 LLM
+        - paragraph: Agent 的本质不是一次生成答案，而是"判断 → 调用工具 → 看结果 → 再判断"的循环。
+    - generic:
+      - generic:
+        - heading "Agent 的执行机制" [level=2]
+        - generic:
+          - generic:
+            - generic: "while (!taskComplete) { // 基于当前上下文和可用工具，判断下一步 const response = LLM(messages, tools); // 如果模型认为需要调用工具 if (response.toolCalls) { // 系统执行工具调用 const results = executeTools(response.toolCalls); // 把工具结果放回上下文 messages.push(...results); } else { // 不需要工具，直接输出 return response.content; } }"
+          - generic:
+            - generic:
+              - text: 第 1 轮
+              - paragraph: 用户：帮我查一下杭州今天的天气
+              - paragraph: LLM 判断：这是实时信息，不能直接编
+              - paragraph: 动作：调用天气工具
+            - generic:
+              - text: 第 2 轮
+              - paragraph: 工具返回：杭州，晴，25°C，东北风 2 级
+              - paragraph: LLM 判断：信息已经够了
+              - paragraph: 动作：整理结果，准备回复
+            - generic:
+              - text: 第 3 轮
+              - paragraph: 输出最终答案，循环结束
+        - paragraph: Agent 不是一次想完答案，而是带着最新上下文反复判断和执行。
+    - generic:
+      - generic:
+        - heading "messages 和 tools 是什么？" [level=2]
+        - generic:
+          - generic:
+            - heading "messages" [level=3]
+            - generic: "[ { \"role\": \"system\", \"content\": \"你是个人 AI 助手...\" }, { \"role\": \"user\", \"content\": \"帮我查一下杭州今天的天气\" }, { \"role\": \"assistant\", \"tool_calls\": [{ \"id\": \"call_1\", \"type\": \"function\", \"function\": { \"name\": \"get_weather\", \"arguments\": \"{\\\"city\\\":\\\"杭州\\\"}\" } }] }, { \"role\": \"tool\", \"tool_call_id\": \"call_1\", \"content\": \"杭州，晴，25°C\" }, { \"role\": \"assistant\", \"content\": \"杭州今天是晴天...\" }]"
+          - generic:
+            - heading "tools" [level=3]
+            - generic: "[ { \"type\": \"function\", \"function\": { \"name\": \"get_weather\", \"description\": \"查询指定城市的天气\", \"parameters\": { \"type\": \"object\", \"properties\": { \"city\": { \"type\": \"string\", \"description\": \"城市名称，例如：杭州\" } }, \"required\": [\"city\"] } } }]"
+        - paragraph: messages 决定它"看到了什么"，tools 决定它"能做什么"。
+    - generic:
+      - generic:
+        - heading "一句话理解 Agent" [level=2]
+        - paragraph:
+          - text: Agent 不是魔法，
+          - text: 它只是把"会回答"变成了"会行动"。
+        - generic:
+          - generic: 带着上下文反复调用模型
+          - generic: 模型决定要不要用工具
+          - generic: 工具结果回来后再继续下一轮
+    - generic:
+      - generic:
+        - heading "我是怎么学习 AI 的" [level=2]
+        - paragraph: 先关注新东西，再用 AI 帮我快速入门
+        - generic:
+          - generic:
+            - generic: "01"
+            - paragraph: GitHub Trending
+            - paragraph: 关注最火的项目
+            - paragraph: github.com/trending
+          - generic:
+            - generic: "02"
+            - paragraph: 用 AI 读源码
+            - paragraph: 让 AI 帮我理解新项目
+          - generic:
+            - generic: "03"
+            - paragraph: 关注大厂开源
+            - paragraph: 固定关注大厂 GitHub
+    - generic:
+      - generic:
+        - heading "我们能不能给 Agent 一套更好用的操作方式？" [level=2]
+        - paragraph: 既然 AI Agent 已经能处理信息和任务
+        - paragraph:
+          - text: 那我们公司的项目，能不能也提供一种
+          - text: 更适合 Agent 操作的方式？
+        - generic:
+          - generic: 不是重做系统
+          - generic: ·
+          - generic: 而是换一种更适合 Agent 操作的方式
+    - generic:
+      - generic:
+        - heading "思路：把业务操作变成 CLI 命令" [level=2]
+        - generic:
+          - generic: "# 查看待处理的付款单 saas payment list --status=pending # 查看某笔付款详情 saas payment detail --id=PAY20260509001 # 查询实时汇率 saas deal quote --pair=USD/CNH # 查看待审批列表 saas approval list --pending # 查询余额 saas balance check --currency=USD"
+        - paragraph: CLI 不是重做一套系统，而是给现有系统再加一层适合 Agent 调用的壳。
+    - generic:
+      - generic:
+        - heading "Agent 怎么接手这些业务动作？" [level=2]
+        - generic:
+          - generic:
+            - paragraph: 你：查一下今天有多少笔待审批的付款
+            - paragraph: Agent：执行 saas approval list --pending
+            - paragraph: 当前有 12 笔待审批付款，其中 3 笔超过 24 小时未处理
+          - generic:
+            - paragraph: 你：把金额最大的那笔详情给我看
+            - paragraph: Agent：执行 saas payment detail --id=PAY20260509087
+            - paragraph: 金额：USD 500,000，状态：待审批
+          - generic:
+            - paragraph: 你：这笔交易的汇率是多少？
+            - paragraph: Agent：执行 saas deal quote --pair=USD/CNH
+            - paragraph: 当前 USD/CNH 汇率：7.2450
+        - paragraph: 自然语言 → Agent → CLI → API → 结果返回
+    - generic:
+      - generic:
+        - paragraph: Q&A
+        - paragraph: 谢谢
+  - button "上一页" [ref=e14] [cursor=pointer]:
+    - img [ref=e15]
+  - button "下一页" [ref=e17] [cursor=pointer]:
+    - img [ref=e18]
+  - generic [ref=e39]: 1 / 18
