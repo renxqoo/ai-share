@@ -1,0 +1,4 @@
+interface:
+  display_name: "Requirement Delivery Flow"
+  short_description: "Turn requirements into reusable delivery steps"
+  default_prompt: "Use $requirement-delivery-flow to break a requirement into scope, architecture, implementation, verification, and reusable abstractions."

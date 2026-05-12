@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Merchant 入驻审核设计说明</title>
+    <script src="../vendor/tailwindcss-3.4.17.js"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                orange: "#FF5B01",
+                orangeHover: "#FF6C1B",
+                text: "#201D1B",
+                muted: "#A4A9B3",
+                subtle: "#99A5B6",
+                line: "#E5E6EB",
+                soft: "#F9F9F9",
+                shell: "#121211"
+              }
+            },
+            boxShadow: {
+              panel: "0 20px 60px rgba(0, 0, 0, 0.08)"
+            },
+            fontFamily: {
+              sans: [
+                "Roboto",
+                "\"HarmonyOS Sans SC\"",
+                "\"PingFang SC\"",
+                "\"Microsoft YaHei\"",
+                "sans-serif"
+              ]
+            }
+          }
+        }
+      };
+    </script>
+    <link href="../vendor/fonts.css" rel="stylesheet" />
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        color: #201d1b;
+        background:
+          radial-gradient(circle at top right, rgba(255, 91, 1, 0.12), transparent 20%),
+          linear-gradient(180deg, #121211 0, #181715 260px, #f6f3ef 260px, #f6f3ef 100%);
+      }
+
+      .prose-table table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .prose-table th,
+      .prose-table td {
+        border: 1px solid #e5e6eb;
+        padding: 12px 14px;
+        vertical-align: top;
+      }
+
+      .prose-table th {
+        background: #f9f9f9;
+        font-weight: 600;
+      }
+
+      .code-block {
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body class="font-sans">
+    <div class="min-h-screen">
+      <header class="border-b border-white/10">
+        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+          <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div class="max-w-3xl">
+              <p class="mb-3 inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-white/80">
+                设计查阅稿
+              </p>
+              <h1 class="text-4xl font-bold leading-tight text-white sm:text-5xl">
+                Merchant  kyc设计说明
+              </h1>
+              <p class="mt-4 max-w-2xl text-sm leading-6 text-white/70 sm:text-base">
+                这是由 Markdown 设计文档转换而来的可读版 HTML，视觉上遵循
+                <code>DESIGN.md</code> 中的黑白橙设计体系，便于实现、评审与查阅。
+              </p>
+            </div>
+            <div class="grid gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/80 sm:grid-cols-3 sm:gap-4">
+              <div>
+                <p class="text-xs uppercase tracking-[0.2em] text-white/50">核心规则</p>
+                <p class="mt-1 font-medium text-white">通过 <code>category</code> 分支</p>
+              </div>
+              <div>
+                <p class="text-xs uppercase tracking-[0.2em] text-white/50">Merchant 重点</p>
+                <p class="mt-1 font-medium text-white">Details / Review / Users</p>
+              </div>
+              <div>
+                <p class="text-xs uppercase tracking-[0.2em] text-white/50">Documents Tab</p>
+                <p class="mt-1 font-medium text-white">保持不变</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 lg:flex-row lg:px-8 lg:py-10">
+        <aside class="lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] lg:w-72 lg:flex-none">
+          <div class="rounded-3xl border border-brand-line bg-white p-5 shadow-panel">
+            <div class="mb-4 flex items-center justify-between">
+              <h2 class="text-lg font-semibold text-brand-text">目录</h2>
+              <span class="rounded-full bg-[rgba(255,91,1,0.08)] px-2 py-1 text-xs font-medium text-brand-orange">
+                快速跳转
+              </span>
+            </div>
+            <nav class="space-y-2 text-sm leading-6">
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#background">背景</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#scope">范围</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#primary-rule">核心规则</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#api-contract">API 约定</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#routing-rule">路由规则</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#classification">分类</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#tab-behavior">Tab 行为</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#merchant-page-design">Merchant 详情页</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#application-details">申请信息</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#business-information">业务信息</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#field-matrix">字段矩阵</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#conditional-rules">条件展示规则</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#empty-address-rules">空值与地址规则</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#enum-mapping">枚举映射</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#file-structure">文件结构</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#view-model-rules">视图模型规则</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#implementation-phases">实施阶段</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#verification-checklist">验证清单</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#risks">风险</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#non-goals">非目标</a>
+              <a class="block rounded-lg px-3 py-2 text-brand-text transition hover:bg-brand-soft hover:text-brand-orange" href="#final-decision-summary">最终决策摘要</a>
+            </nav>
+          </div>
+        </aside>
+
+        <div class="min-w-0 flex-1 space-y-6">
+          <section class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8">
+            <div class="grid gap-4 lg:grid-cols-3">
+              <div class="rounded-2xl bg-brand-soft p-5">
+                <p class="text-xs font-medium uppercase tracking-[0.2em] text-brand-muted">来源文件</p>
+                <p class="mt-2 text-sm font-medium text-brand-text">docs/merchant-onboarding-review-design.md</p>
+              </div>
+              <div class="rounded-2xl bg-brand-soft p-5">
+                <p class="text-xs font-medium uppercase tracking-[0.2em] text-brand-muted">输出形式</p>
+                <p class="mt-2 text-sm font-medium text-brand-text">独立 HTML + TailwindCSS</p>
+              </div>
+              <div class="rounded-2xl bg-brand-soft p-5">
+                <p class="text-xs font-medium uppercase tracking-[0.2em] text-brand-muted">查阅目的</p>
+                <p class="mt-2 text-sm font-medium text-brand-text">便于实现、评审与快速检索</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="background" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">背景</p>
+            <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">设计目的</h2>
+            <div class="mt-5 space-y-4 text-sm leading-7 text-brand-text sm:text-base prose-table">
+              <p>
+                本文档定义了在
+                <code>/Users/wrr/work/forex-kybc</code>
+                broker/admin 项目中支持
+                <code>Merchant</code>
+                入驻审核的前端实现方案。
+              </p>
+              <p>
+                目标是在保持现有 FX 入驻审核流程稳定的前提下，补充 Merchant 专属审核逻辑。
+              </p>
+              <p>本文档将作为后续代码实现的唯一设计依据。</p>
+            </div>
+          </section>
+
+          <section id="scope" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">范围</p>
+            <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">本次包含内容</h2>
+            <div class="mt-6 grid gap-6 lg:grid-cols-2">
+              <div class="rounded-2xl border border-brand-line p-5">
+                <h3 class="text-lg font-semibold text-brand-text">范围内</h3>
+                <ul class="mt-4 space-y-3 text-sm leading-6 text-brand-text">
+                  <li>onboarding 列表页 source/category 透传</li>
+                  <li>onboarding 详情页基于 source/category 的分支处理</li>
+                  <li>Merchant 专属 <code>Details</code> Tab 行为</li>
+                  <li>Merchant 专属 <code>Review</code> Tab 裁剪</li>
+                  <li>Merchant 专属 <code>Users</code> Tab 裁剪</li>
+                  <li><code>Documents</code> Tab 保持不变</li>
+                </ul>
+              </div>
+              <div class="rounded-2xl border border-brand-line p-5">
+                <h3 class="text-lg font-semibold text-brand-text">范围外</h3>
+                <ul class="mt-4 space-y-3 text-sm leading-6 text-brand-text">
+                  <li>Merchant 详情编辑提交实现</li>
+                  <li>Merchant 结算账户详情页实现</li>
+                  <li>后端 API 变更</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section id="primary-rule" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8">
+            <div class="rounded-2xl border border-brand-orange/20 bg-[rgba(255,91,1,0.05)] p-5">
+              <p class="text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">核心规则</p>
+              <h2 class="mt-2 text-2xl font-bold text-brand-text sm:text-3xl">Merchant 与 FX 必须通过 <code>category</code> 分流</h2>
+              <div class="mt-4 space-y-3 text-sm leading-7 text-brand-text sm:text-base">
+                <p>Merchant 与 FX 的分支判断必须由列表页/详情页路由参数 <code>category</code> 决定。</p>
+                <p>不要使用 <code>bizType</code> 来区分 Merchant 与 FX。</p>
+                <p>
+                  <code>bizType</code> 应继续表示现有 KYX 业务类型区分，例如
+                  <code>KYC / KYB / ID</code>。
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section id="api-contract" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">API 约定</p>
+            <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">数据来源规则</h2>
+            <div class="mt-6 space-y-6 text-sm leading-7 text-brand-text sm:text-base">
+              <div>
+                <h3 class="text-lg font-semibold text-brand-text">Onboarding 列表 API</h3>
+                <ul class="mt-3 space-y-2">
+                  <li>API: <code>/api/kyx/entity/manager/onboarding-list</code></li>
+                  <li>Merchant 来源字段：<code>category</code></li>
+                </ul>
+                <pre class="code-block mt-4 rounded-2xl bg-brand-shell p-5 text-sm leading-6 text-white"><code>{
+  "id": 32820,
+  "clientName": "123 PTY LTD",
+  "sourceId": "C61991036",
+  "accountType": 1,
+  "businessStructure": "Private Company",
+  "onboardingStatus": 1,
+  "type": "Organization",
+  "createdTime": "1776845393000",
+  "updatedTime": "1778316017890",
+  "bizType": 2,
+  "category": "Merchant"
+}</code></pre>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-brand-text">Onboarding 详情 API</h3>
+                <p class="mt-3">Merchant 业务详情数据返回在：</p>
+                <ul class="mt-2 space-y-2">
+                  <li><code>data.businessInfoVO.merchantBusinessDetails</code></li>
+                </ul>
+                <p class="mt-4">Merchant 申请摘要返回在：</p>
+                <ul class="mt-2 space-y-2">
+                  <li><code>data.businessInfoVO.applicationDetails</code></li>
+                </ul>
+                <p class="mt-4">Merchant 结算账户返回在：</p>
+                <ul class="mt-2 space-y-2">
+                  <li><code>data.businessInfoVO.merchantSettlementAccount</code></li>
+                </ul>
+                <pre class="code-block mt-4 rounded-2xl bg-brand-shell p-5 text-sm leading-6 text-white"><code>{
+  "data": {
+    "businessInfoVO": {
+      "applicationDetails": {},
+      "merchantBusinessDetails": {},
+      "merchantSettlementAccount": {}
+    }
+  }
+}</code></pre>
+              </div>
+            </div>
+          </section>
+
+          <section id="routing-rule" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">路由规则</p>
+            <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">路由参数策略</h2>
+            <div class="mt-6 space-y-6 text-sm leading-7 text-brand-text sm:text-base">
+              <div>
+                <h3 class="text-lg font-semibold text-brand-text">列表页</h3>
+                <p class="mt-3">onboarding 列表页必须将 <code>category</code> 透传到详情路由。</p>
+                <pre class="code-block mt-4 rounded-2xl bg-brand-shell p-5 text-sm leading-6 text-white"><code>/broker/onboarding-list/onboarding-detail?id=32820&amp;queryType=ONBOARDING&amp;type=Organization&amp;bizType=2&amp;category=Merchant</code></pre>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-brand-text">详情页</h3>
+                <p class="mt-3">详情页必须优先从路由参数中读取 category。</p>
+                <pre class="code-block mt-4 rounded-2xl bg-brand-shell p-5 text-sm leading-6 text-white"><code>const category =
+  searchParams.get('category') ||
+  searchParams.get('source') ||
+  kyxCommonInfo?.source;</code></pre>
+                <div class="mt-4 rounded-2xl bg-brand-soft p-5">
+                  <ul class="space-y-2">
+                    <li><code>category</code> 是新的唯一真实来源参数。</li>
+                    <li><code>source</code> 仅作为临时兼容兜底保留。</li>
+                    <li>如果 <code>category === 'Merchant'</code>，必须进入 Merchant 流程。</li>
+                    <li>否则默认保持现有 FX 兼容行为。</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="classification" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">分类</p>
+            <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">工作类型</h2>
+            <div class="mt-6 flex flex-wrap gap-3">
+              <span class="rounded-full bg-brand-shell px-4 py-2 text-sm font-medium text-white">ui</span>
+              <span class="rounded-full border border-brand-line px-4 py-2 text-sm font-medium text-brand-text">route branching</span>
+              <span class="rounded-full border border-brand-line px-4 py-2 text-sm font-medium text-brand-text">view-model mapping</span>
+              <span class="rounded-full border border-brand-line px-4 py-2 text-sm font-medium text-brand-text">detail rendering refactor</span>
+            </div>
+          </section>
+
+          <section id="tab-behavior" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8 prose-table">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">Tab 行为</p>
+            <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">FX 与 Merchant 对比</h2>
+            <div class="mt-6 overflow-hidden rounded-2xl border border-brand-line">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tab</th>
+                    <th>FX</th>
+                    <th>Merchant</th>
+                  </tr>
+                </thead>
+                <tbody class="text-sm leading-7 text-brand-text">
+                  <tr>
+                    <td><strong>Details</strong></td>
+                    <td>无行为变更，保留现有 FX 渲染逻辑。</td>
+                    <td>
+                      使用 Merchant 专属详情渲染器。不要复用现有 FX
+                      <code>BusinessInfo</code> 组合，因为它依赖
+                      <code>businessDetails</code>, <code>registeredOfficeAddress</code>,
+                      <code>principalBusinessAddress</code>, <code>mailingAddress</code>,
+                      <code>contactDetail</code>, <code>additionalInfo</code>, and
+                      <code>wholesales</code>。
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Review</strong></td>
+                    <td>无行为变更。</td>
+                    <td>
+                      保留 <code>Compliance Check</code> 和 <code>History Record</code>；移除
+                      <code>KybCheckSummary</code>、<code>KycCheckSummary</code> 和
+                      <code>Reports</code>。第一版中 <code>SimilarAccounts</code> 可以保留，除非产品明确要求移除。
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Users</strong></td>
+                    <td>无行为变更。</td>
+                    <td>保留列表展示，移除表格中的 <code>Action</code> 列。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Documents</strong></td>
+                    <td>无行为变更。</td>
+                    <td>Merchant 也保持不变。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="merchant-page-design" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">Merchant 详情页设计</p>
+            <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">Details Tab 结构</h2>
+            <div class="mt-6 grid gap-4 sm:grid-cols-2">
+              <div class="rounded-2xl border border-brand-line p-5">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-orange text-sm font-bold text-white">1</span>
+                <h3 class="mt-4 text-lg font-semibold text-brand-text">Application Details</h3>
+              </div>
+              <div class="rounded-2xl border border-brand-line p-5">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-orange text-sm font-bold text-white">2</span>
+                <h3 class="mt-4 text-lg font-semibold text-brand-text">Business Information</h3>
+              </div>
+            </div>
+          </section>
+
+          <section id="application-details" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">Merchant 申请信息</p>
+            <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">数据来源与字段</h2>
+            <div class="mt-5 rounded-2xl bg-brand-soft p-5 text-sm leading-7 text-brand-text sm:text-base">
+              <p>数据来源：<code>businessInfoVO.applicationDetails</code></p>
+            </div>
+            <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div class="rounded-2xl border border-brand-line p-4 text-sm font-medium text-brand-text">Account Type</div>
+              <div class="rounded-2xl border border-brand-line p-4 text-sm font-medium text-brand-text">Client ID</div>
+              <div class="rounded-2xl border border-brand-line p-4 text-sm font-medium text-brand-text">Date Created</div>
+              <div class="rounded-2xl border border-brand-line p-4 text-sm font-medium text-brand-text">Advisor name</div>
+            </div>
+          </section>
+
+          <section id="business-information" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">Merchant 业务信息</p>
+            <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">渲染来源与展示顺序</h2>
+            <div class="mt-5 rounded-2xl bg-brand-soft p-5 text-sm leading-7 text-brand-text sm:text-base">
+              <p>数据来源：<code>businessInfoVO.merchantBusinessDetails</code></p>
+              <p class="mt-2">展示顺序必须遵循 C 端提交页的结构。</p>
+            </div>
+            <div class="mt-6 overflow-hidden rounded-2xl border border-brand-line">
+              <ol class="divide-y divide-brand-line text-sm leading-7 text-brand-text sm:text-base">
+                <li class="px-5 py-4">1. 注册号信息区块</li>
+                <li class="px-5 py-4">2. <code>Business Registered Name</code></li>
+                <li class="px-5 py-4">3. <code>Registered Address</code></li>
+                <li class="px-5 py-4">4. 注册地址详情字段</li>
+                <li class="px-5 py-4">5. <code>Entity Type</code></li>
+                <li class="px-5 py-4">6. <code>Industry</code></li>
+                <li class="px-5 py-4">7. <code>Expected Monthly Transaction Volume</code></li>
+                <li class="px-5 py-4">8. <code>Business Model</code></li>
+                <li class="px-5 py-4">9. <code>Website URL</code></li>
+                <li class="px-5 py-4">10. <code>Operating Address</code></li>
+                <li class="px-5 py-4">11. 经营地址详情字段</li>
+              </ol>
+            </div>
+
+            <div class="mt-6 rounded-2xl border border-brand-orange/20 bg-[rgba(255,91,1,0.05)] p-5">
+              <h3 class="text-lg font-semibold text-brand-text">注册号信息区块</h3>
+              <div class="mt-3 space-y-2 text-sm leading-7 text-brand-text sm:text-base">
+                <p>不要将标签硬编码为 <code>ABN</code>。</p>
+                <p>详情 API 可能返回 <code>ABN</code>、<code>ACN</code> 或其他注册号类型。</p>
+                <p>UI 应根据 <code>registrationInfoList[i].type</code> 渲染。</p>
+                <ul class="mt-3 space-y-2">
+                  <li>如果 <code>registrationInfoList</code> 有数据，则逐项渲染。</li>
+                  <li>label = <code>item.type</code></li>
+                  <li>value = <code>item.number</code></li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section id="field-matrix" class="space-y-6">
+            <div class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8 prose-table">
+              <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">Merchant 字段矩阵</p>
+              <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">根字段</h2>
+              <div class="mt-6 overflow-x-auto rounded-2xl border border-brand-line">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>字段路径</th>
+                      <th>展示标签</th>
+                      <th>Type</th>
+                      <th>是否必填</th>
+                      <th>说明</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-sm leading-7 text-brand-text">
+                    <tr>
+                      <td><code>registrationInfoList[].number</code></td>
+                      <td><code>ABN/ACN/...</code></td>
+                      <td>text</td>
+                      <td>实际场景下是</td>
+                      <td>标签遵循 <code>registrationInfoList[].type</code></td>
+                    </tr>
+                    <tr>
+                      <td><code>businessRegisteredName</code></td>
+                      <td><code>Business Registered Name</code></td>
+                      <td>text</td>
+                      <td>是</td>
+                      <td>普通字符串</td>
+                    </tr>
+                    <tr>
+                      <td><code>entityType</code></td>
+                      <td><code>Entity Type</code></td>
+                      <td>enum number</td>
+                      <td>是</td>
+                      <td>通过 Merchant entity type 选项映射</td>
+                    </tr>
+                    <tr>
+                      <td><code>industry</code></td>
+                      <td><code>Industry</code></td>
+                      <td>enum string</td>
+                      <td>是</td>
+                      <td>直接展示</td>
+                    </tr>
+                    <tr>
+                      <td><code>transactionVolume</code></td>
+                      <td><code>Expected Monthly Transaction Volume</code></td>
+                      <td>enum string</td>
+                      <td>是</td>
+                      <td>直接展示</td>
+                    </tr>
+                    <tr>
+                      <td><code>businessModel</code></td>
+                      <td><code>Business Model</code></td>
+                      <td>enum string</td>
+                      <td>是</td>
+                      <td><code>Online / Offline / Both</code></td>
+                    </tr>
+                    <tr>
+                      <td><code>website</code></td>
+                      <td><code>Website URL</code></td>
+                      <td>text</td>
+                      <td>条件显示</td>
+                      <td>C 端在 model 为 <code>Online/Both</code> 时要求填写</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8 prose-table">
+              <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">注册地址字段</h2>
+              <div class="mt-6 overflow-x-auto rounded-2xl border border-brand-line">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>字段路径</th>
+                      <th>展示标签</th>
+                      <th>Type</th>
+                      <th>是否必填</th>
+                      <th>说明</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-sm leading-7 text-brand-text">
+                    <tr>
+                      <td><code>registeredAddress</code></td>
+                      <td><code>Registered Address</code></td>
+                      <td>address object</td>
+                      <td>是</td>
+                      <td>顶部摘要行显示格式化后的地址</td>
+                    </tr>
+                    <tr>
+                      <td><code>registeredAddress.address</code></td>
+                      <td><code>Address</code></td>
+                      <td>text</td>
+                      <td>是</td>
+                      <td>优先展示直接字段</td>
+                    </tr>
+                    <tr>
+                      <td><code>registeredAddress.propertyName</code></td>
+                      <td><code>Property name (if applicable)</code></td>
+                      <td>text</td>
+                      <td>否</td>
+                      <td>为空时显示 <code>Not filled</code></td>
+                    </tr>
+                    <tr>
+                      <td><code>registeredAddress.unitNumber</code></td>
+                      <td><code>Unit Number</code></td>
+                      <td>text</td>
+                      <td>否</td>
+                      <td>为空时显示 <code>Not filled</code></td>
+                    </tr>
+                    <tr>
+                      <td><code>registeredAddress.streetNumber</code></td>
+                      <td><code>Street Number</code></td>
+                      <td>text</td>
+                      <td>否</td>
+                      <td>为空时显示 <code>Not filled</code></td>
+                    </tr>
+                    <tr>
+                      <td><code>registeredAddress.streetName</code></td>
+                      <td><code>Street Name</code></td>
+                      <td>text</td>
+                      <td>是</td>
+                      <td>直接展示</td>
+                    </tr>
+                    <tr>
+                      <td><code>registeredAddress.suburb</code></td>
+                      <td><code>City/Suburb</code></td>
+                      <td>text</td>
+                      <td>是</td>
+                      <td>直接展示</td>
+                    </tr>
+                    <tr>
+                      <td><code>registeredAddress.state</code></td>
+                      <td><code>State/Province</code></td>
+                      <td>text</td>
+                      <td>是</td>
+                      <td>直接展示</td>
+                    </tr>
+                    <tr>
+                      <td><code>registeredAddress.postcode</code></td>
+                      <td><code>Postcode</code></td>
+                      <td>conditional</td>
+                      <td>条件必填</td>
+                      <td>C 端按国家规则处理</td>
+                    </tr>
+                    <tr>
+                      <td><code>registeredAddress.country</code></td>
+                      <td><code>Country</code></td>
+                      <td>text</td>
+                      <td>是</td>
+                      <td>直接展示</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8 prose-table">
+              <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">经营地址字段</h2>
+              <div class="mt-6 overflow-x-auto rounded-2xl border border-brand-line">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>字段路径</th>
+                      <th>展示标签</th>
+                      <th>Type</th>
+                      <th>是否必填</th>
+                      <th>说明</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-sm leading-7 text-brand-text">
+                    <tr>
+                      <td><code>operatingAddress</code></td>
+                      <td><code>Operating Address</code></td>
+                      <td>address object</td>
+                      <td>条件显示</td>
+                      <td>当 business model 要求展示，或地址已有值时展示</td>
+                    </tr>
+                    <tr>
+                      <td><code>operatingAddress.address</code></td>
+                      <td><code>Address</code></td>
+                      <td>text</td>
+                      <td>条件显示</td>
+                      <td>同上规则</td>
+                    </tr>
+                    <tr>
+                      <td><code>operatingAddress.propertyName</code></td>
+                      <td><code>Property name (if applicable)</code></td>
+                      <td>text</td>
+                      <td>否</td>
+                      <td>为空时显示 <code>Not filled</code></td>
+                    </tr>
+                    <tr>
+                      <td><code>operatingAddress.unitNumber</code></td>
+                      <td><code>Unit Number</code></td>
+                      <td>text</td>
+                      <td>否</td>
+                      <td>为空时显示 <code>Not filled</code></td>
+                    </tr>
+                    <tr>
+                      <td><code>operatingAddress.streetNumber</code></td>
+                      <td><code>Street Number</code></td>
+                      <td>text</td>
+                      <td>否</td>
+                      <td>为空时显示 <code>Not filled</code></td>
+                    </tr>
+                    <tr>
+                      <td><code>operatingAddress.streetName</code></td>
+                      <td><code>Street Name</code></td>
+                      <td>text</td>
+                      <td>条件显示</td>
+                      <td>校验规则与注册地址同族</td>
+                    </tr>
+                    <tr>
+                      <td><code>operatingAddress.suburb</code></td>
+                      <td><code>City/Suburb</code></td>
+                      <td>text</td>
+                      <td>条件显示</td>
+                      <td>校验规则与注册地址同族</td>
+                    </tr>
+                    <tr>
+                      <td><code>operatingAddress.state</code></td>
+                      <td><code>State/Province</code></td>
+                      <td>text</td>
+                      <td>条件显示</td>
+                      <td>校验规则与注册地址同族</td>
+                    </tr>
+                    <tr>
+                      <td><code>operatingAddress.postcode</code></td>
+                      <td><code>Postcode</code></td>
+                      <td>conditional</td>
+                      <td>条件必填</td>
+                      <td>C 端按国家规则处理</td>
+                    </tr>
+                    <tr>
+                      <td><code>operatingAddress.country</code></td>
+                      <td><code>Country</code></td>
+                      <td>text</td>
+                      <td>条件显示</td>
+                      <td>直接展示</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section id="conditional-rules" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">条件展示规则</p>
+            <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">可见性逻辑</h2>
+            <div class="mt-6 grid gap-6 lg:grid-cols-2">
+              <div class="rounded-2xl border border-brand-line p-5">
+                <h3 class="text-lg font-semibold text-brand-text">Website URL</h3>
+                <ul class="mt-4 space-y-2 text-sm leading-7 text-brand-text sm:text-base">
+                  <li>当 <code>businessModel === 'Online'</code> 时展示</li>
+                  <li>当 <code>businessModel === 'Both'</code> 时展示</li>
+                  <li>当 <code>website</code> 已有非空值时展示</li>
+                </ul>
+              </div>
+              <div class="rounded-2xl border border-brand-line p-5">
+                <h3 class="text-lg font-semibold text-brand-text">Operating Address</h3>
+                <ul class="mt-4 space-y-2 text-sm leading-7 text-brand-text sm:text-base">
+                  <li>当 <code>businessModel === 'Offline'</code> 时展示</li>
+                  <li>当 <code>businessModel === 'Both'</code> 时展示</li>
+                  <li>当 <code>operatingAddress</code> 中已经存在可见值时展示</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section id="empty-address-rules" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">展示规则</p>
+            <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">空值与地址格式化</h2>
+            <div class="mt-6 grid gap-6 lg:grid-cols-2">
+              <div class="rounded-2xl bg-brand-soft p-5">
+                <h3 class="text-lg font-semibold text-brand-text">空值规则</h3>
+                <div class="mt-4 space-y-3 text-sm leading-7 text-brand-text sm:text-base">
+                  <p>Merchant <code>Business Information</code> 中所有空值都应显示为：</p>
+                  <pre class="code-block rounded-xl bg-brand-shell p-4 text-sm text-white"><code>Not filled</code></pre>
+                  <ul class="space-y-2">
+                    <li>缺失的标量字段</li>
+                    <li>地址子字段为空</li>
+                    <li>后端返回的 null 字符串值</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="rounded-2xl bg-brand-soft p-5">
+                <h3 class="text-lg font-semibold text-brand-text">地址格式化规则</h3>
+                <ul class="mt-4 space-y-2 text-sm leading-7 text-brand-text sm:text-base">
+                  <li>对于 <code>Registered Address</code> 和 <code>Operating Address</code> 的摘要行，若存在 <code>address</code>，优先使用它。</li>
+                  <li>否则由 <code>streetNumber</code>、<code>streetName</code>、<code>suburb</code>、<code>state</code>、<code>postcode</code>、<code>country</code> 组合为可读字符串。</li>
+                  <li>如果所有字段都为空，则显示 <code>Not filled</code>。</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section id="enum-mapping" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8 prose-table">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">枚举映射</p>
+            <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">Merchant 常量模块</h2>
+            <p class="mt-4 text-sm leading-7 text-brand-text sm:text-base">
+              Merchant 枚举映射应维护在独立的 Merchant 常量模块中。
+            </p>
+
+            <div class="mt-6 overflow-x-auto rounded-2xl border border-brand-line">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Entity Type 值</th>
+                    <th>标签</th>
+                  </tr>
+                </thead>
+                <tbody class="text-sm leading-7 text-brand-text">
+                  <tr><td><code>1</code></td><td><code>Private Company</code></td></tr>
+                  <tr><td><code>2</code></td><td><code>Sole Trader</code></td></tr>
+                  <tr><td><code>3</code></td><td><code>Individual Trustee</code></td></tr>
+                  <tr><td><code>4</code></td><td><code>Corporate Trustee</code></td></tr>
+                  <tr><td><code>5</code></td><td><code>Registered Partnership</code></td></tr>
+                  <tr><td><code>6</code></td><td><code>Public Company</code></td></tr>
+                  <tr><td><code>7</code></td><td><code>Charity</code></td></tr>
+                  <tr><td><code>8</code></td><td><code>Government Entity</code></td></tr>
+                  <tr><td><code>9</code></td><td><code>Incorporated Association</code></td></tr>
+                  <tr><td><code>10</code></td><td><code>Registered co-operative</code></td></tr>
+                  <tr><td><code>11</code></td><td><code>Self-managed superannuation fund</code></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="mt-6 grid gap-6 lg:grid-cols-3">
+              <div class="rounded-2xl border border-brand-line p-5">
+                <h3 class="text-lg font-semibold text-brand-text">Industry</h3>
+                <ul class="mt-4 space-y-2 text-sm leading-7 text-brand-text">
+                  <li><code>Food &amp; Beverage</code></li>
+                  <li><code>Retail</code></li>
+                  <li><code>Healthcare</code></li>
+                  <li><code>Professional Services</code></li>
+                  <li><code>Technology</code></li>
+                  <li><code>Education</code></li>
+                  <li><code>Construction</code></li>
+                  <li><code>Other</code></li>
+                </ul>
+              </div>
+              <div class="rounded-2xl border border-brand-line p-5">
+                <h3 class="text-lg font-semibold text-brand-text">Transaction Volume</h3>
+                <ul class="mt-4 space-y-2 text-sm leading-7 text-brand-text">
+                  <li><code>&lt; $500K AUD</code></li>
+                  <li><code>$500K - $5M AUD</code></li>
+                  <li><code>$5M - $10M AUD</code></li>
+                  <li><code>&gt; $10M AUD</code></li>
+                </ul>
+              </div>
+              <div class="rounded-2xl border border-brand-line p-5">
+                <h3 class="text-lg font-semibold text-brand-text">Business Model</h3>
+                <ul class="mt-4 space-y-2 text-sm leading-7 text-brand-text">
+                  <li><code>Online</code></li>
+                  <li><code>Offline</code></li>
+                  <li><code>Both</code></li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section id="file-structure" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">建议文件结构</p>
+            <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">需要修改和新增的文件</h2>
+            <div class="mt-6 grid gap-6 lg:grid-cols-2">
+              <div class="rounded-2xl border border-brand-line p-5">
+                <h3 class="text-lg font-semibold text-brand-text">需要更新的现有文件</h3>
+                <ul class="mt-4 space-y-2 text-sm leading-7 text-brand-text">
+                  <li><code>/Users/wrr/work/forex-kybc/src/pages/broker/onboarding-list/index.tsx</code></li>
+                  <li><code>/Users/wrr/work/forex-kybc/src/pages/broker/ky-detail/index.tsx</code></li>
+                  <li><code>/Users/wrr/work/forex-kybc/src/pages/broker/ky-detail/useTabItems.tsx</code></li>
+                  <li><code>/Users/wrr/work/forex-kybc/src/pages/broker/ky-detail/components/review/index.tsx</code></li>
+                  <li><code>/Users/wrr/work/forex-kybc/src/pages/broker/ky-detail/components/related-accounts/index.tsx</code></li>
+                </ul>
+              </div>
+              <div class="rounded-2xl border border-brand-line p-5">
+                <h3 class="text-lg font-semibold text-brand-text">新增 Merchant 专属文件</h3>
+                <ul class="mt-4 space-y-2 text-sm leading-7 text-brand-text">
+                  <li><code>/Users/wrr/work/forex-kybc/src/pages/broker/ky-detail/components/merchant-business-info/index.tsx</code></li>
+                  <li><code>/Users/wrr/work/forex-kybc/src/pages/broker/ky-detail/components/merchant-business-info/components/application-details.tsx</code></li>
+                  <li><code>/Users/wrr/work/forex-kybc/src/pages/broker/ky-detail/components/merchant-business-info/components/business-details.tsx</code></li>
+                  <li><code>/Users/wrr/work/forex-kybc/src/pages/broker/ky-detail/components/merchant-business-info/components/address-section.tsx</code></li>
+                  <li><code>/Users/wrr/work/forex-kybc/src/pages/broker/ky-detail/components/merchant-business-info/constants.ts</code></li>
+                  <li><code>/Users/wrr/work/forex-kybc/src/pages/broker/ky-detail/components/merchant-business-info/utils.ts</code></li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section id="view-model-rules" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">视图模型规则</p>
+            <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">Merchant 映射层</h2>
+            <div class="mt-6 rounded-2xl border border-brand-orange/20 bg-[rgba(255,91,1,0.05)] p-5">
+              <p class="text-sm leading-7 text-brand-text sm:text-base">在渲染之前创建一个轻量级的 Merchant 专属映射层。</p>
+              <ul class="mt-4 space-y-2 text-sm leading-7 text-brand-text sm:text-base">
+                <li>将 null/undefined 归一化为可安全展示的值</li>
+                <li>格式化地址摘要行</li>
+                <li>将枚举值映射为展示标签</li>
+                <li>判断是否需要展示 <code>Website URL</code></li>
+                <li>判断是否需要展示 <code>Operating Address</code></li>
+              </ul>
+              <p class="mt-4 text-sm leading-7 text-brand-text sm:text-base">
+                不要把这类逻辑分散写在 JSX 结构树中。
+              </p>
+            </div>
+          </section>
+
+          <section id="implementation-phases" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">实施阶段</p>
+            <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">交付计划</h2>
+            <div class="mt-6 grid gap-6 lg:grid-cols-2">
+              <div class="rounded-2xl border border-brand-line p-5">
+                <h3 class="text-lg font-semibold text-brand-text">Phase 1</h3>
+                <ul class="mt-4 space-y-2 text-sm leading-7 text-brand-text sm:text-base">
+                  <li>给 onboarding 列表增加 <code>category</code> 列</li>
+                  <li>将 <code>category</code> 透传到详情路由</li>
+                  <li>在详情页读取 <code>category</code></li>
+                  <li>按 <code>category</code> 分支 Tab 行为</li>
+                  <li>实现 Merchant <code>Details</code> Tab</li>
+                  <li>裁剪 Merchant <code>Review</code> Tab</li>
+                  <li>裁剪 Merchant <code>Users</code> Tab</li>
+                </ul>
+              </div>
+              <div class="rounded-2xl border border-brand-line p-5">
+                <h3 class="text-lg font-semibold text-brand-text">Phase 2</h3>
+                <ul class="mt-4 space-y-2 text-sm leading-7 text-brand-text sm:text-base">
+                  <li>Merchant 详情编辑</li>
+                  <li>Merchant 结算账户展示</li>
+                  <li>可选的 Merchant 专属审核增强</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section id="verification-checklist" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">验证清单</p>
+            <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">需要确认的内容</h2>
+            <div class="mt-6 grid gap-6 lg:grid-cols-2">
+              <div class="rounded-2xl bg-brand-soft p-5">
+                <h3 class="text-lg font-semibold text-brand-text">路由</h3>
+                <ul class="mt-4 space-y-2 text-sm leading-7 text-brand-text">
+                  <li>onboarding 列表详情链接包含 <code>category</code></li>
+                  <li>详情页能正确读取 <code>category</code></li>
+                  <li>Merchant 数据进入 Merchant 分支</li>
+                  <li>非 Merchant 数据仍然保持 FX 兼容分支</li>
+                </ul>
+              </div>
+              <div class="rounded-2xl bg-brand-soft p-5">
+                <h3 class="text-lg font-semibold text-brand-text">Details Tab</h3>
+                <ul class="mt-4 space-y-2 text-sm leading-7 text-brand-text">
+                  <li>Merchant 申请信息渲染正确</li>
+                  <li>Merchant 注册号类型能按 API 返回值正确展示</li>
+                  <li>Merchant 业务信息字段按预期顺序展示</li>
+                  <li>地址摘要行展示正确</li>
+                  <li>空值显示为 <code>Not filled</code></li>
+                  <li><code>Website URL</code> 的可见性符合 business model 规则</li>
+                  <li><code>Operating Address</code> 的可见性符合 business model 规则</li>
+                </ul>
+              </div>
+              <div class="rounded-2xl bg-brand-soft p-5">
+                <h3 class="text-lg font-semibold text-brand-text">Review Tab</h3>
+                <ul class="mt-4 space-y-2 text-sm leading-7 text-brand-text">
+                  <li>Merchant review 不渲染 <code>KybCheckSummary</code></li>
+                  <li>Merchant review 不渲染 <code>KycCheckSummary</code></li>
+                  <li>Merchant review 不渲染 <code>Reports</code></li>
+                  <li>FX review 保持不变</li>
+                </ul>
+              </div>
+              <div class="rounded-2xl bg-brand-soft p-5">
+                <h3 class="text-lg font-semibold text-brand-text">Users Tab</h3>
+                <ul class="mt-4 space-y-2 text-sm leading-7 text-brand-text">
+                  <li>Merchant 用户列表不渲染 <code>Action</code> 列</li>
+                  <li>FX 用户列表保持不变</li>
+                </ul>
+              </div>
+              <div class="rounded-2xl bg-brand-soft p-5 lg:col-span-2">
+                <h3 class="text-lg font-semibold text-brand-text">Documents Tab</h3>
+                <ul class="mt-4 space-y-2 text-sm leading-7 text-brand-text">
+                  <li>documents 展示与上传行为无回归</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section id="risks" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">风险</p>
+            <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">需要关注的点</h2>
+            <ul class="mt-6 space-y-3 text-sm leading-7 text-brand-text sm:text-base">
+              <li><code>category</code> 后续可能扩展出更多 source 值</li>
+              <li><code>registrationInfoList</code> 可能包含多项</li>
+              <li>Merchant 详情 API 在 users/documents/review 上可能返回大量 null 值</li>
+              <li>枚举值必须始终与 Merchant C 端实现保持一致</li>
+            </ul>
+          </section>
+
+          <section id="non-goals" class="rounded-3xl border border-brand-line bg-white p-6 shadow-panel sm:p-8">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">非目标</p>
+            <h2 class="text-2xl font-bold text-brand-text sm:text-3xl">本设计不定义的内容</h2>
+            <ul class="mt-6 space-y-3 text-sm leading-7 text-brand-text sm:text-base">
+              <li>后端 schema 变更</li>
+              <li><code>source</code> 与 <code>category</code> 的 API 命名统一</li>
+              <li>对现有 FX 组件做深度重设计</li>
+            </ul>
+          </section>
+
+          <section id="final-decision-summary" class="rounded-3xl border border-brand-line bg-brand-shell p-6 shadow-panel sm:p-8">
+            <p class="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-brand-orange">最终决策摘要</p>
+            <h2 class="text-2xl font-bold text-white sm:text-3xl">实现默认方案</h2>
+            <ul class="mt-6 space-y-3 text-sm leading-7 text-white/85 sm:text-base">
+              <li>source 分支判断使用 <code>category</code></li>
+              <li>Merchant 详情数据来源为 <code>businessInfoVO.merchantBusinessDetails</code></li>
+              <li>Merchant <code>Details</code> 使用独立渲染器</li>
+              <li>Merchant <code>Review</code> 移除检查摘要与 reports 模块</li>
+              <li>Merchant <code>Users</code> 移除 action 列</li>
+              <li><code>Documents</code> 保持不变</li>
+            </ul>
+          </section>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

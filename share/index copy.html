@@ -4,10 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Claude Design Share</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="./vendor/tailwindcss-3.4.17.js"></script>
+  <link href="./vendor/fonts.css" rel="stylesheet" />
   <script>
     tailwind.config = {
       theme: {
@@ -416,6 +414,131 @@
       color: white;
     }
 
+    .zoomable-thumb {
+      width: 100%;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: zoom-in;
+      display: block;
+    }
+
+    .zoomable-thumb:focus-visible {
+      outline: 2px solid rgba(204, 120, 92, 0.75);
+      outline-offset: 6px;
+      border-radius: 28px;
+    }
+
+    .zoomable-thumb img {
+      display: block;
+      width: 100%;
+    }
+
+    .image-lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 160;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 96px;
+      background: rgba(20, 20, 19, 0.82);
+      backdrop-filter: blur(20px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.24s ease;
+    }
+
+    .image-lightbox.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .image-lightbox-panel {
+      position: relative;
+      width: min(1360px, 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .image-lightbox-frame {
+      width: 100%;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.3);
+    }
+
+    .image-lightbox img {
+      display: block;
+      width: 100%;
+      max-height: calc(100vh - 190px);
+      object-fit: contain;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .image-lightbox-caption {
+      min-height: 28px;
+      font-size: 16px;
+      line-height: 1.4;
+      color: rgba(250, 249, 245, 0.86);
+      text-align: center;
+    }
+
+    .image-lightbox-close,
+    .image-lightbox-nav {
+      position: absolute;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(250, 249, 245, 0.12);
+      color: white;
+      backdrop-filter: blur(16px);
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+    }
+
+    .image-lightbox-close:hover,
+    .image-lightbox-nav:hover {
+      transform: scale(1.04);
+      background: rgba(250, 249, 245, 0.2);
+    }
+
+    .image-lightbox-close {
+      top: -10px;
+      right: 0;
+      width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .image-lightbox-nav {
+      top: 50%;
+      transform: translateY(-50%);
+      width: 54px;
+      height: 54px;
+      border-radius: 999px;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .image-lightbox-nav.prev {
+      left: -72px;
+    }
+
+    .image-lightbox-nav.next {
+      right: -72px;
+    }
+
+    .image-lightbox-nav:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      transform: translateY(-50%);
+    }
+
     .quote-mark {
       font-family: "Cormorant Garamond", Georgia, serif;
       font-size: 160px;
@@ -554,6 +677,43 @@
       overflow: hidden;
     }
 
+    .expandable-code-wrap {
+      position: relative;
+      overflow: visible;
+    }
+
+    .expand-code-trigger {
+      position: absolute;
+      top: -16px;
+      right: 18px;
+      z-index: 12;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(250, 249, 245, 0.12);
+      background: rgba(250, 249, 245, 0.94);
+      color: #171412;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      box-shadow: 0 12px 28px rgba(20, 20, 19, 0.16);
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    .expand-code-trigger:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 34px rgba(20, 20, 19, 0.2);
+      background: white;
+    }
+
+    .expand-code-trigger:focus-visible {
+      outline: 2px solid rgba(204, 120, 92, 0.75);
+      outline-offset: 3px;
+    }
+
     .code-panel.compact {
       font-size: 16px;
       line-height: 1.45;
@@ -648,6 +808,115 @@
       font-size: 24px;
       line-height: 1.8;
       white-space: pre-wrap;
+    }
+
+    .code-lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 170;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 72px;
+      background: rgba(20, 20, 19, 0.84);
+      backdrop-filter: blur(20px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.24s ease;
+    }
+
+    .code-lightbox.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .code-lightbox-panel {
+      position: relative;
+      width: min(1380px, 100%);
+      max-height: calc(100vh - 80px);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .code-lightbox-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      color: rgba(250, 249, 245, 0.92);
+    }
+
+    .code-lightbox-title {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .code-lightbox-body {
+      overflow: auto;
+      padding: 8px 10px 8px 0;
+    }
+
+    .code-lightbox-body .code-panel,
+    .code-lightbox-body .cmd-window {
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.3);
+    }
+
+    .code-lightbox-body .code-panel {
+      overflow: visible;
+      padding: 30px 32px;
+      font-size: 22px;
+      line-height: 1.62;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .code-lightbox-body .code-panel.compact,
+    .code-lightbox-body .code-panel.small {
+      font-size: 22px;
+      line-height: 1.62;
+      padding: 30px 32px;
+    }
+
+    .code-lightbox-body .code-panel small {
+      margin-bottom: 14px;
+      font-size: 15px;
+    }
+
+    .code-lightbox-body .cmd-topbar {
+      padding: 18px 24px;
+      font-size: 15px;
+    }
+
+    .code-lightbox-body .cmd-body {
+      padding: 30px 32px;
+      font-size: 28px;
+      line-height: 1.78;
+      word-break: break-word;
+    }
+
+    .code-lightbox-close {
+      position: absolute;
+      top: -6px;
+      right: 0;
+      width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(250, 249, 245, 0.12);
+      color: white;
+      backdrop-filter: blur(16px);
+      font-size: 28px;
+      line-height: 1;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .code-lightbox-close:hover {
+      transform: scale(1.04);
+      background: rgba(250, 249, 245, 0.2);
     }
 
     .spark-line {
@@ -796,7 +1065,7 @@
                   </h1>
                 </div>
                 <p class="reveal text-[34px] leading-[1.32] text-claude-body max-w-[760px]" style="--delay:0.22s;">
-                  这不是泛泛聊 AI，而是聊 AI 怎么真正进入真实开发流程。
+                  AI 如何走进真实的开发流程。
                 </p>
               </div>
 
@@ -841,8 +1110,8 @@
               </div>
               <div class="warm-card reveal p-8 text-claude-ink" style="--delay:0.36s;">
                 <div class="text-[16px] uppercase tracking-[0.18em] text-claude-primary mb-4">04</div>
-                <div class="font-display text-[42px] leading-[1.02] mb-4">团队实践</div>
-                <p class="text-[24px] leading-[1.45] text-claude-body">从代码助手走向业务助手，组织怎么把价值放大。</p>
+                <div class="font-display text-[42px] leading-[1.02] mb-4">团队可以做什么</div>
+                <p class="text-[24px] leading-[1.45] text-claude-body">应用交互，正在变成与 Agent 沟通。</p>
               </div>
             </div>
           </div>
@@ -858,7 +1127,7 @@
           <div class="w-full h-full px-24 py-20 flex flex-col">
             <div class="flex items-center justify-between reveal" style="--delay:0.04s;">
               <div class="label-chip">Why Not Start Coding</div>
-              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-muted">3 / 18</div>
+              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-muted">3 / 19</div>
             </div>
             <div class="mt-8 flex items-end justify-between">
               <div class="reveal" style="--delay:0.12s;">
@@ -880,7 +1149,7 @@
                 <div class="text-[60px] font-display leading-none text-claude-primary">02</div>
                 <div>
                   <h3 class="text-[36px] leading-[1.1] font-medium text-claude-ink">反复纠错返工，效率降低</h3>
-                  <p class="mt-4 text-[24px] leading-[1.5] text-claude-body">提示词不够精准，开发者需要在多轮对话中反复与 修正，甚至比自己手动编写代码还要耗时。</p>
+                  <p class="mt-4 text-[24px] leading-[1.5] text-claude-body">提示词不够精准，开发者需要在多轮对话中反复与 AI 沟通修正，甚至比自己手动编写代码还要耗时。</p>
                 </div>
               </div>
               <div class="warm-card reveal p-9 flex gap-7 items-start" style="--delay:0.36s;">
@@ -892,7 +1161,7 @@
               </div>
             </div>
 
-            <div class="mt-8 text-[28px] leading-[1.45]" style="--delay:0.42s;">
+            <div class="reveal  mt-8 text-[28px] leading-[1.45]  text-claude-muted" style="--delay:0.42s;">
               最大的问题不是写不出来，而是写出来以后越来越难收拾。
             </div>
           </div>
@@ -908,7 +1177,7 @@
           <div class="w-full h-full px-24 py-20 flex flex-col justify-between">
             <div class="flex items-center justify-between reveal" style="--delay:0.04s;">
               <div class="label-chip">PEV Workflow</div>
-              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-onDarkSoft">4 / 18</div>
+              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-onDarkSoft">4 / 19</div>
             </div>
             <div>
               <h2 class="font-display text-[70px] leading-[0.96] tracking-[-0.04em] text-center reveal" style="--delay:0.12s;">
@@ -957,7 +1226,7 @@
           <div class="w-full h-full px-24 py-20 flex flex-col">
             <div class="flex items-center justify-between reveal" style="--delay:0.04s;">
               <div class="label-chip">Plan Stage</div>
-              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-muted">5 / 18</div>
+              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-muted">5 / 19</div>
             </div>
             <div class="mt-6">
               <h2 class="font-display text-[66px] leading-[0.98] tracking-[-0.04em] reveal" style="--delay:0.1s;">
@@ -1034,7 +1303,7 @@
           <div class="w-full h-full px-24 py-20 flex flex-col">
             <div class="flex items-center justify-between reveal" style="--delay:0.04s;">
               <div class="label-chip">Review Before Execute</div>
-              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-muted">6 / 18</div>
+              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-muted">6 / 19</div>
             </div>
             <div class="mt-5">
               <h2 class="font-display text-[60px] leading-[0.98] tracking-[-0.04em] reveal" style="--delay:0.12s;">
@@ -1058,10 +1327,10 @@
                     </div>
                   </div>
 
-                  <!-- <div class="grid grid-cols-[210px_1fr] gap-6 items-center py-4 border-b border-black/6">
+                  <div class="grid grid-cols-[210px_1fr] gap-6 items-center py-4 border-b border-black/6">
                     <div>
                       <div class="badge">Step 2</div>
-                      <div class="font-display text-[36px] mt-2">再做三件事</div>
+                      <div class="font-display text-[36px] mt-2">AI修改方案</div>
                       <div class="text-[16px] leading-[1.35] text-claude-muted mt-2">有问题就补齐，再把方案调顺。</div>
                     </div>
                     <div class="grid grid-cols-3 gap-3 text-[20px] leading-[1.3] text-claude-body">
@@ -1069,17 +1338,17 @@
                       <div class="rounded-[20px] bg-white/70 border border-black/5 px-5 py-4">调方案</div>
                       <div class="rounded-[20px] bg-white/70 border border-black/5 px-5 py-4">补边界</div>
                     </div>
-                  </div> -->
+                  </div>
 
                   <div class="grid grid-cols-[210px_1fr] gap-6 items-center py-4">
                     <div>
-                      <div class="badge">Step 2</div>
+                      <div class="badge">Step 3</div>
                       <div class="font-display text-[36px] mt-2">最后AI执行</div>
                       <div class="text-[16px] leading-[1.35] text-claude-muted mt-2">确认无误后，再进入真正开发。</div>
                     </div>
                     <div class="grid grid-cols-3 gap-3 text-[20px] leading-[1.3] text-claude-body">
                       <div class="rounded-[20px] bg-white/70 border border-black/5 px-5 py-4">开始写代码</div>
-                      <div class="rounded-[20px] bg-white/70 border border-black/5 px-5 py-4">写测试</div>
+                      <div class="rounded-[20px] bg-white/70 border border-black/5 px-5 py-4">写单元测试</div>
                       <div class="rounded-[20px] bg-white/70 border border-black/5 px-5 py-4">跑校验</div>
                     </div>
                   </div>
@@ -1099,7 +1368,7 @@
           <div class="w-full h-full px-24 py-20 flex flex-col">
             <div class="flex items-center justify-between reveal" style="--delay:0.04s;">
               <div class="label-chip">Verify</div>
-              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-onDarkSoft">7 / 18</div>
+              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-onDarkSoft">7 / 19</div>
             </div>
             <div class="mt-8">
               <h2 class="font-display text-[66px] leading-[0.98] tracking-[-0.04em] reveal" style="--delay:0.1s;">
@@ -1140,7 +1409,7 @@
           <div class="w-full h-full px-24 py-20 flex flex-col">
             <div class="flex items-center justify-between reveal" style="--delay:0.04s;">
               <div class="label-chip">Bug Loop</div>
-              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-muted">8 / 18</div>
+              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-muted">8 / 19</div>
             </div>
             <div class="mt-8">
               <h2 class="font-display text-[62px] leading-[0.98] tracking-[-0.04em] reveal" style="--delay:0.1s;">
@@ -1163,6 +1432,119 @@
             <div class="grid grid-cols-2 gap-6 reveal" style="--delay:0.36s;">
               <div class="warm-card px-8 py-7 text-[26px] leading-[1.5]">先复现，再修复。</div>
               <div class="warm-card px-8 py-7 text-[26px] leading-[1.5]">修 Bug 不靠感觉，靠可重复验证的闭环。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="案例实操">
+      <div class="slide-shell">
+        <div class="slide-frame frame-cream frame-grid">
+          <div class="orb one"></div>
+          <div class="orb two"></div>
+          <div class="w-full h-full px-24 py-20 flex flex-col">
+            <div class="flex items-center justify-between reveal" style="--delay:0.04s;">
+              <div class="label-chip">Case Study</div>
+              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-muted">9 / 19</div>
+            </div>
+            <div class="grid grid-cols-[360px_1fr] gap-8 mt-8 flex-1">
+              <div class="flex flex-col">
+                <h2 class="font-display text-[56px] leading-[0.98] tracking-[-0.04em] reveal" style="--delay:0.1s;">
+                  案例实操：
+                  <br />
+                  Merchant 审核方案落地
+                </h2>
+                <p class="mt-5 text-[23px] leading-[1.5] text-claude-body reveal" style="--delay:0.16s;">
+                  先让 AI 产出设计方案，再基于方案生成页面，最后回到页面细节做人工验收。
+                </p>
+                <a
+                  class="reveal inline-flex items-center justify-between gap-4 mt-6 rounded-[22px] border border-black/8 bg-white/85 px-6 py-4 text-claude-ink no-underline shadow-[0_18px_45px_rgba(20,20,19,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_55px_rgba(20,20,19,0.12)]"
+                  style="--delay:0.22s;"
+                  href="./demo/merchant-onboarding-review-design.html"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span>
+                    <span class="block text-[15px] uppercase tracking-[0.16em] text-claude-primary">生成方案</span>
+                    <span class="block mt-1 text-[22px] leading-[1.3]">查看 Merchant 入驻审核设计说明</span>
+                  </span>
+                  <span class="text-[30px] leading-none text-claude-primary">↗</span>
+                </a>
+                <!-- <div class="warm-card mt-5 px-5 py-5 reveal" style="--delay:0.28s;">
+                  <div class="text-[15px] uppercase tracking-[0.16em] text-claude-primary mb-3">落地路径</div>
+                  <div class="space-y-3">
+                    <div class="flex gap-3">
+                      <div class="text-[15px] leading-[1.6] font-medium text-claude-primary">01</div>
+                      <div class="text-[20px] leading-[1.45] text-claude-body">明确 Merchant 与 FX 的分支规则和信息架构。</div>
+                    </div>
+                    <div class="flex gap-3">
+                      <div class="text-[15px] leading-[1.6] font-medium text-claude-primary">02</div>
+                      <div class="text-[20px] leading-[1.45] text-claude-body">把需求整理成可查阅的 HTML 设计说明，方便评审和对齐。</div>
+                    </div>
+                    <div class="flex gap-3">
+                      <div class="text-[15px] leading-[1.6] font-medium text-claude-primary">03</div>
+                      <div class="text-[20px] leading-[1.45] text-claude-body">用页面截图回看交互、排版和信息完整度。</div>
+                    </div>
+                  </div>
+                </div> -->
+              </div>
+              <div class="grid grid-cols-3 gap-4 reveal-scale content-start" style="--delay:0.22s;">
+                <div class="rounded-[24px] border border-black/6 bg-white/75 p-3 shadow-[0_20px_50px_rgba(20,20,19,0.08)]">
+                  <button type="button" class="zoomable-thumb relative overflow-hidden rounded-[18px]" data-zoomable-image data-zoom-src="./demo/image.png" data-zoom-alt="Merchant 审核页案例截图 0">
+                    <span class="absolute left-3 top-3 z-10 inline-flex h-9 min-w-9 items-center justify-center rounded-full bg-black/72 px-3 text-[14px] font-semibold text-white">0</span>
+                    <img src="./demo/image.png" alt="Merchant 审核页案例截图 0" class="h-[168px] w-full object-cover object-top" />
+                  </button>
+                </div>
+                <div class="rounded-[24px] border border-black/6 bg-white/75 p-3 shadow-[0_20px_50px_rgba(20,20,19,0.08)]">
+                  <button type="button" class="zoomable-thumb relative overflow-hidden rounded-[18px]" data-zoomable-image data-zoom-src="./demo/image1.png" data-zoom-alt="Merchant 审核页案例截图 1">
+                    <span class="absolute left-3 top-3 z-10 inline-flex h-9 min-w-9 items-center justify-center rounded-full bg-black/72 px-3 text-[14px] font-semibold text-white">1</span>
+                    <img src="./demo/image1.png" alt="Merchant 审核页案例截图 1" class="h-[168px] w-full object-cover object-top" />
+                  </button>
+                </div>
+                <div class="rounded-[24px] border border-black/6 bg-white/75 p-3 shadow-[0_20px_50px_rgba(20,20,19,0.08)]">
+                  <button type="button" class="zoomable-thumb relative overflow-hidden rounded-[18px]" data-zoomable-image data-zoom-src="./demo/image2.png" data-zoom-alt="Merchant 审核页案例截图 2">
+                    <span class="absolute left-3 top-3 z-10 inline-flex h-9 min-w-9 items-center justify-center rounded-full bg-black/72 px-3 text-[14px] font-semibold text-white">2</span>
+                    <img src="./demo/image2.png" alt="Merchant 审核页案例截图 2" class="h-[168px] w-full object-cover object-top" />
+                  </button>
+                </div>
+                <div class="rounded-[24px] border border-black/6 bg-white/75 p-3 shadow-[0_20px_50px_rgba(20,20,19,0.08)]">
+                  <button type="button" class="zoomable-thumb relative overflow-hidden rounded-[18px]" data-zoomable-image data-zoom-src="./demo/image3.png" data-zoom-alt="Merchant 审核页案例截图 3">
+                    <span class="absolute left-3 top-3 z-10 inline-flex h-9 min-w-9 items-center justify-center rounded-full bg-black/72 px-3 text-[14px] font-semibold text-white">3</span>
+                    <img src="./demo/image3.png" alt="Merchant 审核页案例截图 3" class="h-[168px] w-full object-cover object-top" />
+                  </button>
+                </div>
+                <div class="rounded-[24px] border border-black/6 bg-white/75 p-3 shadow-[0_20px_50px_rgba(20,20,19,0.08)]">
+                  <button type="button" class="zoomable-thumb relative overflow-hidden rounded-[18px]" data-zoomable-image data-zoom-src="./demo/image4.png" data-zoom-alt="Merchant 审核页案例截图 4">
+                    <span class="absolute left-3 top-3 z-10 inline-flex h-9 min-w-9 items-center justify-center rounded-full bg-black/72 px-3 text-[14px] font-semibold text-white">4</span>
+                    <img src="./demo/image4.png" alt="Merchant 审核页案例截图 4" class="h-[168px] w-full object-cover object-top" />
+                  </button>
+                </div>
+                <div class="rounded-[24px] border border-black/6 bg-white/75 p-3 shadow-[0_20px_50px_rgba(20,20,19,0.08)]">
+                  <button type="button" class="zoomable-thumb relative overflow-hidden rounded-[18px]" data-zoomable-image data-zoom-src="./demo/image5.png" data-zoom-alt="Merchant 审核页案例截图 5">
+                    <span class="absolute left-3 top-3 z-10 inline-flex h-9 min-w-9 items-center justify-center rounded-full bg-black/72 px-3 text-[14px] font-semibold text-white">5</span>
+                    <img src="./demo/image5.png" alt="Merchant 审核页案例截图 5" class="h-[168px] w-full object-cover object-top" />
+                  </button>
+                </div>
+                <div class="rounded-[24px] border border-black/6 bg-white/75 p-3 shadow-[0_20px_50px_rgba(20,20,19,0.08)]">
+                  <button type="button" class="zoomable-thumb relative overflow-hidden rounded-[18px]" data-zoomable-image data-zoom-src="./demo/image6.png" data-zoom-alt="Merchant 审核页案例截图 6">
+                    <span class="absolute left-3 top-3 z-10 inline-flex h-9 min-w-9 items-center justify-center rounded-full bg-black/72 px-3 text-[14px] font-semibold text-white">6</span>
+                    <img src="./demo/image6.png" alt="Merchant 审核页案例截图 6" class="h-[168px] w-full object-cover object-top" />
+                  </button>
+                </div>
+                <div class="rounded-[24px] border border-black/6 bg-white/75 p-3 shadow-[0_20px_50px_rgba(20,20,19,0.08)]">
+                  <button type="button" class="zoomable-thumb relative overflow-hidden rounded-[18px]" data-zoomable-image data-zoom-src="./demo/image7.png" data-zoom-alt="Merchant 审核页案例截图 7">
+                    <span class="absolute left-3 top-3 z-10 inline-flex h-9 min-w-9 items-center justify-center rounded-full bg-black/72 px-3 text-[14px] font-semibold text-white">7</span>
+                    <img src="./demo/image7.png" alt="Merchant 审核页案例截图 7" class="h-[168px] w-full object-cover object-top" />
+                  </button>
+                </div>
+                <div class="rounded-[24px] border border-black/6 bg-white/75 p-3 shadow-[0_20px_50px_rgba(20,20,19,0.08)]">
+                  <button type="button" class="zoomable-thumb relative overflow-hidden rounded-[18px]" data-zoomable-image data-zoom-src="./demo/image8.png" data-zoom-alt="Merchant 审核页案例截图 8">
+                    <span class="absolute left-3 top-3 z-10 inline-flex h-9 min-w-9 items-center justify-center rounded-full bg-black/72 px-3 text-[14px] font-semibold text-white">8</span>
+                    <img src="./demo/image8.png" alt="Merchant 审核页案例截图 8" class="h-[168px] w-full object-cover object-top" />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1213,7 +1595,7 @@
           <div class="w-full h-full px-24 py-20 flex flex-col">
             <div class="flex items-center justify-between reveal" style="--delay:0.04s;">
               <div class="label-chip">Agent Loop</div>
-              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-muted">10 / 18</div>
+              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-muted">11 / 19</div>
             </div>
             <div class="mt-6">
               <h2 class="font-display text-[60px] leading-[0.98] tracking-[-0.04em] reveal" style="--delay:0.1s;">
@@ -1271,7 +1653,7 @@
               </div>
             </div>
 
-            <div class="mt-3 reveal text-[21px] leading-[1.4] text-claude-muted" style="--delay:0.32s;">
+            <div class="mt-3 reveal text-[28px] leading-[1.4] text-claude-muted" style="--delay:0.32s;">
               Agent 的本质不是一次生成答案，而是“判断 → 调用工具 → 看结果 → 再判断”的循环。
             </div>
           </div>
@@ -1287,7 +1669,7 @@
           <div class="w-full h-full px-24 py-20 flex flex-col">
             <div class="flex items-center justify-between reveal" style="--delay:0.04s;">
               <div class="label-chip">Execution Mechanism</div>
-              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-muted">11 / 18</div>
+              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-muted">12 / 19</div>
             </div>
             <div class="mt-6">
               <h2 class="font-display text-[60px] leading-[0.98] tracking-[-0.04em] reveal" style="--delay:0.1s;">
@@ -1356,7 +1738,7 @@
           <div class="w-full h-full px-24 py-20 flex flex-col">
             <div class="flex items-center justify-between reveal" style="--delay:0.04s;">
               <div class="label-chip">Messages & Tools</div>
-              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-onDarkSoft">12 / 18</div>
+              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-onDarkSoft">13 / 19</div>
             </div>
             <div class="mt-6">
               <h2 class="font-display text-[60px] leading-[0.98] tracking-[-0.04em] reveal" style="--delay:0.1s;">
@@ -1543,7 +1925,7 @@
           <div class="w-full h-full px-24 py-20 flex flex-col">
             <div class="flex items-center justify-between reveal" style="--delay:0.04s;">
               <div class="label-chip">CLI Layer</div>
-              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-muted">16 / 18</div>
+              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-muted">17 / 19</div>
             </div>
             <div class="mt-8">
               <h2 class="font-display text-[68px] leading-[0.98] tracking-[-0.04em] reveal" style="--delay:0.1s;">
@@ -1581,7 +1963,7 @@ $ saas balance check --currency=USD # 查询余额</div>
           <div class="w-full h-full px-24 py-20 flex flex-col">
             <div class="flex items-center justify-between reveal" style="--delay:0.04s;">
               <div class="label-chip">Business Agent Flow</div>
-              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-onDarkSoft">17 / 18</div>
+              <div class="text-[16px] uppercase tracking-[0.18em] text-claude-onDarkSoft">18 / 19</div>
             </div>
             <div class="mt-6">
               <h2 class="font-display text-[64px] leading-[0.98] tracking-[-0.04em] reveal" style="--delay:0.1s;">
@@ -1644,6 +2026,28 @@ $ saas balance check --currency=USD # 查询余额</div>
     </section>
   </main>
 
+  <div class="image-lightbox" id="imageLightbox" aria-hidden="true">
+    <div class="image-lightbox-panel">
+      <button type="button" class="image-lightbox-close" id="imageLightboxClose" aria-label="关闭大图">×</button>
+      <button type="button" class="image-lightbox-nav prev" id="imageLightboxPrev" aria-label="上一张">‹</button>
+      <div class="image-lightbox-frame">
+        <img id="imageLightboxImg" src="" alt="" />
+      </div>
+      <button type="button" class="image-lightbox-nav next" id="imageLightboxNext" aria-label="下一张">›</button>
+      <div class="image-lightbox-caption" id="imageLightboxCaption"></div>
+    </div>
+  </div>
+
+  <div class="code-lightbox" id="codeLightbox" aria-hidden="true">
+    <div class="code-lightbox-panel">
+      <div class="code-lightbox-header">
+        <div class="code-lightbox-title" id="codeLightboxTitle">代码预览</div>
+      </div>
+      <button type="button" class="code-lightbox-close" id="codeLightboxClose" aria-label="关闭代码预览">×</button>
+      <div class="code-lightbox-body" id="codeLightboxBody"></div>
+    </div>
+  </div>
+
   <script>
     const deck = document.getElementById("deck");
     const slides = Array.from(document.querySelectorAll(".slide"));
@@ -1651,11 +2055,143 @@ $ saas balance check --currency=USD # 查询余额</div>
     const progressBar = document.getElementById("progressBar");
     const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
+    const imageLightbox = document.getElementById("imageLightbox");
+    const imageLightboxImg = document.getElementById("imageLightboxImg");
+    const imageLightboxCaption = document.getElementById("imageLightboxCaption");
+    const imageLightboxClose = document.getElementById("imageLightboxClose");
+    const imageLightboxPrev = document.getElementById("imageLightboxPrev");
+    const imageLightboxNext = document.getElementById("imageLightboxNext");
+    const zoomableImages = Array.from(document.querySelectorAll("[data-zoomable-image]"));
+    const codeLightbox = document.getElementById("codeLightbox");
+    const codeLightboxBody = document.getElementById("codeLightboxBody");
+    const codeLightboxTitle = document.getElementById("codeLightboxTitle");
+    const codeLightboxClose = document.getElementById("codeLightboxClose");
 
     let currentIndex = 0;
     let wheelLocked = false;
     let touchStartX = 0;
     let touchEndX = 0;
+    let currentZoomIndex = -1;
+
+    function isLightboxOpen() {
+      return imageLightbox.classList.contains("open");
+    }
+
+    function isCodeLightboxOpen() {
+      return codeLightbox.classList.contains("open");
+    }
+
+    function syncLightboxButtons() {
+      const hasMany = zoomableImages.length > 1;
+      imageLightboxPrev.style.display = hasMany ? "block" : "none";
+      imageLightboxNext.style.display = hasMany ? "block" : "none";
+      imageLightboxPrev.disabled = !hasMany;
+      imageLightboxNext.disabled = !hasMany;
+    }
+
+    function renderLightboxImage(index) {
+      if (!zoomableImages.length) return;
+      currentZoomIndex = (index + zoomableImages.length) % zoomableImages.length;
+      const trigger = zoomableImages[currentZoomIndex];
+      const src = trigger.dataset.zoomSrc || trigger.querySelector("img")?.getAttribute("src") || "";
+      const alt = trigger.dataset.zoomAlt || trigger.querySelector("img")?.getAttribute("alt") || "";
+      imageLightboxImg.src = src;
+      imageLightboxImg.alt = alt;
+      imageLightboxCaption.textContent = alt;
+      syncLightboxButtons();
+    }
+
+    function openLightbox(index) {
+      renderLightboxImage(index);
+      imageLightbox.classList.add("open");
+      imageLightbox.setAttribute("aria-hidden", "false");
+    }
+
+    function closeLightbox() {
+      imageLightbox.classList.remove("open");
+      imageLightbox.setAttribute("aria-hidden", "true");
+      currentZoomIndex = -1;
+      imageLightboxImg.src = "";
+      imageLightboxImg.alt = "";
+      imageLightboxCaption.textContent = "";
+    }
+
+    function openCodeLightbox(title, contentNode) {
+      codeLightboxTitle.textContent = title || "代码预览";
+      codeLightboxBody.replaceChildren(contentNode);
+      codeLightbox.classList.add("open");
+      codeLightbox.setAttribute("aria-hidden", "false");
+      codeLightboxClose.focus();
+    }
+
+    function closeCodeLightbox() {
+      codeLightbox.classList.remove("open");
+      codeLightbox.setAttribute("aria-hidden", "true");
+      codeLightboxBody.replaceChildren();
+    }
+
+    function stepLightbox(direction) {
+      if (!zoomableImages.length || !isLightboxOpen()) return;
+      renderLightboxImage(currentZoomIndex + direction);
+    }
+
+    zoomableImages.forEach((trigger, index) => {
+      trigger.addEventListener("click", () => openLightbox(index));
+    });
+
+    imageLightboxClose.addEventListener("click", closeLightbox);
+    imageLightboxPrev.addEventListener("click", () => stepLightbox(-1));
+    imageLightboxNext.addEventListener("click", () => stepLightbox(1));
+    imageLightbox.addEventListener("click", (event) => {
+      if (event.target === imageLightbox) closeLightbox();
+    });
+    codeLightboxClose.addEventListener("click", closeCodeLightbox);
+    codeLightbox.addEventListener("click", (event) => {
+      if (event.target === codeLightbox) closeCodeLightbox();
+    });
+
+    function getCodePreviewTitle(host) {
+      if (host.dataset.codeTitle) return host.dataset.codeTitle;
+      const label = host.querySelector("small");
+      if (label?.textContent.trim()) return label.textContent.trim();
+      const topbarParts = Array.from(host.querySelectorAll(".cmd-topbar span"))
+        .map((el) => el.textContent.trim())
+        .filter(Boolean);
+      if (topbarParts.length) return topbarParts.join(" · ");
+      return "代码预览";
+    }
+
+    function cloneCodePreview(host) {
+      const clone = host.cloneNode(true);
+      clone.querySelectorAll(".expand-code-trigger").forEach((button) => button.remove());
+      clone.classList.remove("reveal", "reveal-scale");
+      clone.style.transform = "none";
+      clone.style.opacity = "1";
+      return clone;
+    }
+
+    function enhanceExpandableCodeBlocks() {
+      const hosts = Array.from(document.querySelectorAll(".code-panel, .cmd-window"));
+      hosts.forEach((host) => {
+        if (host.dataset.codeExpandableReady === "true") return;
+        host.dataset.codeExpandableReady = "true";
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "expandable-code-wrap";
+        host.parentNode.insertBefore(wrapper, host);
+        wrapper.appendChild(host);
+
+        const trigger = document.createElement("button");
+        trigger.type = "button";
+        trigger.className = "expand-code-trigger";
+        trigger.setAttribute("aria-label", `放大查看 ${getCodePreviewTitle(host)}`);
+        trigger.textContent = "放大查看";
+        trigger.addEventListener("click", () => {
+          openCodeLightbox(getCodePreviewTitle(host), cloneCodePreview(host));
+        });
+        wrapper.appendChild(trigger);
+      });
+    }
 
     function scaleFrames() {
       document.querySelectorAll(".slide-shell").forEach((shell) => {
@@ -1717,6 +2253,30 @@ $ saas balance check --currency=USD # 查询余额</div>
     nextBtn.addEventListener("click", goNext);
 
     window.addEventListener("keydown", (event) => {
+      if (isCodeLightboxOpen()) {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          closeCodeLightbox();
+        }
+        return;
+      }
+
+      if (isLightboxOpen()) {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          closeLightbox();
+        }
+        if (event.key === "ArrowRight") {
+          event.preventDefault();
+          stepLightbox(1);
+        }
+        if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          stepLightbox(-1);
+        }
+        return;
+      }
+
       if (["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName)) return;
 
       if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
@@ -1738,6 +2298,8 @@ $ saas balance check --currency=USD # 查询余额</div>
     });
 
     window.addEventListener("wheel", (event) => {
+      if (isCodeLightboxOpen()) return;
+      if (isLightboxOpen()) return;
       if (wheelLocked) return;
       const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
       if (Math.abs(delta) < 20) return;
@@ -1753,10 +2315,14 @@ $ saas balance check --currency=USD # 查询余额</div>
     }, { passive: true });
 
     window.addEventListener("touchstart", (event) => {
+      if (isCodeLightboxOpen()) return;
+      if (isLightboxOpen()) return;
       touchStartX = event.changedTouches[0].screenX;
     }, { passive: true });
 
     window.addEventListener("touchend", (event) => {
+      if (isCodeLightboxOpen()) return;
+      if (isLightboxOpen()) return;
       touchEndX = event.changedTouches[0].screenX;
       const diff = touchEndX - touchStartX;
       if (Math.abs(diff) < 60) return;
@@ -1766,6 +2332,7 @@ $ saas balance check --currency=USD # 查询余额</div>
 
     window.addEventListener("resize", scaleFrames);
 
+    enhanceExpandableCodeBlocks();
     buildDots();
     scaleFrames();
     updateUI();
@@ -1956,11 +2523,11 @@ $ saas balance check --currency=USD # 查询余额</div>
 
                 <rect x="42" y="98" width="208" height="104" rx="24" fill="rgba(255,255,255,0.95)" stroke="rgba(173,138,107,0.22)" filter="url(#agent-loop-shadow)"></rect>
                 <text x="64" y="142" font-size="31" font-family="Songti SC, STSong, serif" fill="#171412">接收任务</text>
-                <text x="64" y="172" font-size="14" font-family="PingFang SC, Microsoft YaHei, sans-serif" fill="rgba(23,20,18,0.54)">用户提出问题或目标</text>
+                <text x="64" y="172" font-size="18" font-family="PingFang SC, Microsoft YaHei, sans-serif" fill="rgba(23,20,18,0.54)">用户提出问题或目标</text>
 
                 <rect x="370" y="98" width="322" height="104" rx="24" fill="rgba(255,255,255,0.95)" stroke="rgba(173,138,107,0.22)" filter="url(#agent-loop-shadow)"></rect>
                 <text x="392" y="142" font-size="31" font-family="Songti SC, STSong, serif" fill="#171412">理解与规划</text>
-                <text x="392" y="172" font-size="14" font-family="PingFang SC, Microsoft YaHei, sans-serif" fill="rgba(23,20,18,0.54)">LLM 结合上下文决定下一步怎么做</text>
+                <text x="392" y="172" font-size="18" font-family="PingFang SC, Microsoft YaHei, sans-serif" fill="rgba(23,20,18,0.54)">LLM 结合上下文决定下一步怎么做</text>
 
                 <polygon points="892,24 1016,148 892,272 768,148" fill="#d18463" filter="url(#agent-loop-shadow)"></polygon>
                 <text x="892" y="138" text-anchor="middle" font-size="31" font-family="Songti SC, STSong, serif" fill="#fffaf6">信息是否</text>
@@ -1968,24 +2535,24 @@ $ saas balance check --currency=USD # 查询余额</div>
 
                 <rect x="1098" y="98" width="350" height="104" rx="24" fill="#262320" stroke="rgba(38,35,32,0.38)" filter="url(#agent-loop-shadow)"></rect>
                 <text x="1122" y="142" font-size="31" font-family="Songti SC, STSong, serif" fill="#fbf6f0">调用工具</text>
-                <text x="1122" y="172" font-size="14" font-family="PingFang SC, Microsoft YaHei, sans-serif" fill="rgba(255,250,246,0.72)">决定用哪个工具，以及传什么参数</text>
+                <text x="1122" y="172" font-size="18" font-family="PingFang SC, Microsoft YaHei, sans-serif" fill="rgba(255,250,246,0.72)">决定用哪个工具，以及传什么参数</text>
 
                 <rect x="1540" y="98" width="252" height="104" rx="24" fill="rgba(255,255,255,0.95)" stroke="rgba(173,138,107,0.22)" filter="url(#agent-loop-shadow)"></rect>
                 <text x="1562" y="142" font-size="31" font-family="Songti SC, STSong, serif" fill="#171412">读取执行结果</text>
-                <text x="1562" y="172" font-size="14" font-family="PingFang SC, Microsoft YaHei, sans-serif" fill="rgba(23,20,18,0.54)">把工具返回结果交还给 LLM</text>
+                <text x="1562" y="172" font-size="18" font-family="PingFang SC, Microsoft YaHei, sans-serif" fill="rgba(23,20,18,0.54)">把工具返回结果交还给 LLM</text>
 
                 <rect x="712" y="372" width="360" height="104" rx="24" fill="rgba(255,250,245,0.96)" stroke="rgba(173,138,107,0.22)" filter="url(#agent-loop-shadow)"></rect>
                 <text x="738" y="416" font-size="32" font-family="Songti SC, STSong, serif" fill="#171412">直接输出结果</text>
-                <text x="738" y="446" font-size="14" font-family="PingFang SC, Microsoft YaHei, sans-serif" fill="rgba(23,20,18,0.54)">如果信息已足够，就整理答案并结束</text>
+                <text x="738" y="446" font-size="18" font-family="PingFang SC, Microsoft YaHei, sans-serif" fill="rgba(23,20,18,0.54)">如果信息已足够，就整理答案并结束</text>
 
                 <text x="1038" y="136" font-size="16" font-weight="700" font-family="PingFang SC, Microsoft YaHei, sans-serif" fill="#c77351">否</text>
                 <text x="918" y="344" font-size="16" font-weight="700" font-family="PingFang SC, Microsoft YaHei, sans-serif" fill="#c77351">是</text>
-                <text x="1128" y="2" font-size="18" font-family="PingFang SC, Microsoft YaHei, sans-serif" fill="rgba(23,20,18,0.56)">结果返回后，回到“理解与规划”继续判断</text>
+                <text x="1128" y="2" font-size="24" font-family="PingFang SC, Microsoft YaHei, sans-serif" fill="rgba(23,20,18,0.56)">结果返回后，回到“理解与规划”继续判断</text>
               </g>
                 </svg>
               </div>
             </div>
-            <div class="agent-loop-caption">Agent 的本质不是一次生成答案，而是在“理解与规划 → 判断 → 调用工具 → 读取结果 → 再规划”的循环中完成任务。</div>
+            <div font-size="36" class="agent-loop-caption text-[36px]">Agent 的本质不是一次生成答案，而是在“理解与规划 → 判断 → 调用工具 → 读取结果 → 再规划”的循环中完成任务。</div>
           </div>
         </div>
       </div>
